@@ -1,0 +1,10 @@
+version: v2
+plugins:
+  - local: protoc-gen-go
+    out: backend/pb
+    opt: paths=source_relative
+  - local: protoc-gen-connect-go
+    out: backend/pb
+    opt: paths=source_relative
+  - remote: buf.build/protocolbuffers/dart:v21.1.2
+    out: frontend/lib/pb

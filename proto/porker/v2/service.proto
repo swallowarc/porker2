@@ -1,0 +1,159 @@
+syntax = "proto3";
+package porker.v2;
+
+import "porker/v2/resource.proto";
+
+option go_package = "github.com/swallowarc/porker2/backend/pb/porker/v2;porkerv2";
+
+service Porker2Service {
+  rpc Login(LoginRequest) returns (LoginResponse);
+  rpc Logout(LogoutRequest) returns (LogoutResponse);
+
+  rpc CreateRoom(CreateRoomRequest) returns (CreateRoomResponse);
+  rpc JoinRoom(JoinRoomRequest) returns (stream JoinRoomResponse);
+  rpc LeaveRoom(LeaveRoomRequest) returns (LeaveRoomResponse);
+  rpc CastVote(CastVoteRequest) returns (CastVoteResponse);
+  rpc ShowVotes(ShowVotesRequest) returns (ShowVotesResponse);
+  rpc ResetVotes(ResetVotesRequest) returns (ResetVotesResponse);
+  rpc KickUser(KickUserRequest) returns (KickUserResponse);
+}
+
+/* セッションについて
+ * Login以外のRPCはLoginで返却されたtokenを必要とする。
+ * サーバサイドではtokenからlogin_idを特定し各種処理を行う。
+ */
+
+/* Login ログイン
+ * ログインが成功した場合、tokenを返す。
+ *
+ * Errors:
+ * - InvalidArgument:
+ *   - ログインIDが未指定、またはフォーマット不正
+ * - AlreadyExists:
+ *   - 既に同じIDでログイン済み
+ */
+message LoginRequest {
+  string login_id = 1;
+}
+
+message LoginResponse {
+  string token = 1;
+}
+
+/* Logout ログアウト
+ * ログアウトする。
+ *
+ * Errors:
+ * - Unauthenticated:
+ *   - cookieのtokenがない、または無効
+ */
+message LogoutRequest {}
+
+message LogoutResponse {}
+
+/* CreateRoom roomを作成する。
+ *
+ * Errors:
+ * - Unauthenticated:
+ *   - cookieのtokenがない、または無効
+ */
+message CreateRoomRequest {}
+
+message CreateRoomResponse {
+  string room_id = 1;
+}
+
+/* JoinRoom roomに参加する。
+ *
+ * Errors:
+ * - Unauthenticated:
+ *   - cookieのtokenがない、または無効
+ * - NotFound:
+ *   - roomが存在しない
+ * - FailedPrecondition:
+ *   - roomが満員
+ */
+message JoinRoomRequest {
+  string room_id = 1;
+}
+
+message JoinRoomResponse {
+  RoomCondition condition = 1;
+}
+
+/* LeaveRoom roomから退出する。
+ *
+ * Errors:
+ * - Unauthenticated:
+ *   - cookieのtokenがない、または無効
+ * - FailedPrecondition:
+ *   - 指定されたroomに参加していない
+ */
+message LeaveRoomRequest {
+  string room_id = 1;
+}
+
+message LeaveRoomResponse {}
+
+/* CastVote 投票する。
+ *
+ * Errors:
+ * - Unauthenticated:
+ *   - cookieのtokenがない、または無効
+ * - FailedPrecondition:
+ *   - 指定されたroomに参加していない
+ *   - roomが投票可能な状態でない
+ */
+message CastVoteRequest {
+  string room_id = 1;
+  Ballot ballot = 2;
+}
+
+message CastVoteResponse {}
+
+/* ResetVotes 投票をリセットする。
+ *
+ * Errors:
+ * - Unauthenticated:
+ *   - cookieのtokenがない、または無効
+ * - NotFound:
+ *   - 指定されたroomに参加していない
+ */
+message ResetVotesRequest {
+  string room_id = 1;
+}
+
+message ResetVotesResponse {}
+
+/* ShowVotes 開票する。
+ *
+ * Errors:
+ * - Unauthenticated:
+ *   - cookieのtokenがない、または無効
+ * - FailedPrecondition:
+ *   - 指定されたroomに参加していない
+ *   - roomが開票可能な状態でない
+ */
+message ShowVotesRequest {
+  string room_id = 1;
+}
+
+message ShowVotesResponse {}
+
+/* KickUser ユーザを強制退室させる。
+ *
+ * Errors:
+ * - Unauthenticated:
+ *   - cookieのtokenがない、または無効
+ * - NotFound:
+ *   - 指定されたユーザがroomに参加していない
+ * - FailedPrecondition:
+ *   - 指定されたroomに参加していない
+ *   - roomのオーナー以外のユーザが実行している
+ *   - 実行ユーザのIDが指定されている
+ */
+message KickUserRequest {
+  string user_id = 1;
+}
+
+message KickUserResponse {}

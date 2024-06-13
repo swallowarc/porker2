@@ -1,0 +1,42 @@
+syntax = "proto3";
+package porker.v2;
+
+option go_package = "github.com/swallowarc/porker2/backend/pb/porker/v2;porkerv2";
+
+enum Violation {
+  VIOLATION_UNSPECIFIED = 0;
+}
+
+enum VoteState {
+  VOTE_STATE_UNSPECIFIED = 0;
+  VOTE_STATE_HIDE = 1;
+  VOTE_STATE_OPEN = 2;
+}
+
+enum Point {
+  POINT_UNSPECIFIED = 0;
+  POINT_0 = 1;
+  POINT_0_5 = 2;
+  POINT_1 = 3;
+  POINT_2 = 4;
+  POINT_3 = 5;
+  POINT_5 = 6;
+  POINT_8 = 7;
+  POINT_13 = 8;
+  POINT_21 = 9;
+
+  POINT_COFFEE = 100;
+  POINT_QUESTION = 101;
+}
+
+message Ballot {
+  string login_id = 1;
+  Point point = 2;
+}
+
+message RoomCondition {
+  string room_id = 1;
+  string admin_user_id = 2;
+  VoteState vote_state = 3;
+  repeated Ballot ballots = 4;
+}
