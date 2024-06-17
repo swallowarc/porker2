@@ -8,7 +8,7 @@ import (
 	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
-	v2 "github.com/swallowarc/porker2/backend/pb/porker/v2"
+	v2 "github.com/swallowarc/porker2/backend/internal/interface/pb/porker/v2"
 	http "net/http"
 	strings "strings"
 )

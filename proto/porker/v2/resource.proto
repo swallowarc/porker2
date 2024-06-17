@@ -1,7 +1,7 @@
 syntax = "proto3";
 package porker.v2;
 
-option go_package = "github.com/swallowarc/porker2/backend/pb/porker/v2;porkerv2";
+option go_package = "github.com/swallowarc/porker2/backend/internal/interface/pb/porker/v2;porkerv2";
 
 enum Violation {
   VIOLATION_UNSPECIFIED = 0;

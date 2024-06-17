@@ -3,7 +3,7 @@ package porker.v2;
 
 import "porker/v2/resource.proto";
 
-option go_package = "github.com/swallowarc/porker2/backend/pb/porker/v2;porkerv2";
+option go_package = "github.com/swallowarc/porker2/backend/internal/interface/pb/porker/v2;porkerv2";
 
 service Porker2Service {
   rpc Login(LoginRequest) returns (LoginResponse);
