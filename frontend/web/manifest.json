@@ -1,11 +1,11 @@
 {
-    "name": "porker2fe",
-    "short_name": "porker2fe",
+    "name": "porker2",
+    "short_name": "porker2",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Simple Scrum Poker App.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

@@ -6,9 +6,6 @@ GOCMD = go
 GOINSTALL = $(GOCMD) install
 FLUTTER_CMD = flutter
 
-GO_PKG_PATH=backend
-DART_PKG_PATH=frontend/lib
-
 .PHONY: setup/tools git/add_subtree protoc
 
 setup/tools:
