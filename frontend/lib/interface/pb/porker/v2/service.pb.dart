@@ -21,16 +21,16 @@ import 'resource.pb.dart' as $0;
 ///
 ///  Errors:
 ///  - InvalidArgument:
-///    - ログインIDが未指定、またはフォーマット不正
+///    - ログイン名が未指定、またはフォーマット不正
 ///  - AlreadyExists:
 ///    - 既に同じIDでログイン済み
 class LoginRequest extends $pb.GeneratedMessage {
   factory LoginRequest({
-    $core.String? loginId,
+    $core.String? loginName,
   }) {
     final $result = create();
-    if (loginId != null) {
-      $result.loginId = loginId;
+    if (loginName != null) {
+      $result.loginName = loginName;
     }
     return $result;
   }
@@ -39,7 +39,7 @@ class LoginRequest extends $pb.GeneratedMessage {
   factory LoginRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'LoginRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'porker.v2'), createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'loginId')
+    ..aOS(1, _omitFieldNames ? '' : 'loginName')
     ..hasRequiredFields = false
   ;
 
@@ -65,20 +65,24 @@ class LoginRequest extends $pb.GeneratedMessage {
   static LoginRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get loginId => $_getSZ(0);
+  $core.String get loginName => $_getSZ(0);
   @$pb.TagNumber(1)
-  set loginId($core.String v) { $_setString(0, v); }
+  set loginName($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasLoginId() => $_has(0);
+  $core.bool hasLoginName() => $_has(0);
   @$pb.TagNumber(1)
-  void clearLoginId() => clearField(1);
+  void clearLoginName() => clearField(1);
 }
 
 class LoginResponse extends $pb.GeneratedMessage {
   factory LoginResponse({
+    $core.String? userId,
     $core.String? token,
   }) {
     final $result = create();
+    if (userId != null) {
+      $result.userId = userId;
+    }
     if (token != null) {
       $result.token = token;
     }
@@ -89,7 +93,8 @@ class LoginResponse extends $pb.GeneratedMessage {
   factory LoginResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'LoginResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'porker.v2'), createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'token')
+    ..aOS(1, _omitFieldNames ? '' : 'userId')
+    ..aOS(2, _omitFieldNames ? '' : 'token')
     ..hasRequiredFields = false
   ;
 
@@ -115,13 +120,22 @@ class LoginResponse extends $pb.GeneratedMessage {
   static LoginResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get token => $_getSZ(0);
+  $core.String get userId => $_getSZ(0);
   @$pb.TagNumber(1)
-  set token($core.String v) { $_setString(0, v); }
+  set userId($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasToken() => $_has(0);
+  $core.bool hasUserId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearToken() => clearField(1);
+  void clearUserId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get token => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set token($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasToken() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearToken() => clearField(2);
 }
 
 ///  Logout ログアウト
@@ -192,6 +206,99 @@ class LogoutResponse extends $pb.GeneratedMessage {
   @$core.pragma('dart2js:noInline')
   static LogoutResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<LogoutResponse>(create);
   static LogoutResponse? _defaultInstance;
+}
+
+///  KickUser ユーザを強制退室させる。
+///
+///  Errors:
+///  - Unauthenticated:
+///    - cookieのtokenがない、または無効
+///  - NotFound:
+///    - 指定されたユーザがroomに参加していない
+///  - FailedPrecondition:
+///    - 指定されたroomに参加していない
+///    - roomのオーナー以外のユーザが実行している
+///    - 実行ユーザのIDが指定されている
+class KickUserRequest extends $pb.GeneratedMessage {
+  factory KickUserRequest({
+    $core.String? targetUserId,
+  }) {
+    final $result = create();
+    if (targetUserId != null) {
+      $result.targetUserId = targetUserId;
+    }
+    return $result;
+  }
+  KickUserRequest._() : super();
+  factory KickUserRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory KickUserRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'KickUserRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'porker.v2'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'targetUserId')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  KickUserRequest clone() => KickUserRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  KickUserRequest copyWith(void Function(KickUserRequest) updates) => super.copyWith((message) => updates(message as KickUserRequest)) as KickUserRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static KickUserRequest create() => KickUserRequest._();
+  KickUserRequest createEmptyInstance() => create();
+  static $pb.PbList<KickUserRequest> createRepeated() => $pb.PbList<KickUserRequest>();
+  @$core.pragma('dart2js:noInline')
+  static KickUserRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<KickUserRequest>(create);
+  static KickUserRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get targetUserId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set targetUserId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasTargetUserId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearTargetUserId() => clearField(1);
+}
+
+class KickUserResponse extends $pb.GeneratedMessage {
+  factory KickUserResponse() => create();
+  KickUserResponse._() : super();
+  factory KickUserResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory KickUserResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'KickUserResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'porker.v2'), createEmptyInstance: create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  KickUserResponse clone() => KickUserResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  KickUserResponse copyWith(void Function(KickUserResponse) updates) => super.copyWith((message) => updates(message as KickUserResponse)) as KickUserResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static KickUserResponse create() => KickUserResponse._();
+  KickUserResponse createEmptyInstance() => create();
+  static $pb.PbList<KickUserResponse> createRepeated() => $pb.PbList<KickUserResponse>();
+  @$core.pragma('dart2js:noInline')
+  static KickUserResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<KickUserResponse>(create);
+  static KickUserResponse? _defaultInstance;
 }
 
 ///  CreateRoom roomを作成する。
@@ -766,99 +873,6 @@ class ShowVotesResponse extends $pb.GeneratedMessage {
   static ShowVotesResponse? _defaultInstance;
 }
 
-///  KickUser ユーザを強制退室させる。
-///
-///  Errors:
-///  - Unauthenticated:
-///    - cookieのtokenがない、または無効
-///  - NotFound:
-///    - 指定されたユーザがroomに参加していない
-///  - FailedPrecondition:
-///    - 指定されたroomに参加していない
-///    - roomのオーナー以外のユーザが実行している
-///    - 実行ユーザのIDが指定されている
-class KickUserRequest extends $pb.GeneratedMessage {
-  factory KickUserRequest({
-    $core.String? userId,
-  }) {
-    final $result = create();
-    if (userId != null) {
-      $result.userId = userId;
-    }
-    return $result;
-  }
-  KickUserRequest._() : super();
-  factory KickUserRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory KickUserRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
-
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'KickUserRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'porker.v2'), createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'userId')
-    ..hasRequiredFields = false
-  ;
-
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  KickUserRequest clone() => KickUserRequest()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  KickUserRequest copyWith(void Function(KickUserRequest) updates) => super.copyWith((message) => updates(message as KickUserRequest)) as KickUserRequest;
-
-  $pb.BuilderInfo get info_ => _i;
-
-  @$core.pragma('dart2js:noInline')
-  static KickUserRequest create() => KickUserRequest._();
-  KickUserRequest createEmptyInstance() => create();
-  static $pb.PbList<KickUserRequest> createRepeated() => $pb.PbList<KickUserRequest>();
-  @$core.pragma('dart2js:noInline')
-  static KickUserRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<KickUserRequest>(create);
-  static KickUserRequest? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  $core.String get userId => $_getSZ(0);
-  @$pb.TagNumber(1)
-  set userId($core.String v) { $_setString(0, v); }
-  @$pb.TagNumber(1)
-  $core.bool hasUserId() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearUserId() => clearField(1);
-}
-
-class KickUserResponse extends $pb.GeneratedMessage {
-  factory KickUserResponse() => create();
-  KickUserResponse._() : super();
-  factory KickUserResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory KickUserResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
-
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'KickUserResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'porker.v2'), createEmptyInstance: create)
-    ..hasRequiredFields = false
-  ;
-
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  KickUserResponse clone() => KickUserResponse()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  KickUserResponse copyWith(void Function(KickUserResponse) updates) => super.copyWith((message) => updates(message as KickUserResponse)) as KickUserResponse;
-
-  $pb.BuilderInfo get info_ => _i;
-
-  @$core.pragma('dart2js:noInline')
-  static KickUserResponse create() => KickUserResponse._();
-  KickUserResponse createEmptyInstance() => create();
-  static $pb.PbList<KickUserResponse> createRepeated() => $pb.PbList<KickUserResponse>();
-  @$core.pragma('dart2js:noInline')
-  static KickUserResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<KickUserResponse>(create);
-  static KickUserResponse? _defaultInstance;
-}
-
 class Porker2ServiceApi {
   $pb.RpcClient _client;
   Porker2ServiceApi(this._client);
@@ -868,6 +882,9 @@ class Porker2ServiceApi {
   ;
   $async.Future<LogoutResponse> logout($pb.ClientContext? ctx, LogoutRequest request) =>
     _client.invoke<LogoutResponse>(ctx, 'Porker2Service', 'Logout', request, LogoutResponse())
+  ;
+  $async.Future<KickUserResponse> kickUser($pb.ClientContext? ctx, KickUserRequest request) =>
+    _client.invoke<KickUserResponse>(ctx, 'Porker2Service', 'KickUser', request, KickUserResponse())
   ;
   $async.Future<CreateRoomResponse> createRoom($pb.ClientContext? ctx, CreateRoomRequest request) =>
     _client.invoke<CreateRoomResponse>(ctx, 'Porker2Service', 'CreateRoom', request, CreateRoomResponse())
@@ -886,9 +903,6 @@ class Porker2ServiceApi {
   ;
   $async.Future<ResetVotesResponse> resetVotes($pb.ClientContext? ctx, ResetVotesRequest request) =>
     _client.invoke<ResetVotesResponse>(ctx, 'Porker2Service', 'ResetVotes', request, ResetVotesResponse())
-  ;
-  $async.Future<KickUserResponse> kickUser($pb.ClientContext? ctx, KickUserRequest request) =>
-    _client.invoke<KickUserResponse>(ctx, 'Porker2Service', 'KickUser', request, KickUserResponse())
   ;
 }
 

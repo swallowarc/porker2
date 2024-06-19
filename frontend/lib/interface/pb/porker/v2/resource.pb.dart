@@ -19,12 +19,12 @@ export 'resource.pbenum.dart';
 
 class Ballot extends $pb.GeneratedMessage {
   factory Ballot({
-    $core.String? loginId,
+    $core.String? userId,
     Point? point,
   }) {
     final $result = create();
-    if (loginId != null) {
-      $result.loginId = loginId;
+    if (userId != null) {
+      $result.userId = userId;
     }
     if (point != null) {
       $result.point = point;
@@ -36,7 +36,7 @@ class Ballot extends $pb.GeneratedMessage {
   factory Ballot.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Ballot', package: const $pb.PackageName(_omitMessageNames ? '' : 'porker.v2'), createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'loginId')
+    ..aOS(1, _omitFieldNames ? '' : 'userId')
     ..e<Point>(2, _omitFieldNames ? '' : 'point', $pb.PbFieldType.OE, defaultOrMaker: Point.POINT_UNSPECIFIED, valueOf: Point.valueOf, enumValues: Point.values)
     ..hasRequiredFields = false
   ;
@@ -63,13 +63,13 @@ class Ballot extends $pb.GeneratedMessage {
   static Ballot? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get loginId => $_getSZ(0);
+  $core.String get userId => $_getSZ(0);
   @$pb.TagNumber(1)
-  set loginId($core.String v) { $_setString(0, v); }
+  set userId($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasLoginId() => $_has(0);
+  $core.bool hasUserId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearLoginId() => clearField(1);
+  void clearUserId() => clearField(1);
 
   @$pb.TagNumber(2)
   Point get point => $_getN(1);

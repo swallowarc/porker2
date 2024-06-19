@@ -37,6 +37,8 @@ const (
 	Porker2ServiceLoginProcedure = "/porker.v2.Porker2Service/Login"
 	// Porker2ServiceLogoutProcedure is the fully-qualified name of the Porker2Service's Logout RPC.
 	Porker2ServiceLogoutProcedure = "/porker.v2.Porker2Service/Logout"
+	// Porker2ServiceKickUserProcedure is the fully-qualified name of the Porker2Service's KickUser RPC.
+	Porker2ServiceKickUserProcedure = "/porker.v2.Porker2Service/KickUser"
 	// Porker2ServiceCreateRoomProcedure is the fully-qualified name of the Porker2Service's CreateRoom
 	// RPC.
 	Porker2ServiceCreateRoomProcedure = "/porker.v2.Porker2Service/CreateRoom"
@@ -53,8 +55,6 @@ const (
 	// Porker2ServiceResetVotesProcedure is the fully-qualified name of the Porker2Service's ResetVotes
 	// RPC.
 	Porker2ServiceResetVotesProcedure = "/porker.v2.Porker2Service/ResetVotes"
-	// Porker2ServiceKickUserProcedure is the fully-qualified name of the Porker2Service's KickUser RPC.
-	Porker2ServiceKickUserProcedure = "/porker.v2.Porker2Service/KickUser"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
@@ -62,26 +62,26 @@ var (
 	porker2ServiceServiceDescriptor          = v2.File_porker_v2_service_proto.Services().ByName("Porker2Service")
 	porker2ServiceLoginMethodDescriptor      = porker2ServiceServiceDescriptor.Methods().ByName("Login")
 	porker2ServiceLogoutMethodDescriptor     = porker2ServiceServiceDescriptor.Methods().ByName("Logout")
+	porker2ServiceKickUserMethodDescriptor   = porker2ServiceServiceDescriptor.Methods().ByName("KickUser")
 	porker2ServiceCreateRoomMethodDescriptor = porker2ServiceServiceDescriptor.Methods().ByName("CreateRoom")
 	porker2ServiceJoinRoomMethodDescriptor   = porker2ServiceServiceDescriptor.Methods().ByName("JoinRoom")
 	porker2ServiceLeaveRoomMethodDescriptor  = porker2ServiceServiceDescriptor.Methods().ByName("LeaveRoom")
 	porker2ServiceCastVoteMethodDescriptor   = porker2ServiceServiceDescriptor.Methods().ByName("CastVote")
 	porker2ServiceShowVotesMethodDescriptor  = porker2ServiceServiceDescriptor.Methods().ByName("ShowVotes")
 	porker2ServiceResetVotesMethodDescriptor = porker2ServiceServiceDescriptor.Methods().ByName("ResetVotes")
-	porker2ServiceKickUserMethodDescriptor   = porker2ServiceServiceDescriptor.Methods().ByName("KickUser")
 )
 
 // Porker2ServiceClient is a client for the porker.v2.Porker2Service service.
 type Porker2ServiceClient interface {
 	Login(context.Context, *connect.Request[v2.LoginRequest]) (*connect.Response[v2.LoginResponse], error)
 	Logout(context.Context, *connect.Request[v2.LogoutRequest]) (*connect.Response[v2.LogoutResponse], error)
+	KickUser(context.Context, *connect.Request[v2.KickUserRequest]) (*connect.Response[v2.KickUserResponse], error)
 	CreateRoom(context.Context, *connect.Request[v2.CreateRoomRequest]) (*connect.Response[v2.CreateRoomResponse], error)
 	JoinRoom(context.Context, *connect.Request[v2.JoinRoomRequest]) (*connect.ServerStreamForClient[v2.JoinRoomResponse], error)
 	LeaveRoom(context.Context, *connect.Request[v2.LeaveRoomRequest]) (*connect.Response[v2.LeaveRoomResponse], error)
 	CastVote(context.Context, *connect.Request[v2.CastVoteRequest]) (*connect.Response[v2.CastVoteResponse], error)
 	ShowVotes(context.Context, *connect.Request[v2.ShowVotesRequest]) (*connect.Response[v2.ShowVotesResponse], error)
 	ResetVotes(context.Context, *connect.Request[v2.ResetVotesRequest]) (*connect.Response[v2.ResetVotesResponse], error)
-	KickUser(context.Context, *connect.Request[v2.KickUserRequest]) (*connect.Response[v2.KickUserResponse], error)
 }
 
 // NewPorker2ServiceClient constructs a client for the porker.v2.Porker2Service service. By default,
@@ -104,6 +104,12 @@ func NewPorker2ServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			httpClient,
 			baseURL+Porker2ServiceLogoutProcedure,
 			connect.WithSchema(porker2ServiceLogoutMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
+		kickUser: connect.NewClient[v2.KickUserRequest, v2.KickUserResponse](
+			httpClient,
+			baseURL+Porker2ServiceKickUserProcedure,
+			connect.WithSchema(porker2ServiceKickUserMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
 		createRoom: connect.NewClient[v2.CreateRoomRequest, v2.CreateRoomResponse](
@@ -142,12 +148,6 @@ func NewPorker2ServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(porker2ServiceResetVotesMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
-		kickUser: connect.NewClient[v2.KickUserRequest, v2.KickUserResponse](
-			httpClient,
-			baseURL+Porker2ServiceKickUserProcedure,
-			connect.WithSchema(porker2ServiceKickUserMethodDescriptor),
-			connect.WithClientOptions(opts...),
-		),
 	}
 }
 
@@ -155,13 +155,13 @@ func NewPorker2ServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 type porker2ServiceClient struct {
 	login      *connect.Client[v2.LoginRequest, v2.LoginResponse]
 	logout     *connect.Client[v2.LogoutRequest, v2.LogoutResponse]
+	kickUser   *connect.Client[v2.KickUserRequest, v2.KickUserResponse]
 	createRoom *connect.Client[v2.CreateRoomRequest, v2.CreateRoomResponse]
 	joinRoom   *connect.Client[v2.JoinRoomRequest, v2.JoinRoomResponse]
 	leaveRoom  *connect.Client[v2.LeaveRoomRequest, v2.LeaveRoomResponse]
 	castVote   *connect.Client[v2.CastVoteRequest, v2.CastVoteResponse]
 	showVotes  *connect.Client[v2.ShowVotesRequest, v2.ShowVotesResponse]
 	resetVotes *connect.Client[v2.ResetVotesRequest, v2.ResetVotesResponse]
-	kickUser   *connect.Client[v2.KickUserRequest, v2.KickUserResponse]
 }
 
 // Login calls porker.v2.Porker2Service.Login.
@@ -172,6 +172,11 @@ func (c *porker2ServiceClient) Login(ctx context.Context, req *connect.Request[v
 // Logout calls porker.v2.Porker2Service.Logout.
 func (c *porker2ServiceClient) Logout(ctx context.Context, req *connect.Request[v2.LogoutRequest]) (*connect.Response[v2.LogoutResponse], error) {
 	return c.logout.CallUnary(ctx, req)
+}
+
+// KickUser calls porker.v2.Porker2Service.KickUser.
+func (c *porker2ServiceClient) KickUser(ctx context.Context, req *connect.Request[v2.KickUserRequest]) (*connect.Response[v2.KickUserResponse], error) {
+	return c.kickUser.CallUnary(ctx, req)
 }
 
 // CreateRoom calls porker.v2.Porker2Service.CreateRoom.
@@ -204,22 +209,17 @@ func (c *porker2ServiceClient) ResetVotes(ctx context.Context, req *connect.Requ
 	return c.resetVotes.CallUnary(ctx, req)
 }
 
-// KickUser calls porker.v2.Porker2Service.KickUser.
-func (c *porker2ServiceClient) KickUser(ctx context.Context, req *connect.Request[v2.KickUserRequest]) (*connect.Response[v2.KickUserResponse], error) {
-	return c.kickUser.CallUnary(ctx, req)
-}
-
 // Porker2ServiceHandler is an implementation of the porker.v2.Porker2Service service.
 type Porker2ServiceHandler interface {
 	Login(context.Context, *connect.Request[v2.LoginRequest]) (*connect.Response[v2.LoginResponse], error)
 	Logout(context.Context, *connect.Request[v2.LogoutRequest]) (*connect.Response[v2.LogoutResponse], error)
+	KickUser(context.Context, *connect.Request[v2.KickUserRequest]) (*connect.Response[v2.KickUserResponse], error)
 	CreateRoom(context.Context, *connect.Request[v2.CreateRoomRequest]) (*connect.Response[v2.CreateRoomResponse], error)
 	JoinRoom(context.Context, *connect.Request[v2.JoinRoomRequest], *connect.ServerStream[v2.JoinRoomResponse]) error
 	LeaveRoom(context.Context, *connect.Request[v2.LeaveRoomRequest]) (*connect.Response[v2.LeaveRoomResponse], error)
 	CastVote(context.Context, *connect.Request[v2.CastVoteRequest]) (*connect.Response[v2.CastVoteResponse], error)
 	ShowVotes(context.Context, *connect.Request[v2.ShowVotesRequest]) (*connect.Response[v2.ShowVotesResponse], error)
 	ResetVotes(context.Context, *connect.Request[v2.ResetVotesRequest]) (*connect.Response[v2.ResetVotesResponse], error)
-	KickUser(context.Context, *connect.Request[v2.KickUserRequest]) (*connect.Response[v2.KickUserResponse], error)
 }
 
 // NewPorker2ServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -238,6 +238,12 @@ func NewPorker2ServiceHandler(svc Porker2ServiceHandler, opts ...connect.Handler
 		Porker2ServiceLogoutProcedure,
 		svc.Logout,
 		connect.WithSchema(porker2ServiceLogoutMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
+	porker2ServiceKickUserHandler := connect.NewUnaryHandler(
+		Porker2ServiceKickUserProcedure,
+		svc.KickUser,
+		connect.WithSchema(porker2ServiceKickUserMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
 	porker2ServiceCreateRoomHandler := connect.NewUnaryHandler(
@@ -276,18 +282,14 @@ func NewPorker2ServiceHandler(svc Porker2ServiceHandler, opts ...connect.Handler
 		connect.WithSchema(porker2ServiceResetVotesMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
-	porker2ServiceKickUserHandler := connect.NewUnaryHandler(
-		Porker2ServiceKickUserProcedure,
-		svc.KickUser,
-		connect.WithSchema(porker2ServiceKickUserMethodDescriptor),
-		connect.WithHandlerOptions(opts...),
-	)
 	return "/porker.v2.Porker2Service/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case Porker2ServiceLoginProcedure:
 			porker2ServiceLoginHandler.ServeHTTP(w, r)
 		case Porker2ServiceLogoutProcedure:
 			porker2ServiceLogoutHandler.ServeHTTP(w, r)
+		case Porker2ServiceKickUserProcedure:
+			porker2ServiceKickUserHandler.ServeHTTP(w, r)
 		case Porker2ServiceCreateRoomProcedure:
 			porker2ServiceCreateRoomHandler.ServeHTTP(w, r)
 		case Porker2ServiceJoinRoomProcedure:
@@ -300,8 +302,6 @@ func NewPorker2ServiceHandler(svc Porker2ServiceHandler, opts ...connect.Handler
 			porker2ServiceShowVotesHandler.ServeHTTP(w, r)
 		case Porker2ServiceResetVotesProcedure:
 			porker2ServiceResetVotesHandler.ServeHTTP(w, r)
-		case Porker2ServiceKickUserProcedure:
-			porker2ServiceKickUserHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -317,6 +317,10 @@ func (UnimplementedPorker2ServiceHandler) Login(context.Context, *connect.Reques
 
 func (UnimplementedPorker2ServiceHandler) Logout(context.Context, *connect.Request[v2.LogoutRequest]) (*connect.Response[v2.LogoutResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("porker.v2.Porker2Service.Logout is not implemented"))
+}
+
+func (UnimplementedPorker2ServiceHandler) KickUser(context.Context, *connect.Request[v2.KickUserRequest]) (*connect.Response[v2.KickUserResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("porker.v2.Porker2Service.KickUser is not implemented"))
 }
 
 func (UnimplementedPorker2ServiceHandler) CreateRoom(context.Context, *connect.Request[v2.CreateRoomRequest]) (*connect.Response[v2.CreateRoomResponse], error) {
@@ -341,8 +345,4 @@ func (UnimplementedPorker2ServiceHandler) ShowVotes(context.Context, *connect.Re
 
 func (UnimplementedPorker2ServiceHandler) ResetVotes(context.Context, *connect.Request[v2.ResetVotesRequest]) (*connect.Response[v2.ResetVotesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("porker.v2.Porker2Service.ResetVotes is not implemented"))
-}
-
-func (UnimplementedPorker2ServiceHandler) KickUser(context.Context, *connect.Request[v2.KickUserRequest]) (*connect.Response[v2.KickUserResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("porker.v2.Porker2Service.KickUser is not implemented"))
 }

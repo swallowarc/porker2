@@ -7,15 +7,24 @@ import (
 
 	pb "github.com/swallowarc/porker2/backend/internal/interface/pb/porker/v2"
 	pbconn "github.com/swallowarc/porker2/backend/internal/interface/pb/porker/v2/porkerv2connect"
+	"github.com/swallowarc/porker2/backend/internal/usecase/interactor"
 )
 
 type (
 	porker2 struct {
+		userInteractor  interactor.User
+		pokerInteractor interactor.Porker
 	}
 )
 
-func NewPorker2Controller() pbconn.Porker2ServiceHandler {
-	return &porker2{}
+func NewPorker2Controller(
+	userInteractor interactor.User,
+	pokerInteractor interactor.Porker,
+) pbconn.Porker2ServiceHandler {
+	return &porker2{
+		userInteractor:  userInteractor,
+		pokerInteractor: pokerInteractor,
+	}
 }
 
 func (p *porker2) Login(ctx context.Context, c *connect.Request[pb.LoginRequest]) (*connect.Response[pb.LoginResponse], error) {
@@ -24,6 +33,11 @@ func (p *porker2) Login(ctx context.Context, c *connect.Request[pb.LoginRequest]
 }
 
 func (p *porker2) Logout(ctx context.Context, c *connect.Request[pb.LogoutRequest]) (*connect.Response[pb.LogoutResponse], error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (p *porker2) KickUser(ctx context.Context, c *connect.Request[pb.KickUserRequest]) (*connect.Response[pb.KickUserResponse], error) {
 	//TODO implement me
 	panic("implement me")
 }
@@ -54,11 +68,6 @@ func (p *porker2) ShowVotes(ctx context.Context, c *connect.Request[pb.ShowVotes
 }
 
 func (p *porker2) ResetVotes(ctx context.Context, c *connect.Request[pb.ResetVotesRequest]) (*connect.Response[pb.ResetVotesResponse], error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (p *porker2) KickUser(ctx context.Context, c *connect.Request[pb.KickUserRequest]) (*connect.Response[pb.KickUserResponse], error) {
 	//TODO implement me
 	panic("implement me")
 }
