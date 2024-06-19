@@ -19,10 +19,14 @@ export 'resource.pbenum.dart';
 
 class Ballot extends $pb.GeneratedMessage {
   factory Ballot({
+    $core.String? userName,
     $core.String? userId,
     Point? point,
   }) {
     final $result = create();
+    if (userName != null) {
+      $result.userName = userName;
+    }
     if (userId != null) {
       $result.userId = userId;
     }
@@ -36,8 +40,9 @@ class Ballot extends $pb.GeneratedMessage {
   factory Ballot.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Ballot', package: const $pb.PackageName(_omitMessageNames ? '' : 'porker.v2'), createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'userId')
-    ..e<Point>(2, _omitFieldNames ? '' : 'point', $pb.PbFieldType.OE, defaultOrMaker: Point.POINT_UNSPECIFIED, valueOf: Point.valueOf, enumValues: Point.values)
+    ..aOS(1, _omitFieldNames ? '' : 'userName')
+    ..aOS(2, _omitFieldNames ? '' : 'userId')
+    ..e<Point>(3, _omitFieldNames ? '' : 'point', $pb.PbFieldType.OE, defaultOrMaker: Point.POINT_UNSPECIFIED, valueOf: Point.valueOf, enumValues: Point.values)
     ..hasRequiredFields = false
   ;
 
@@ -63,22 +68,31 @@ class Ballot extends $pb.GeneratedMessage {
   static Ballot? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get userId => $_getSZ(0);
+  $core.String get userName => $_getSZ(0);
   @$pb.TagNumber(1)
-  set userId($core.String v) { $_setString(0, v); }
+  set userName($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasUserId() => $_has(0);
+  $core.bool hasUserName() => $_has(0);
   @$pb.TagNumber(1)
-  void clearUserId() => clearField(1);
+  void clearUserName() => clearField(1);
 
   @$pb.TagNumber(2)
-  Point get point => $_getN(1);
+  $core.String get userId => $_getSZ(1);
   @$pb.TagNumber(2)
-  set point(Point v) { setField(2, v); }
+  set userId($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasPoint() => $_has(1);
+  $core.bool hasUserId() => $_has(1);
   @$pb.TagNumber(2)
-  void clearPoint() => clearField(2);
+  void clearUserId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  Point get point => $_getN(2);
+  @$pb.TagNumber(3)
+  set point(Point v) { setField(3, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasPoint() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearPoint() => clearField(3);
 }
 
 class RoomCondition extends $pb.GeneratedMessage {

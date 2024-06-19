@@ -4,7 +4,10 @@ REVISION := $(shell git rev-parse --short HEAD)
 
 GOCMD = go
 GOINSTALL = $(GOCMD) install
+GOGENERATE = $(GOCMD) generate
 FLUTTER_CMD = flutter
+
+MOCK_DIR=backend/internal/test/mock/
 
 .PHONY: setup/tools git/add_subtree protoc
 
@@ -18,3 +21,10 @@ setup/tools:
 
 protoc:
 	buf generate
+
+mock/clean:
+	rm -Rf ./$(MOCK_DIR)
+mock/gen: mock/clean
+	$(GOGENERATE) ./backend/internal/interface/gateway/...
+	$(GOGENERATE) ./backend/internal/usecase/interactor/...
+	$(GOGENERATE) ./backend/internal/usecase/port/...

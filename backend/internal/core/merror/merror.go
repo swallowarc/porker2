@@ -33,16 +33,16 @@ func CodeFromError(err error) connect.Code {
 	return connect.CodeUnknown
 }
 
-func NewNotFound(text string) error {
-	return connect.NewError(connect.CodeNotFound, fmt.Errorf(text))
+func NewNotFound(messageFormat string, args ...any) error {
+	return connect.NewError(connect.CodeNotFound, fmt.Errorf(messageFormat, args...))
 }
 
 func IsNotFound(err error) bool {
 	return CodeFromError(err) == connect.CodeNotFound
 }
 
-func NewFailedPrecondition(text string, violationType string) error {
-	ret := connect.NewError(connect.CodeFailedPrecondition, fmt.Errorf(text))
+func NewFailedPrecondition(violationType string, messageFormat string, args ...any) error {
+	ret := connect.NewError(connect.CodeFailedPrecondition, fmt.Errorf(messageFormat, args...))
 
 	if violationType == "" {
 		return ret
@@ -69,6 +69,8 @@ type (
 		Field       string
 		Description string
 	}
+
+	FieldViolations []FieldViolation
 )
 
 func (f *FieldViolation) toProto() *errdetails.BadRequest_FieldViolation {
@@ -78,9 +80,8 @@ func (f *FieldViolation) toProto() *errdetails.BadRequest_FieldViolation {
 	}
 }
 
-func NewInvalidArgument(text string, fvs ...FieldViolation) error {
-	ret := connect.NewError(connect.CodeInvalidArgument, fmt.Errorf(text))
-
+func NewInvalidArgument(fvs FieldViolations, messageFormat string, args ...any) error {
+	ret := connect.NewError(connect.CodeInvalidArgument, fmt.Errorf(messageFormat, args...))
 	if len(fvs) == 0 {
 		return ret
 	}
@@ -100,18 +101,18 @@ func IsInvalidArgument(err error) bool {
 	return CodeFromError(err) == connect.CodeInvalidArgument
 }
 
-func NewInternal(text string) error {
-	return connect.NewError(connect.CodeInternal, fmt.Errorf(text))
+func NewInternal(messageFormat string, args ...any) error {
+	return connect.NewError(connect.CodeInternal, fmt.Errorf(messageFormat, args...))
 }
 
-func WrapInternal(err error, message string) error {
-	return connect.NewError(connect.CodeInternal, fmt.Errorf("%s: %w", message, err))
+func WrapInternal(err error, messageFormat string, args ...any) error {
+	return connect.NewError(connect.CodeInternal, fmt.Errorf("%s: %w", fmt.Sprintf(messageFormat, args...), err))
 }
 
 func IsInternal(err error) bool {
 	return CodeFromError(err) == connect.CodeInternal
 }
 
-func NewUnauthenticated(text string) error {
-	return connect.NewError(connect.CodeUnauthenticated, fmt.Errorf(text))
+func NewUnauthenticated(messageFormat string, args ...any) error {
+	return connect.NewError(connect.CodeUnauthenticated, fmt.Errorf(messageFormat, args...))
 }

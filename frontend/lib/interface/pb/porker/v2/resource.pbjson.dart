@@ -70,15 +70,16 @@ final $typed_data.Uint8List pointDescriptor = $convert.base64Decode(
 const Ballot$json = {
   '1': 'Ballot',
   '2': [
-    {'1': 'user_id', '3': 1, '4': 1, '5': 9, '10': 'userId'},
-    {'1': 'point', '3': 2, '4': 1, '5': 14, '6': '.porker.v2.Point', '10': 'point'},
+    {'1': 'user_name', '3': 1, '4': 1, '5': 9, '10': 'userName'},
+    {'1': 'user_id', '3': 2, '4': 1, '5': 9, '10': 'userId'},
+    {'1': 'point', '3': 3, '4': 1, '5': 14, '6': '.porker.v2.Point', '10': 'point'},
   ],
 };
 
 /// Descriptor for `Ballot`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List ballotDescriptor = $convert.base64Decode(
-    'CgZCYWxsb3QSFwoHdXNlcl9pZBgBIAEoCVIGdXNlcklkEiYKBXBvaW50GAIgASgOMhAucG9ya2'
-    'VyLnYyLlBvaW50UgVwb2ludA==');
+    'CgZCYWxsb3QSGwoJdXNlcl9uYW1lGAEgASgJUgh1c2VyTmFtZRIXCgd1c2VyX2lkGAIgASgJUg'
+    'Z1c2VySWQSJgoFcG9pbnQYAyABKA4yEC5wb3JrZXIudjIuUG9pbnRSBXBvaW50');
 
 @$core.Deprecated('Use roomConditionDescriptor instead')
 const RoomCondition$json = {

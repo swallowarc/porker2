@@ -1,16 +1,22 @@
-package domain
+package poker
 
 import (
 	"fmt"
+	"regexp"
 
 	"github.com/swallowarc/porker2/backend/internal/core/random"
 )
 
 const (
-	roomIDPattern       = "1234567890"
-	roomIDKeyPrefix     = "porker2_room_id"
-	roomMemberKeyPrefix = "porker2_room_member"
-	roomStreamKeyPrefix = "porker2_room_stream"
+	roomIDLength         = 5
+	roomIDAvailableChars = "1234567890"
+	roomIDKeyPrefix      = "porker2_room_id"
+	roomMemberKeyPrefix  = "porker2_room_member"
+	roomStreamKeyPrefix  = "porker2_room_stream"
+)
+
+var (
+	roomIDRegexp = regexp.MustCompile(`^[0-9]{5}$`)
 )
 
 type (
@@ -18,7 +24,7 @@ type (
 )
 
 func NewRoomID() RoomID {
-	return RoomID(random.RandString6ByParam(5, roomIDPattern))
+	return RoomID(random.RandString6ByParam(roomIDLength, roomIDAvailableChars))
 }
 
 func (id RoomID) IDKey() string {
@@ -35,4 +41,8 @@ func (id RoomID) StreamKey() string {
 
 func (id RoomID) String() string {
 	return string(id)
+}
+
+func (id RoomID) Valid() bool {
+	return roomIDRegexp.MatchString(string(id))
 }

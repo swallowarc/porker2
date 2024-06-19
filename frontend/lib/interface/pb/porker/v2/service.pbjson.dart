@@ -19,13 +19,13 @@ import 'resource.pbjson.dart' as $0;
 const LoginRequest$json = {
   '1': 'LoginRequest',
   '2': [
-    {'1': 'login_name', '3': 1, '4': 1, '5': 9, '10': 'loginName'},
+    {'1': 'user_name', '3': 1, '4': 1, '5': 9, '10': 'userName'},
   ],
 };
 
 /// Descriptor for `LoginRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List loginRequestDescriptor = $convert.base64Decode(
-    'CgxMb2dpblJlcXVlc3QSHQoKbG9naW5fbmFtZRgBIAEoCVIJbG9naW5OYW1l');
+    'CgxMb2dpblJlcXVlc3QSGwoJdXNlcl9uYW1lGAEgASgJUgh1c2VyTmFtZQ==');
 
 @$core.Deprecated('Use loginResponseDescriptor instead')
 const LoginResponse$json = {

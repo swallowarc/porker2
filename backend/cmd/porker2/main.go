@@ -9,9 +9,11 @@ import (
 	"go.uber.org/fx/fxevent"
 
 	"github.com/swallowarc/porker2/backend/internal/core"
+	"github.com/swallowarc/porker2/backend/internal/domain"
 	"github.com/swallowarc/porker2/backend/internal/infrastructure"
 	"github.com/swallowarc/porker2/backend/internal/infrastructure/connect"
-	_interface "github.com/swallowarc/porker2/backend/internal/interface"
+	"github.com/swallowarc/porker2/backend/internal/interface"
+	"github.com/swallowarc/porker2/backend/internal/usecase"
 )
 
 func main() {
@@ -20,9 +22,11 @@ func main() {
 			return &fxevent.SlogLogger{Logger: logger}
 		}),
 		core.Module(),
+		domain.Module(),
 		infrastructure.Module(),
-		_interface.Module(),
-		//usecase.Module(),
+		interfaces.Module(),
+		usecase.Module(),
+
 		fx.Invoke(invoke),
 	)
 	if err := app.Err(); err != nil {

@@ -14,7 +14,7 @@ func Test_CodeFromError(t *testing.T) {
 }
 
 func Test_NewFailedPrecondition(t *testing.T) {
-	err := NewFailedPrecondition("test", pb.Violation_VIOLATION_UNSPECIFIED.String())
+	err := NewFailedPrecondition(pb.Violation_VIOLATION_UNSPECIFIED.String(), "test")
 
 	if !IsFailedPrecondition(err) {
 		t.Errorf("want CodeFailedPrecondition, got %v", CodeFromError(err))
@@ -27,7 +27,7 @@ func Test_NewFailedPrecondition(t *testing.T) {
 }
 
 func Test_NewInvalidArgument(t *testing.T) {
-	err := NewInvalidArgument("test", []FieldViolation{{"f1", "d1"}, {"f2", "d2"}}...)
+	err := NewInvalidArgument(FieldViolations{{"f1", "d1"}, {"f2", "d2"}}, "test")
 	if !IsInvalidArgument(err) {
 		t.Errorf("want CodeInvalidArgument, got %v", CodeFromError(err))
 	}

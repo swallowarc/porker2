@@ -33,7 +33,7 @@ service Porker2Service {
  *   - 既に同じIDでログイン済み
  */
 message LoginRequest {
-  string login_name = 1;
+  string user_name = 1;
 }
 
 message LoginResponse {

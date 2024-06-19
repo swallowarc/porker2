@@ -26,11 +26,11 @@ import 'resource.pb.dart' as $0;
 ///    - 既に同じIDでログイン済み
 class LoginRequest extends $pb.GeneratedMessage {
   factory LoginRequest({
-    $core.String? loginName,
+    $core.String? userName,
   }) {
     final $result = create();
-    if (loginName != null) {
-      $result.loginName = loginName;
+    if (userName != null) {
+      $result.userName = userName;
     }
     return $result;
   }
@@ -39,7 +39,7 @@ class LoginRequest extends $pb.GeneratedMessage {
   factory LoginRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'LoginRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'porker.v2'), createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'loginName')
+    ..aOS(1, _omitFieldNames ? '' : 'userName')
     ..hasRequiredFields = false
   ;
 
@@ -65,13 +65,13 @@ class LoginRequest extends $pb.GeneratedMessage {
   static LoginRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get loginName => $_getSZ(0);
+  $core.String get userName => $_getSZ(0);
   @$pb.TagNumber(1)
-  set loginName($core.String v) { $_setString(0, v); }
+  set userName($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasLoginName() => $_has(0);
+  $core.bool hasUserName() => $_has(0);
   @$pb.TagNumber(1)
-  void clearLoginName() => clearField(1);
+  void clearUserName() => clearField(1);
 }
 
 class LoginResponse extends $pb.GeneratedMessage {

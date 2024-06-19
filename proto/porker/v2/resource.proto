@@ -30,8 +30,9 @@ enum Point {
 }
 
 message Ballot {
-  string user_id = 1;
-  Point point = 2;
+  string user_name = 1;
+  string user_id = 2;
+  Point point = 3;
 }
 
 message RoomCondition {

@@ -2,6 +2,7 @@ package interceptor
 
 import (
 	"log/slog"
+	"strings"
 
 	"connectrpc.com/connect"
 )
@@ -24,4 +25,12 @@ func (f *Factory) LogUnaryInterceptor() connect.UnaryInterceptorFunc {
 
 func (f *Factory) AuthUnaryInterceptor() connect.UnaryInterceptorFunc {
 	return NewAuthUnaryInterceptor()
+}
+
+func getRPCName(req connect.AnyRequest) string {
+	path := strings.Split(req.Spec().Procedure, "/")
+	if len(path) == 0 {
+		return ""
+	}
+	return path[len(path)-1]
 }
