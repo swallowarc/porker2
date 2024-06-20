@@ -9,3 +9,7 @@ const (
 	Dev   Type = "dev"
 	Prod  Type = "prod"
 )
+
+func (t Type) IsLocal() bool {
+	return t == Local
+}

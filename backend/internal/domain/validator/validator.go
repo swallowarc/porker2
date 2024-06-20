@@ -72,6 +72,10 @@ func (v *validator) StructWithMessage(s any, messageFormat string, args ...any) 
 }
 
 func (v *validator) convertValidationErrors(err error) (merror.FieldViolations, error) {
+	if err == nil {
+		return merror.FieldViolations{}, nil
+	}
+
 	var ves govalidator.ValidationErrors
 	if !errors.As(err, &ves) {
 		return nil, merror.WrapInternal(err, "failed to cast to ValidationErrors: %v", err)
