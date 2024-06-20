@@ -26,8 +26,3 @@ func (i *userInteractor) Logout(ctx context.Context, userID user.ID) error {
 	//TODO implement me
 	panic("implement me")
 }
-
-func (i *userInteractor) Kick(ctx context.Context, userID, targetUserID user.ID) error {
-	//TODO implement me
-	panic("implement me")
-}

@@ -47,3 +47,8 @@ func (i *pokerInteractor) ResetVotes(ctx context.Context, userID user.ID, roomID
 	//TODO implement me
 	panic("implement me")
 }
+
+func (i *pokerInteractor) Kick(ctx context.Context, userID, targetUserID user.ID, roomID poker.RoomID) error {
+	//TODO implement me
+	panic("implement me")
+}

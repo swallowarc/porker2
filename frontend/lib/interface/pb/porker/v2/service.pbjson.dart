@@ -59,28 +59,6 @@ const LogoutResponse$json = {
 final $typed_data.Uint8List logoutResponseDescriptor = $convert.base64Decode(
     'Cg5Mb2dvdXRSZXNwb25zZQ==');
 
-@$core.Deprecated('Use kickUserRequestDescriptor instead')
-const KickUserRequest$json = {
-  '1': 'KickUserRequest',
-  '2': [
-    {'1': 'target_user_id', '3': 1, '4': 1, '5': 9, '10': 'targetUserId'},
-  ],
-};
-
-/// Descriptor for `KickUserRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List kickUserRequestDescriptor = $convert.base64Decode(
-    'Cg9LaWNrVXNlclJlcXVlc3QSJAoOdGFyZ2V0X3VzZXJfaWQYASABKAlSDHRhcmdldFVzZXJJZA'
-    '==');
-
-@$core.Deprecated('Use kickUserResponseDescriptor instead')
-const KickUserResponse$json = {
-  '1': 'KickUserResponse',
-};
-
-/// Descriptor for `KickUserResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List kickUserResponseDescriptor = $convert.base64Decode(
-    'ChBLaWNrVXNlclJlc3BvbnNl');
-
 @$core.Deprecated('Use createRoomRequestDescriptor instead')
 const CreateRoomRequest$json = {
   '1': 'CreateRoomRequest',
@@ -212,6 +190,29 @@ const ShowVotesResponse$json = {
 /// Descriptor for `ShowVotesResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List showVotesResponseDescriptor = $convert.base64Decode(
     'ChFTaG93Vm90ZXNSZXNwb25zZQ==');
+
+@$core.Deprecated('Use kickUserRequestDescriptor instead')
+const KickUserRequest$json = {
+  '1': 'KickUserRequest',
+  '2': [
+    {'1': 'room_id', '3': 1, '4': 1, '5': 9, '10': 'roomId'},
+    {'1': 'target_user_id', '3': 2, '4': 1, '5': 9, '10': 'targetUserId'},
+  ],
+};
+
+/// Descriptor for `KickUserRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List kickUserRequestDescriptor = $convert.base64Decode(
+    'Cg9LaWNrVXNlclJlcXVlc3QSFwoHcm9vbV9pZBgBIAEoCVIGcm9vbUlkEiQKDnRhcmdldF91c2'
+    'VyX2lkGAIgASgJUgx0YXJnZXRVc2VySWQ=');
+
+@$core.Deprecated('Use kickUserResponseDescriptor instead')
+const KickUserResponse$json = {
+  '1': 'KickUserResponse',
+};
+
+/// Descriptor for `KickUserResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List kickUserResponseDescriptor = $convert.base64Decode(
+    'ChBLaWNrVXNlclJlc3BvbnNl');
 
 const $core.Map<$core.String, $core.dynamic> Porker2ServiceBase$json = {
   '1': 'Porker2Service',

@@ -62,21 +62,7 @@ func (p *porker2) Logout(ctx context.Context, _ *connect.Request[pb.LogoutReques
 	}, nil
 }
 
-func (p *porker2) KickUser(ctx context.Context, r *connect.Request[pb.KickUserRequest]) (*connect.Response[pb.KickUserResponse], error) {
-	if err := p.v.VarWithMessage(validator.TagUserID, r.Msg.TargetUserId, "invalid argument"); err != nil {
-		return nil, err
-	}
-
-	if err := p.userItr.Kick(ctx, user.FromContext(ctx), userIDFromProto(r.Msg.TargetUserId)); err != nil {
-		return nil, err
-	}
-
-	return &connect.Response[pb.KickUserResponse]{
-		Msg: &pb.KickUserResponse{},
-	}, nil
-}
-
-func (p *porker2) CreateRoom(ctx context.Context, r *connect.Request[pb.CreateRoomRequest]) (*connect.Response[pb.CreateRoomResponse], error) {
+func (p *porker2) CreateRoom(ctx context.Context, _ *connect.Request[pb.CreateRoomRequest]) (*connect.Response[pb.CreateRoomResponse], error) {
 	roomID, err := p.pokerItr.CreateRoom(ctx, user.FromContext(ctx))
 	if err != nil {
 		return nil, err
@@ -90,7 +76,7 @@ func (p *porker2) CreateRoom(ctx context.Context, r *connect.Request[pb.CreateRo
 }
 
 func (p *porker2) JoinRoom(ctx context.Context, r *connect.Request[pb.JoinRoomRequest], stream *connect.ServerStream[pb.JoinRoomResponse]) error {
-	if err := p.v.VarWithMessage(validator.TagRoomID, r.Msg.RoomId, "invalid argument"); err != nil {
+	if err := p.validateRoomID(r.Msg.RoomId); err != nil {
 		return err
 	}
 
@@ -117,7 +103,7 @@ func (p *porker2) JoinRoom(ctx context.Context, r *connect.Request[pb.JoinRoomRe
 }
 
 func (p *porker2) LeaveRoom(ctx context.Context, r *connect.Request[pb.LeaveRoomRequest]) (*connect.Response[pb.LeaveRoomResponse], error) {
-	if err := p.v.VarWithMessage(validator.TagRoomID, r.Msg.RoomId, "invalid argument"); err != nil {
+	if err := p.validateRoomID(r.Msg.RoomId); err != nil {
 		return nil, err
 	}
 
@@ -135,7 +121,7 @@ func (p *porker2) CastVote(ctx context.Context, r *connect.Request[pb.CastVoteRe
 	ballot := ballotFromProto(r.Msg.Ballot)
 
 	vs := struct {
-		roomID poker.RoomID
+		roomID poker.RoomID `validate:"room_id"`
 		ballot *poker.Ballot
 	}{
 		roomID: roomID,
@@ -155,7 +141,7 @@ func (p *porker2) CastVote(ctx context.Context, r *connect.Request[pb.CastVoteRe
 }
 
 func (p *porker2) ShowVotes(ctx context.Context, r *connect.Request[pb.ShowVotesRequest]) (*connect.Response[pb.ShowVotesResponse], error) {
-	if err := p.v.VarWithMessage(validator.TagRoomID, r.Msg.RoomId, "invalid argument"); err != nil {
+	if err := p.validateRoomID(r.Msg.RoomId); err != nil {
 		return nil, err
 	}
 
@@ -167,7 +153,7 @@ func (p *porker2) ShowVotes(ctx context.Context, r *connect.Request[pb.ShowVotes
 }
 
 func (p *porker2) ResetVotes(ctx context.Context, r *connect.Request[pb.ResetVotesRequest]) (*connect.Response[pb.ResetVotesResponse], error) {
-	if err := p.v.VarWithMessage(validator.TagRoomID, r.Msg.RoomId, "invalid argument"); err != nil {
+	if err := p.validateRoomID(r.Msg.RoomId); err != nil {
 		return nil, err
 	}
 
@@ -176,4 +162,32 @@ func (p *porker2) ResetVotes(ctx context.Context, r *connect.Request[pb.ResetVot
 	}
 
 	return &connect.Response[pb.ResetVotesResponse]{}, nil
+}
+
+func (p *porker2) KickUser(ctx context.Context, r *connect.Request[pb.KickUserRequest]) (*connect.Response[pb.KickUserResponse], error) {
+	roomID := roomIDFromProto(r.Msg.RoomId)
+	targetUserID := userIDFromProto(r.Msg.TargetUserId)
+
+	vs := struct {
+		roomID       poker.RoomID `validate:"room_id"`
+		targetUserID user.ID      `validate:"user_id"`
+	}{
+		roomID:       roomID,
+		targetUserID: targetUserID,
+	}
+	if err := p.v.StructWithMessage(vs, "invalid argument"); err != nil {
+		return nil, err
+	}
+
+	if err := p.pokerItr.Kick(ctx, user.FromContext(ctx), targetUserID, roomID); err != nil {
+		return nil, err
+	}
+
+	return &connect.Response[pb.KickUserResponse]{
+		Msg: &pb.KickUserResponse{},
+	}, nil
+}
+
+func (p *porker2) validateRoomID(roomID string) error {
+	return p.v.VarWithMessage(validator.TagRoomID, roomID, "invalid argument")
 }

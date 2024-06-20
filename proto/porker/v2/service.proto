@@ -52,24 +52,6 @@ message LogoutRequest {}
 
 message LogoutResponse {}
 
-/* KickUser ユーザを強制退室させる。
- *
- * Errors:
- * - Unauthenticated:
- *   - cookieのtokenがない、または無効
- * - NotFound:
- *   - 指定されたユーザがroomに参加していない
- * - FailedPrecondition:
- *   - 指定されたroomに参加していない
- *   - roomのオーナー以外のユーザが実行している
- *   - 実行ユーザのIDが指定されている
- */
-message KickUserRequest {
-  string target_user_id = 1;
-}
-
-message KickUserResponse {}
-
 /* CreateRoom roomを作成する。
  *
  * Errors:
@@ -158,3 +140,22 @@ message ShowVotesRequest {
 }
 
 message ShowVotesResponse {}
+
+/* KickUser ユーザを強制退室させる。
+ *
+ * Errors:
+ * - Unauthenticated:
+ *   - cookieのtokenがない、または無効
+ * - NotFound:
+ *   - 指定されたユーザがroomに参加していない
+ * - FailedPrecondition:
+ *   - 実行ユーザが指定されたroomに参加していない
+ *   - 実行ユーザがroomのオーナーではない
+ *   - 実行ユーザ自身のIDが指定されている
+ */
+message KickUserRequest {
+  string room_id = 1;
+  string target_user_id = 2;
+}
+
+message KickUserResponse {}
