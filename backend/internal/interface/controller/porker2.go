@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"log/slog"
 
 	"connectrpc.com/connect"
 
@@ -40,14 +41,16 @@ func (p *porker2) Login(ctx context.Context, r *connect.Request[pb.LoginRequest]
 	}
 
 	name := user.Name(r.Msg.UserName)
-	userID, err := p.userItr.Login(ctx, name)
+	id, token, err := p.userItr.Login(ctx, name)
 	if err != nil {
 		return nil, err
 	}
 
+	logger.FromCtx(ctx).Info("user login", slog.String(id.String(), name.String()))
+
 	return &connect.Response[pb.LoginResponse]{
 		Msg: &pb.LoginResponse{
-			UserId: userID.String(),
+			Token: token, // TODO: cookieで返すようにしたい
 		},
 	}, nil
 }
@@ -63,7 +66,7 @@ func (p *porker2) Logout(ctx context.Context, _ *connect.Request[pb.LogoutReques
 }
 
 func (p *porker2) CreateRoom(ctx context.Context, _ *connect.Request[pb.CreateRoomRequest]) (*connect.Response[pb.CreateRoomResponse], error) {
-	roomID, err := p.pokerItr.CreateRoom(ctx, user.FromContext(ctx))
+	roomID, err := p.pokerItr.CreateRoom(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -80,26 +83,20 @@ func (p *porker2) JoinRoom(ctx context.Context, r *connect.Request[pb.JoinRoomRe
 		return err
 	}
 
-	ch := make(chan *poker.RoomCondition)
-	defer close(ch)
+	fn := func(ctx context.Context, rc *poker.RoomCondition) error {
+		if err := stream.Send(&pb.JoinRoomResponse{
+			Condition: roomConditionToProto(rc),
+		}); err != nil {
+			return err
+		}
+		return nil
+	}
 
-	if err := p.pokerItr.JoinRoom(ctx, user.FromContext(ctx), roomIDFromProto(r.Msg.RoomId), ch); err != nil {
+	if err := p.pokerItr.JoinRoom(ctx, user.FromContext(ctx), roomIDFromProto(r.Msg.RoomId), fn); err != nil {
 		return err
 	}
 
-	for {
-		select {
-		case <-ctx.Done():
-			logger.FromCtx(ctx).Info("context done: %v", ctx.Err())
-			return nil
-		case rc := <-ch:
-			if err := stream.Send(&pb.JoinRoomResponse{
-				Condition: roomConditionToProto(rc),
-			}); err != nil {
-				return err
-			}
-		}
-	}
+	return nil
 }
 
 func (p *porker2) LeaveRoom(ctx context.Context, r *connect.Request[pb.LeaveRoomRequest]) (*connect.Response[pb.LeaveRoomResponse], error) {
@@ -107,7 +104,7 @@ func (p *porker2) LeaveRoom(ctx context.Context, r *connect.Request[pb.LeaveRoom
 		return nil, err
 	}
 
-	if err := p.pokerItr.LeaveRoom(ctx, user.FromContext(ctx), roomIDFromProto(r.Msg.RoomId)); err != nil {
+	if err := p.pokerItr.LeaveRoom(ctx, user.FromContext(ctx)); err != nil {
 		return nil, err
 	}
 

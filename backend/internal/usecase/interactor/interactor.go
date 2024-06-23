@@ -6,23 +6,24 @@ import (
 
 	"github.com/swallowarc/porker2/backend/internal/domain/poker"
 	"github.com/swallowarc/porker2/backend/internal/domain/user"
+	"github.com/swallowarc/porker2/backend/internal/usecase/port"
 )
 
 type (
 	User interface {
-		// Login creates a new login session and returns access token.
-		Login(ctx context.Context, loginName user.Name) (user.ID, error)
-		// Logout deletes the login session.
+		// Login creates a new login session and returns user id & access token.
+		Login(ctx context.Context, userName user.Name) (user.ID, string, error)
+		// Logout deletes the user session.
 		Logout(ctx context.Context, userID user.ID) error
 	}
 
 	Poker interface {
 		// CreateRoom creates a new room and returns the room ID.
-		CreateRoom(ctx context.Context, userID user.ID) (poker.RoomID, error)
+		CreateRoom(ctx context.Context) (poker.RoomID, error)
 		// JoinRoom joins the room.
-		JoinRoom(ctx context.Context, userID user.ID, roomID poker.RoomID, ch chan<- *poker.RoomCondition) error
+		JoinRoom(ctx context.Context, userID user.ID, roomID poker.RoomID, fn port.RoomSubscribeFunc) error
 		// LeaveRoom leaves the room.
-		LeaveRoom(ctx context.Context, userID user.ID, roomID poker.RoomID) error
+		LeaveRoom(ctx context.Context, userID user.ID) error
 		// CastVote casts a vote.
 		CastVote(ctx context.Context, userID user.ID, roomID poker.RoomID, point poker.Point) error
 		// ShowVotes shows votes in the room.

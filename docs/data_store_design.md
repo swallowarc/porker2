@@ -6,19 +6,18 @@
 
 ### Login
 
-| Description      | Type   | Key               | Value     | Note    |
-|------------------|--------|-------------------|-----------|---------|
-| **access token** | String | token:(token)     | user_id   | LT: 60m |
-| **user name**    | String | user_id:(user_id) | user_name | LT: 60m |
+| Description      | Type   | Key             | Value       | Note    |
+|------------------|--------|-----------------|-------------|---------|
+| **access token** | String | token:(token)   | user_id     | LT: 60m |
+| **user info**    | String | user:(user_id)  | {user_name} | LT: 60m |
 
-- Lifetime is re-set each time a user requests an RPC.
+- Lifetime はユーザーがRPCをコールするたびにリセットする. (60m 無操作でセッション削除)
 
 ### CreateRoom
 
-| Description        | Type   | Key                   | Value               | Note   |
-|--------------------|--------|-----------------------|---------------------|--------|
-| **room members**   | String | room_id:(room_id)     | (Empty)             | LT:60m |
-| **room condition** | String | room_stream:(room_id) | room_condition{...} | LT:60m |
+| Description        | Type   | Key                      | Value               | Note   |
+|--------------------|--------|--------------------------|---------------------|--------|
+| **room condition** | Stream | room_condition:(room_id) | room_condition{...} | LT:60m |
 
 ```json
 // room condition
@@ -38,10 +37,13 @@
 
 #### Join 1st user
 
-| Description        | Type   | Key                   | Value               | Note            |
-|--------------------|--------|-----------------------|---------------------|-----------------|
-| **room members**   | Set    | room_id:(room_id)     | {user_id_1}         | LT:60m (re-set) |
-| **room condition** | Stream | room_stream:(room_id) | room_condition{...} | LT:60m (re-set) |
+| Description        | Type   | Key                      | Value               | Note            |
+|--------------------|--------|--------------------------|---------------------|-----------------|
+| **user join room** | String | user_join:(user_id_1)    | (room_id)           | LT:60m          |
+| **room condition** | Stream | room_condition:(room_id) | room_condition{...} | LT:60m (re-set) |
+
+- RoomのLifetime は退室以外の操作がRoomに行われるたびにリセットする. (60m 無操作でRoom削除)
+- user join room は入室した状態でユーザがログアウトした際に退室させるために設定
 
 ```json
 // room condition
@@ -59,15 +61,18 @@
   ]
 }
 ```
-- admin_user_id: first joined user
+- admin_user_id: 管理者ID(最初に入室したユーザのID)
 - point: 0 (not voted), 1, 2, 3 ...
 
 #### Join 2nd user
 
-| Description        | Type   | Key                   | Value                  | Note            |
-|--------------------|--------|-----------------------|------------------------|-----------------|
-| **room members**   | Set    | room_id:(room_id)     | {user_id_1, user_id_2} | LT:60m (re-set) |
-| **room condition** | Stream | room_stream:(room_id) | room_condition{...}    | LT:60m (re-set) |
+- (user_infoは記載省略するがuser_id_1の入室時と同様に処理)
+
+| Description        | Type   | Key                      | Value               | Note            |
+|--------------------|--------|--------------------------|---------------------|-----------------|
+| **user join room** | String | user_join:(user_id_1)    | (room_id)           | LT:60m          |
+| **user join room** | String | user_join:(user_id_2)    | (room_id)           | LT:60m          |
+| **room condition** | Stream | room_condition:(room_id) | room_condition{...} | LT:60m (re-set) |
 
 ```json
 // room condition
@@ -92,6 +97,16 @@
 ```
 
 ### CastVote
+
+同タイミングで複数のユーザが投票する場合、競合が発生する可能性があるため、Lock用のキーを用意する。
+SETXでLockし、Streamの読み込み&Publish後にLockを解除する。
+
+| Description        | Type   | Key                      | Value               | Note                     |
+|--------------------|--------|--------------------------|---------------------|--------------------------|
+| **user join room** | String | user_join:(user_id_1)    | (room_id)           | LT:60m                   |
+| **user join room** | String | user_join:(user_id_2)    | (room_id)           | LT:60m                   |
+| **room condition** | Stream | room_condition:(room_id) | room_condition{...} | LT:60m (re-set)          |
+| **room lock**      | String | room_lock:(room_id)      | (Empty)             | LT:5s Streamにpublish後に削除 |
 
 ```json
 // room condition
@@ -162,10 +177,10 @@
 
 ### KickUser
 
-| Description        | Type   | Key                   | Value               | Note            |
-|--------------------|--------|-----------------------|---------------------|-----------------|
-| **room members**   | Set    | room_id:(room_id)     | {user_id_1}         | LT:60m (re-set) |
-| **room condition** | Stream | room_stream:(room_id) | room_condition{...} | LT:60m (re-set) |
+| Description        | Type   | Key                      | Value               | Note            |
+|--------------------|--------|--------------------------|---------------------|-----------------|
+| **user join room** | String | user_join:(user_id_1)    | (room_id)           | LT:60m          |
+| **room condition** | Stream | room_condition:(room_id) | room_condition{...} | LT:60m (re-set) |
 
 ```json
 // room condition
@@ -186,10 +201,11 @@
 
 ### LeaveRoom
 
-| Description        | Type   | Key                   | Value               | Note            |
-|--------------------|--------|-----------------------|---------------------|-----------------|
-| **room members**   | Set    | room_id:(room_id)     | {}                  | LT: (no update) |
-| **room condition** | Stream | room_stream:(room_id) | room_condition{...} | LT: (no update) |
+| Description        | Type   | Key                      | Value               | Note            |
+|--------------------|--------|--------------------------|---------------------|-----------------|
+| **room condition** | Stream | room_condition:(room_id) | room_condition{...} | LT: (no update) |
+
+- room conditionからも自分の情報を削除する.
 
 ```json
 // room condition
@@ -200,5 +216,3 @@
   "ballots": []
 }
 ```
-
-- Automatic deletion after 60 minutes of no access.

@@ -37,8 +37,7 @@ message LoginRequest {
 }
 
 message LoginResponse {
-  string user_id = 1;
-  string token = 2;
+  string token = 1; // TODO: tokenはcookieに変更する
 }
 
 /* Logout ログアウト
@@ -148,9 +147,10 @@ message ShowVotesResponse {}
  *   - cookieのtokenがない、または無効
  * - NotFound:
  *   - 指定されたユーザがroomに参加していない
+ * - PermissionDenied:
+ *   - 実行ユーザがroomのオーナーではない
  * - FailedPrecondition:
  *   - 実行ユーザが指定されたroomに参加していない
- *   - 実行ユーザがroomのオーナーではない
  *   - 実行ユーザ自身のIDが指定されている
  */
 message KickUserRequest {

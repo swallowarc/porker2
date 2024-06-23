@@ -1,5 +1,5 @@
 //go:generate mockgen -source=$GOFILE -destination=../../test/mock/$GOPACKAGE/mock_$GOFILE -package=mock_$GOPACKAGE
-package gateways
+package gateway
 
 import (
 	"context"

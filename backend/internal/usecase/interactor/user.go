@@ -9,20 +9,32 @@ import (
 
 type (
 	userInteractor struct {
-		repo port.UserRepository
+		userRepo  port.UserRepository
+		pokerRepo port.PokerRepository
 	}
 )
 
-func NewUser(repo port.UserRepository) User {
-	return &userInteractor{repo: repo}
+func NewUser(repo port.UserRepository, pokerRepo port.PokerRepository) User {
+	return &userInteractor{userRepo: repo}
 }
 
-func (i *userInteractor) Login(ctx context.Context, loginName user.Name) (user.ID, error) {
-	//TODO implement me
-	panic("implement me")
+func (i *userInteractor) Login(ctx context.Context, userName user.Name) (user.ID, string, error) {
+	id, token, err := i.userRepo.Create(ctx, userName)
+	if err != nil {
+		return "", "", err
+	}
+
+	return id, token, nil
 }
 
 func (i *userInteractor) Logout(ctx context.Context, userID user.ID) error {
-	//TODO implement me
-	panic("implement me")
+	if err := i.pokerRepo.RemoveRoomUser(ctx, userID); err != nil {
+		return err
+	}
+
+	if err := i.userRepo.Delete(ctx, userID); err != nil {
+		return err
+	}
+
+	return nil
 }

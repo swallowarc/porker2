@@ -15,6 +15,7 @@ import (
 
 	poker "github.com/swallowarc/porker2/backend/internal/domain/poker"
 	user "github.com/swallowarc/porker2/backend/internal/domain/user"
+	port "github.com/swallowarc/porker2/backend/internal/usecase/port"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -41,33 +42,20 @@ func (m *MockUser) EXPECT() *MockUserMockRecorder {
 	return m.recorder
 }
 
-// Kick mocks base method.
-func (m *MockUser) Kick(ctx context.Context, userID, targetUserID user.ID) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Kick", ctx, userID, targetUserID)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Kick indicates an expected call of Kick.
-func (mr *MockUserMockRecorder) Kick(ctx, userID, targetUserID any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Kick", reflect.TypeOf((*MockUser)(nil).Kick), ctx, userID, targetUserID)
-}
-
 // Login mocks base method.
-func (m *MockUser) Login(ctx context.Context, loginName user.Name) (user.ID, error) {
+func (m *MockUser) Login(ctx context.Context, userName user.Name) (user.ID, string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Login", ctx, loginName)
+	ret := m.ctrl.Call(m, "Login", ctx, userName)
 	ret0, _ := ret[0].(user.ID)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret1, _ := ret[1].(string)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
 // Login indicates an expected call of Login.
-func (mr *MockUserMockRecorder) Login(ctx, loginName any) *gomock.Call {
+func (mr *MockUserMockRecorder) Login(ctx, userName any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockUser)(nil).Login), ctx, loginName)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockUser)(nil).Login), ctx, userName)
 }
 
 // Logout mocks base method.
@@ -122,46 +110,60 @@ func (mr *MockPokerMockRecorder) CastVote(ctx, userID, roomID, point any) *gomoc
 }
 
 // CreateRoom mocks base method.
-func (m *MockPoker) CreateRoom(ctx context.Context, userID user.ID) (poker.RoomID, error) {
+func (m *MockPoker) CreateRoom(ctx context.Context) (poker.RoomID, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateRoom", ctx, userID)
+	ret := m.ctrl.Call(m, "CreateRoom", ctx)
 	ret0, _ := ret[0].(poker.RoomID)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateRoom indicates an expected call of CreateRoom.
-func (mr *MockPokerMockRecorder) CreateRoom(ctx, userID any) *gomock.Call {
+func (mr *MockPokerMockRecorder) CreateRoom(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRoom", reflect.TypeOf((*MockPoker)(nil).CreateRoom), ctx, userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRoom", reflect.TypeOf((*MockPoker)(nil).CreateRoom), ctx)
 }
 
 // JoinRoom mocks base method.
-func (m *MockPoker) JoinRoom(ctx context.Context, userID user.ID, roomID poker.RoomID, ch chan<- *poker.RoomCondition) error {
+func (m *MockPoker) JoinRoom(ctx context.Context, userID user.ID, roomID poker.RoomID, fn port.RoomSubscribeFunc) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "JoinRoom", ctx, userID, roomID, ch)
+	ret := m.ctrl.Call(m, "JoinRoom", ctx, userID, roomID, fn)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // JoinRoom indicates an expected call of JoinRoom.
-func (mr *MockPokerMockRecorder) JoinRoom(ctx, userID, roomID, ch any) *gomock.Call {
+func (mr *MockPokerMockRecorder) JoinRoom(ctx, userID, roomID, fn any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "JoinRoom", reflect.TypeOf((*MockPoker)(nil).JoinRoom), ctx, userID, roomID, ch)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "JoinRoom", reflect.TypeOf((*MockPoker)(nil).JoinRoom), ctx, userID, roomID, fn)
+}
+
+// Kick mocks base method.
+func (m *MockPoker) Kick(ctx context.Context, userID, targetUserID user.ID, roomID poker.RoomID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Kick", ctx, userID, targetUserID, roomID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Kick indicates an expected call of Kick.
+func (mr *MockPokerMockRecorder) Kick(ctx, userID, targetUserID, roomID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Kick", reflect.TypeOf((*MockPoker)(nil).Kick), ctx, userID, targetUserID, roomID)
 }
 
 // LeaveRoom mocks base method.
-func (m *MockPoker) LeaveRoom(ctx context.Context, userID user.ID, roomID poker.RoomID) error {
+func (m *MockPoker) LeaveRoom(ctx context.Context, userID user.ID) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "LeaveRoom", ctx, userID, roomID)
+	ret := m.ctrl.Call(m, "LeaveRoom", ctx, userID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // LeaveRoom indicates an expected call of LeaveRoom.
-func (mr *MockPokerMockRecorder) LeaveRoom(ctx, userID, roomID any) *gomock.Call {
+func (mr *MockPokerMockRecorder) LeaveRoom(ctx, userID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LeaveRoom", reflect.TypeOf((*MockPoker)(nil).LeaveRoom), ctx, userID, roomID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LeaveRoom", reflect.TypeOf((*MockPoker)(nil).LeaveRoom), ctx, userID)
 }
 
 // ResetVotes mocks base method.

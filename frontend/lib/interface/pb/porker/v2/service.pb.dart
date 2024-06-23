@@ -76,13 +76,9 @@ class LoginRequest extends $pb.GeneratedMessage {
 
 class LoginResponse extends $pb.GeneratedMessage {
   factory LoginResponse({
-    $core.String? userId,
     $core.String? token,
   }) {
     final $result = create();
-    if (userId != null) {
-      $result.userId = userId;
-    }
     if (token != null) {
       $result.token = token;
     }
@@ -93,8 +89,7 @@ class LoginResponse extends $pb.GeneratedMessage {
   factory LoginResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'LoginResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'porker.v2'), createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'userId')
-    ..aOS(2, _omitFieldNames ? '' : 'token')
+    ..aOS(1, _omitFieldNames ? '' : 'token')
     ..hasRequiredFields = false
   ;
 
@@ -120,22 +115,13 @@ class LoginResponse extends $pb.GeneratedMessage {
   static LoginResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get userId => $_getSZ(0);
+  $core.String get token => $_getSZ(0);
   @$pb.TagNumber(1)
-  set userId($core.String v) { $_setString(0, v); }
+  set token($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasUserId() => $_has(0);
+  $core.bool hasToken() => $_has(0);
   @$pb.TagNumber(1)
-  void clearUserId() => clearField(1);
-
-  @$pb.TagNumber(2)
-  $core.String get token => $_getSZ(1);
-  @$pb.TagNumber(2)
-  set token($core.String v) { $_setString(1, v); }
-  @$pb.TagNumber(2)
-  $core.bool hasToken() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearToken() => clearField(2);
+  void clearToken() => clearField(1);
 }
 
 ///  Logout ログアウト
@@ -787,9 +773,10 @@ class ShowVotesResponse extends $pb.GeneratedMessage {
 ///    - cookieのtokenがない、または無効
 ///  - NotFound:
 ///    - 指定されたユーザがroomに参加していない
+///  - PermissionDenied:
+///    - 実行ユーザがroomのオーナーではない
 ///  - FailedPrecondition:
 ///    - 実行ユーザが指定されたroomに参加していない
-///    - 実行ユーザがroomのオーナーではない
 ///    - 実行ユーザ自身のIDが指定されている
 class KickUserRequest extends $pb.GeneratedMessage {
   factory KickUserRequest({
