@@ -12,21 +12,21 @@ import (
 */
 
 const (
-	keyFormatToken      = "porker2_token:%s"
-	keyFormatUserIDName = "porker2_user_id_name:%s"
-	keyFormatUserNameID = "porker2_user_name_id:%s"
+	keyFormatUserToken = "porker2_token:%s"
+	keyFormatUserID    = "porker2_user_id:%s"
+	keyFormatUserName  = "porker2_user_name:%s"
 )
 
-func tokenKey(tk string) string {
-	return fmt.Sprintf(keyFormatToken, tk)
+func userTokenKey(tk string) string {
+	return fmt.Sprintf(keyFormatUserToken, tk)
 }
 
-func idNameKey(id user.ID) string {
-	return fmt.Sprintf(keyFormatUserIDName, id)
+func userIDKey(id user.ID) string {
+	return fmt.Sprintf(keyFormatUserID, id)
 }
 
-func nameIDKey(name user.Name) string {
-	return fmt.Sprintf(keyFormatUserNameID, name)
+func userNameKey(name user.Name) string {
+	return fmt.Sprintf(keyFormatUserName, name)
 }
 
 /*
@@ -34,14 +34,9 @@ func nameIDKey(name user.Name) string {
 */
 
 const (
-	keyFormatUserJoinRoom  = "porker2_user_join:%s"
 	keyFormatRoomCondition = "porker2_room_condition:%s"
 	keyFormatRoomLock      = "porker2_room_Lock:%s"
 )
-
-func userJoinRoomKey(id user.ID) string {
-	return fmt.Sprintf(keyFormatUserJoinRoom, id)
-}
 
 func roomConditionKey(id poker.RoomID) string {
 	return fmt.Sprintf(keyFormatRoomCondition, id)

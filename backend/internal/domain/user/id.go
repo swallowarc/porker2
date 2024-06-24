@@ -32,7 +32,7 @@ func SetContext(ctx context.Context, id ID) context.Context {
 	return context.WithValue(ctx, contextKey, id)
 }
 
-func FromContext(ctx context.Context) ID {
+func FromContextID(ctx context.Context) ID {
 	// Since the value is guaranteed to be set in the context by the interceptor, the check is unnecessary.
 	id, _ := ctx.Value(contextKey).(ID)
 	return id

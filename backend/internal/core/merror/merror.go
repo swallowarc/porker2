@@ -128,3 +128,7 @@ func NewAlreadyExists(messageFormat string, args ...any) error {
 func IsAlreadyExists(err error) bool {
 	return CodeFromError(err) == connect.CodeAlreadyExists
 }
+
+func NewUnavailable(messageFormat string, args ...any) error {
+	return connect.NewError(connect.CodeUnavailable, fmt.Errorf(messageFormat, args...))
+}

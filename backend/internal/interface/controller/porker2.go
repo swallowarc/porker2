@@ -56,7 +56,7 @@ func (p *porker2) Login(ctx context.Context, r *connect.Request[pb.LoginRequest]
 }
 
 func (p *porker2) Logout(ctx context.Context, _ *connect.Request[pb.LogoutRequest]) (*connect.Response[pb.LogoutResponse], error) {
-	if err := p.userItr.Logout(ctx, user.FromContext(ctx)); err != nil {
+	if err := p.userItr.Logout(ctx, user.FromContextID(ctx)); err != nil {
 		return nil, err
 	}
 
@@ -92,7 +92,7 @@ func (p *porker2) JoinRoom(ctx context.Context, r *connect.Request[pb.JoinRoomRe
 		return nil
 	}
 
-	if err := p.pokerItr.JoinRoom(ctx, user.FromContext(ctx), roomIDFromProto(r.Msg.RoomId), fn); err != nil {
+	if err := p.pokerItr.JoinRoom(ctx, user.FromContextID(ctx), roomIDFromProto(r.Msg.RoomId), fn); err != nil {
 		return err
 	}
 
@@ -104,7 +104,7 @@ func (p *porker2) LeaveRoom(ctx context.Context, r *connect.Request[pb.LeaveRoom
 		return nil, err
 	}
 
-	if err := p.pokerItr.LeaveRoom(ctx, user.FromContext(ctx)); err != nil {
+	if err := p.pokerItr.LeaveRoom(ctx, user.FromContextID(ctx)); err != nil {
 		return nil, err
 	}
 
@@ -128,7 +128,7 @@ func (p *porker2) CastVote(ctx context.Context, r *connect.Request[pb.CastVoteRe
 		return nil, err
 	}
 
-	if err := p.pokerItr.CastVote(ctx, user.FromContext(ctx), roomID, ballot.Point); err != nil {
+	if err := p.pokerItr.CastVote(ctx, user.FromContextID(ctx), roomID, ballot.Point); err != nil {
 		return nil, err
 	}
 
@@ -142,7 +142,7 @@ func (p *porker2) ShowVotes(ctx context.Context, r *connect.Request[pb.ShowVotes
 		return nil, err
 	}
 
-	if err := p.pokerItr.ShowVotes(ctx, user.FromContext(ctx), roomIDFromProto(r.Msg.RoomId)); err != nil {
+	if err := p.pokerItr.ShowVotes(ctx, user.FromContextID(ctx), roomIDFromProto(r.Msg.RoomId)); err != nil {
 		return nil, err
 	}
 
@@ -154,7 +154,7 @@ func (p *porker2) ResetVotes(ctx context.Context, r *connect.Request[pb.ResetVot
 		return nil, err
 	}
 
-	if err := p.pokerItr.ResetVotes(ctx, user.FromContext(ctx), roomIDFromProto(r.Msg.RoomId)); err != nil {
+	if err := p.pokerItr.ResetVotes(ctx, user.FromContextID(ctx), roomIDFromProto(r.Msg.RoomId)); err != nil {
 		return nil, err
 	}
 
@@ -176,7 +176,7 @@ func (p *porker2) KickUser(ctx context.Context, r *connect.Request[pb.KickUserRe
 		return nil, err
 	}
 
-	if err := p.pokerItr.Kick(ctx, user.FromContext(ctx), targetUserID, roomID); err != nil {
+	if err := p.pokerItr.Kick(ctx, user.FromContextID(ctx), targetUserID, roomID); err != nil {
 		return nil, err
 	}
 

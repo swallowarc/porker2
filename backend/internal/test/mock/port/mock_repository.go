@@ -73,6 +73,23 @@ func (mr *MockUserRepositoryMockRecorder) Delete(ctx, userID any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockUserRepository)(nil).Delete), ctx, userID)
 }
 
+// GetByID mocks base method.
+func (m *MockUserRepository) GetByID(ctx context.Context, userID user.ID) (user.Name, string, poker.RoomID, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByID", ctx, userID)
+	ret0, _ := ret[0].(user.Name)
+	ret1, _ := ret[1].(string)
+	ret2, _ := ret[2].(poker.RoomID)
+	ret3, _ := ret[3].(error)
+	return ret0, ret1, ret2, ret3
+}
+
+// GetByID indicates an expected call of GetByID.
+func (mr *MockUserRepositoryMockRecorder) GetByID(ctx, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockUserRepository)(nil).GetByID), ctx, userID)
+}
+
 // GetIDByAccessToken mocks base method.
 func (m *MockUserRepository) GetIDByAccessToken(ctx context.Context, token string) (user.ID, error) {
 	m.ctrl.T.Helper()
@@ -101,21 +118,6 @@ func (m *MockUserRepository) GetIDByName(ctx context.Context, userName user.Name
 func (mr *MockUserRepositoryMockRecorder) GetIDByName(ctx, userName any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIDByName", reflect.TypeOf((*MockUserRepository)(nil).GetIDByName), ctx, userName)
-}
-
-// GetNameByID mocks base method.
-func (m *MockUserRepository) GetNameByID(ctx context.Context, userID user.ID) (user.Name, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetNameByID", ctx, userID)
-	ret0, _ := ret[0].(user.Name)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetNameByID indicates an expected call of GetNameByID.
-func (mr *MockUserRepositoryMockRecorder) GetNameByID(ctx, userID any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNameByID", reflect.TypeOf((*MockUserRepository)(nil).GetNameByID), ctx, userID)
 }
 
 // ResetLifetime mocks base method.

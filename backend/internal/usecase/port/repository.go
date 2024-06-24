@@ -15,7 +15,7 @@ type (
 		Delete(ctx context.Context, userID user.ID) error
 		ResetLifetime(ctx context.Context, userID user.ID) error
 		GetIDByAccessToken(ctx context.Context, token string) (user.ID, error)
-		GetNameByID(ctx context.Context, userID user.ID) (user.Name, error)
+		GetByID(ctx context.Context, userID user.ID) (user.Name, string, poker.RoomID, error)
 		GetIDByName(ctx context.Context, userName user.Name) (user.ID, error)
 	}
 
