@@ -2,12 +2,17 @@ package repository
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/swallowarc/porker2/backend/internal/domain/poker"
 	"github.com/swallowarc/porker2/backend/internal/domain/user"
 	"github.com/swallowarc/porker2/backend/internal/interface/gateway"
 	"github.com/swallowarc/porker2/backend/internal/usecase/port"
+)
+
+const (
+	roomLockDuration = 2 * time.Second
 )
 
 type (
@@ -65,4 +70,29 @@ func (r *pokerRepository) ResetRoomCondition(ctx context.Context, roomID poker.R
 func (r *pokerRepository) SubscribeRoomCondition(ctx context.Context, block time.Duration, fn port.RoomSubscriber) error {
 	//TODO implement me
 	panic("implement me")
+}
+
+func (r *pokerRepository) lockRoom(ctx context.Context, roomID poker.RoomID) error {
+	//TODO implement me
+	panic("implement")
+}
+
+func (r *pokerRepository) unlockRoom(ctx context.Context, roomID poker.RoomID) error {
+	//TODO implement me
+	panic("implement")
+}
+
+func (r *pokerRepository) getRoomCondition(ctx context.Context, roomID poker.RoomID) (*poker.RoomCondition, error) {
+	// TODO: streamからの取得に直す
+	j, err := r.mem.Get(ctx, roomConditionKey(roomID))
+	if err != nil {
+		return nil, err
+	}
+
+	var rc poker.RoomCondition
+	if err := json.Unmarshal([]byte(j), &rc); err != nil {
+		return nil, err
+	}
+
+	return &rc, nil
 }

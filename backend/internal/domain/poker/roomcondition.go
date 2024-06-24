@@ -14,10 +14,10 @@ const (
 
 type (
 	RoomCondition struct {
-		RoomID      RoomID
-		AdminUserID user.ID
-		VoteState   VoteState
-		Ballots     []*Ballot
+		RoomID      RoomID    `json:"room_id"`
+		AdminUserID user.ID   `json:"admin_user_id"`
+		VoteState   VoteState `json:"vote_state"`
+		Ballots     []*Ballot `json:"ballots"`
 	}
 )
 

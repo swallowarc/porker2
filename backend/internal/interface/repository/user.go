@@ -3,11 +3,9 @@ package repository
 import (
 	"context"
 	"encoding/json"
-	"log/slog"
 
 	"golang.org/x/sync/errgroup"
 
-	"github.com/swallowarc/porker2/backend/internal/core/logger"
 	"github.com/swallowarc/porker2/backend/internal/core/merror"
 	"github.com/swallowarc/porker2/backend/internal/domain/poker"
 	"github.com/swallowarc/porker2/backend/internal/domain/user"
@@ -23,19 +21,7 @@ type (
 	userRepository struct {
 		mem gateway.MemDBClient
 	}
-
-	userModel struct {
-		ID     user.ID      `json:"id"`
-		Name   user.Name    `json:"name"`
-		Token  string       `json:"token"`
-		RoomID poker.RoomID `json:"room_id,omitempty"`
-	}
 )
-
-func (m *userModel) jsonMarshalUserInfo() (string, error) {
-	j, err := json.Marshal(m)
-	return string(j), err
-}
 
 func NewUserRepository(mem gateway.MemDBClient) port.UserRepository {
 	return &userRepository{
@@ -44,44 +30,25 @@ func NewUserRepository(mem gateway.MemDBClient) port.UserRepository {
 }
 
 func (r *userRepository) Create(ctx context.Context, userName user.Name) (user.ID, string, error) {
-	var (
-		u       *userModel
-		nameKey = userNameKey(userName)
-	)
+	u := newUser(userName)
 
-	// Retry to generate a unique user ID.
-	for i := 0; i <= idGenerateRetryLimit; i++ {
-		u = &userModel{
-			ID:    user.NewID(),
-			Name:  userName,
-			Token: user.NewToken(),
-		}
-		idKey := userIDKey(u.ID)
+	set, err := r.mem.SetNX(ctx, userNameKey(userName), u.ID.String(), user.SessionLifetime)
+	if err != nil {
+		return "", "", merror.WrapInternal(err, "failed to set user name")
+	} else if !set {
+		return "", "", merror.NewAlreadyExists("user name already exists")
+	}
 
-		j, err := u.jsonMarshalUserInfo()
-		if err != nil {
-			return "", "", merror.WrapInternal(err, "failed to marshal user")
-		}
+	j, err := u.jsonMarshalUserInfo()
+	if err != nil {
+		return "", "", merror.WrapInternal(err, "failed to marshal user")
+	}
 
-		set, err := r.mem.SetNX(ctx, idKey, j, user.SessionLifetime)
-		if err != nil {
-			return "", "", merror.WrapInternal(err, "failed to set user id")
-		}
-		if !set {
-			continue
-		}
-
-		set, err = r.mem.SetNX(ctx, nameKey, u.ID.String(), user.SessionLifetime)
-		if err != nil {
-			return "", "", merror.WrapInternal(err, "failed to set user name")
-		}
-		if !set {
-			if err := r.mem.Del(ctx, idKey); err != nil {
-				logger.FromCtx(ctx).Error("failed to delete user id", slog.String("err", err.Error()))
-			}
-			return "", "", merror.NewAlreadyExists("user name already exists")
-		}
-		break
+	set, err = r.mem.SetNX(ctx, userIDKey(u.ID), j, user.SessionLifetime)
+	if err != nil {
+		return "", "", merror.WrapInternal(err, "failed to set user id")
+	} else if !set {
+		return "", "", merror.NewAlreadyExists("user id already exists")
 	}
 
 	if _, err := r.mem.SetNX(ctx, userTokenKey(u.Token), u.ID.String(), user.SessionLifetime); err != nil {

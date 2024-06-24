@@ -41,11 +41,9 @@
 
 | Description        | Type   | Key                      | Value               | Note            |
 |--------------------|--------|--------------------------|---------------------|-----------------|
-| **user join room** | String | user_join:(user_id_1)    | (room_id)           | LT:60m          |
 | **room condition** | Stream | room_condition:(room_id) | room_condition{...} | LT:60m (re-set) |
 
 - RoomのLifetime は退室以外の操作がRoomに行われるたびにリセットする. (60m 無操作でRoom削除)
-- user join room は入室した状態でユーザがログアウトした際に退室させるために設定
 
 ```json
 // room condition
