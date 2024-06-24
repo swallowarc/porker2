@@ -16,9 +16,10 @@ type (
 		ResetLifetime(ctx context.Context, userID user.ID) error
 		GetIDByAccessToken(ctx context.Context, token string) (user.ID, error)
 		GetNameByID(ctx context.Context, userID user.ID) (user.Name, error)
+		GetIDByName(ctx context.Context, userName user.Name) (user.ID, error)
 	}
 
-	RoomSubscribeFunc func(ctx context.Context, condition *poker.RoomCondition) error
+	RoomSubscriber func(ctx context.Context, condition *poker.RoomCondition) error
 
 	PokerRepository interface {
 		CreateRoom(ctx context.Context) (poker.RoomID, error)
@@ -29,6 +30,6 @@ type (
 		UpdateBallot(ctx context.Context, roomID poker.RoomID, userID user.ID, point poker.Point) error
 		UpdateVoteState(ctx context.Context, roomID poker.RoomID, state poker.VoteState) error
 		ResetRoomCondition(ctx context.Context, roomID poker.RoomID) error
-		SubscribeRoomCondition(ctx context.Context, block time.Duration, fn RoomSubscribeFunc) error
+		SubscribeRoomCondition(ctx context.Context, block time.Duration, fn RoomSubscriber) error
 	}
 )

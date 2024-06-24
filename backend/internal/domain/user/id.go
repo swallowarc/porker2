@@ -2,8 +2,13 @@ package user
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
+)
+
+const (
+	SessionLifetime = 60 * time.Minute
 )
 
 type ID string

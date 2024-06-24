@@ -7,60 +7,46 @@ import (
 	"github.com/swallowarc/porker2/backend/internal/domain/user"
 )
 
+/*
+	UserRepository keys
+*/
+
 const (
-	keyFormatToken = "porker2_token:%s"
+	keyFormatToken      = "porker2_token:%s"
+	keyFormatUserIDName = "porker2_user_id_name:%s"
+	keyFormatUserNameID = "porker2_user_name_id:%s"
 )
 
-type (
-	tokenKey string
-)
-
-func newTokenKey(token string) tokenKey {
-	return tokenKey(token)
-}
-
-func (tk tokenKey) token() string {
+func tokenKey(tk string) string {
 	return fmt.Sprintf(keyFormatToken, tk)
 }
 
-const (
-	keyFormatUserName = "porker2_user_name:%s"
-)
-
-type (
-	userKey user.ID
-)
-
-func newUserKey(id user.ID) userKey {
-	return userKey(id)
+func idNameKey(id user.ID) string {
+	return fmt.Sprintf(keyFormatUserIDName, id)
 }
 
-func (id userKey) name() string {
-	return fmt.Sprintf(keyFormatUserName, id)
+func nameIDKey(name user.Name) string {
+	return fmt.Sprintf(keyFormatUserNameID, name)
 }
 
+/*
+	PokerRepository keys
+*/
+
 const (
-	keyFormatRoomMembers   = "porker2_room_members:%s"
+	keyFormatUserJoinRoom  = "porker2_user_join:%s"
 	keyFormatRoomCondition = "porker2_room_condition:%s"
 	keyFormatRoomLock      = "porker2_room_Lock:%s"
 )
 
-type (
-	roomKey poker.RoomID
-)
-
-func newRoomKey(id poker.RoomID) roomKey {
-	return roomKey(id)
+func userJoinRoomKey(id user.ID) string {
+	return fmt.Sprintf(keyFormatUserJoinRoom, id)
 }
 
-func (id roomKey) members() string {
-	return fmt.Sprintf(keyFormatRoomMembers, id)
-}
-
-func (id roomKey) condition() string {
+func roomConditionKey(id poker.RoomID) string {
 	return fmt.Sprintf(keyFormatRoomCondition, id)
 }
 
-func (id roomKey) lock() string {
+func roomLockKey(id poker.RoomID) string {
 	return fmt.Sprintf(keyFormatRoomLock, id)
 }

@@ -211,11 +211,12 @@ func (mr *MockMemDBClientMockRecorder) Set(ctx, key, value, duration any) *gomoc
 }
 
 // SetNX mocks base method.
-func (m *MockMemDBClient) SetNX(ctx context.Context, key string, value any, duration time.Duration) error {
+func (m *MockMemDBClient) SetNX(ctx context.Context, key string, value any, duration time.Duration) (bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SetNX", ctx, key, value, duration)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // SetNX indicates an expected call of SetNX.

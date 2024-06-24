@@ -21,7 +21,7 @@ type (
 		// CreateRoom creates a new room and returns the room ID.
 		CreateRoom(ctx context.Context) (poker.RoomID, error)
 		// JoinRoom joins the room.
-		JoinRoom(ctx context.Context, userID user.ID, roomID poker.RoomID, fn port.RoomSubscribeFunc) error
+		JoinRoom(ctx context.Context, userID user.ID, roomID poker.RoomID, fn port.RoomSubscriber) error
 		// LeaveRoom leaves the room.
 		LeaveRoom(ctx context.Context, userID user.ID) error
 		// CastVote casts a vote.

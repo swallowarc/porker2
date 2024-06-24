@@ -49,11 +49,13 @@ func (c *redisClient) Set(ctx context.Context, key string, value interface{}, du
 	return nil
 }
 
-func (c *redisClient) SetNX(ctx context.Context, key string, value interface{}, duration time.Duration) error {
-	if err := c.cli.SetNX(ctx, key, value, duration).Err(); err != nil {
-		return merror.WrapInternal(err, "failed to redis SetNX")
+func (c *redisClient) SetNX(ctx context.Context, key string, value interface{}, duration time.Duration) (bool, error) {
+	ret, err := c.cli.SetNX(ctx, key, value, duration).Result()
+	if err != nil {
+		return false, merror.WrapInternal(err, "failed to redis SetNX")
 	}
-	return nil
+
+	return ret, nil
 }
 
 func (c *redisClient) Get(ctx context.Context, key string) (string, error) {

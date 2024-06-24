@@ -10,7 +10,7 @@ type (
 	MemDBClient interface {
 		Ping(ctx context.Context) error
 		Set(ctx context.Context, key string, value interface{}, duration time.Duration) error
-		SetNX(ctx context.Context, key string, value interface{}, duration time.Duration) error
+		SetNX(ctx context.Context, key string, value interface{}, duration time.Duration) (bool, error)
 		Get(ctx context.Context, key string) (string, error)
 		Del(ctx context.Context, key string) error
 		SAdd(ctx context.Context, key string, values ...interface{}) error

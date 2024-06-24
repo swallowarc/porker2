@@ -10,7 +10,7 @@ import (
 	"github.com/swallowarc/porker2/backend/internal/usecase/port"
 )
 
-const roomSubscribeInterval = 3 * time.Second
+const roomSubscribeBlockDuration = 3 * time.Second
 
 type (
 	pokerInteractor struct {
@@ -26,7 +26,7 @@ func (i *pokerInteractor) CreateRoom(ctx context.Context) (poker.RoomID, error) 
 	return i.repo.CreateRoom(ctx)
 }
 
-func (i *pokerInteractor) JoinRoom(ctx context.Context, userID user.ID, roomID poker.RoomID, fn port.RoomSubscribeFunc) error {
+func (i *pokerInteractor) JoinRoom(ctx context.Context, userID user.ID, roomID poker.RoomID, fn port.RoomSubscriber) error {
 	condition, err := i.repo.GetRoomCondition(ctx, roomID)
 	if err != nil {
 		return err
@@ -50,7 +50,7 @@ func (i *pokerInteractor) JoinRoom(ctx context.Context, userID user.ID, roomID p
 	}
 
 	for {
-		if err := i.repo.SubscribeRoomCondition(ctx, roomSubscribeInterval, func(ctx context.Context, condition *poker.RoomCondition) error {
+		if err := i.repo.SubscribeRoomCondition(ctx, roomSubscribeBlockDuration, func(ctx context.Context, condition *poker.RoomCondition) error {
 			if err := fn(ctx, condition); err != nil {
 				return err
 			}

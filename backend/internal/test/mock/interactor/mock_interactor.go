@@ -125,7 +125,7 @@ func (mr *MockPokerMockRecorder) CreateRoom(ctx any) *gomock.Call {
 }
 
 // JoinRoom mocks base method.
-func (m *MockPoker) JoinRoom(ctx context.Context, userID user.ID, roomID poker.RoomID, fn port.RoomSubscribeFunc) error {
+func (m *MockPoker) JoinRoom(ctx context.Context, userID user.ID, roomID poker.RoomID, fn port.RoomSubscriber) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "JoinRoom", ctx, userID, roomID, fn)
 	ret0, _ := ret[0].(error)

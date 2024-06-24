@@ -6,12 +6,14 @@
 
 ### Login
 
-| Description      | Type   | Key             | Value       | Note    |
-|------------------|--------|-----------------|-------------|---------|
-| **access token** | String | token:(token)   | user_id     | LT: 60m |
-| **user info**    | String | user:(user_id)  | {user_name} | LT: 60m |
+| Description         | Type   | Key                      | Value       | Note    |
+|---------------------|--------|--------------------------|-------------|---------|
+| **access token**    | String | token:(token)            | user_id     | LT: 60m |
+| **user name by id** | String | user_id_name:(user_id)   | {user_name} | LT: 60m |
+| **user id by name** | String | user_name_id:(user_name) | {user_id}   | LT: 60m |
 
 - Lifetime はユーザーがRPCをコールするたびにリセットする. (60m 無操作でセッション削除)
+- user id by name はユーザ名の重複チェック用
 
 ### CreateRoom
 

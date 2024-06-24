@@ -88,6 +88,21 @@ func (mr *MockUserRepositoryMockRecorder) GetIDByAccessToken(ctx, token any) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIDByAccessToken", reflect.TypeOf((*MockUserRepository)(nil).GetIDByAccessToken), ctx, token)
 }
 
+// GetIDByName mocks base method.
+func (m *MockUserRepository) GetIDByName(ctx context.Context, userName user.Name) (user.ID, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetIDByName", ctx, userName)
+	ret0, _ := ret[0].(user.ID)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetIDByName indicates an expected call of GetIDByName.
+func (mr *MockUserRepositoryMockRecorder) GetIDByName(ctx, userName any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIDByName", reflect.TypeOf((*MockUserRepository)(nil).GetIDByName), ctx, userName)
+}
+
 // GetNameByID mocks base method.
 func (m *MockUserRepository) GetNameByID(ctx context.Context, userID user.ID) (user.Name, error) {
 	m.ctrl.T.Helper()
@@ -228,7 +243,7 @@ func (mr *MockPokerRepositoryMockRecorder) ResetRoomCondition(ctx, roomID any) *
 }
 
 // SubscribeRoomCondition mocks base method.
-func (m *MockPokerRepository) SubscribeRoomCondition(ctx context.Context, block time.Duration, fn port.RoomSubscribeFunc) error {
+func (m *MockPokerRepository) SubscribeRoomCondition(ctx context.Context, block time.Duration, fn port.RoomSubscriber) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SubscribeRoomCondition", ctx, block, fn)
 	ret0, _ := ret[0].(error)

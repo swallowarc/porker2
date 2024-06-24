@@ -62,7 +62,7 @@ func (r *pokerRepository) ResetRoomCondition(ctx context.Context, roomID poker.R
 	panic("implement me")
 }
 
-func (r *pokerRepository) SubscribeRoomCondition(ctx context.Context, block time.Duration, fn port.RoomSubscribeFunc) error {
+func (r *pokerRepository) SubscribeRoomCondition(ctx context.Context, block time.Duration, fn port.RoomSubscriber) error {
 	//TODO implement me
 	panic("implement me")
 }
