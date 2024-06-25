@@ -5,6 +5,10 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/cenkalti/backoff/v4"
+
+	"github.com/swallowarc/porker2/backend/internal/core/logger"
+	"github.com/swallowarc/porker2/backend/internal/core/merror"
 	"github.com/swallowarc/porker2/backend/internal/domain/poker"
 	"github.com/swallowarc/porker2/backend/internal/domain/user"
 	"github.com/swallowarc/porker2/backend/internal/interface/gateway"
@@ -12,7 +16,8 @@ import (
 )
 
 const (
-	roomLockDuration = 2 * time.Second
+	roomLockDuration = 3 * time.Second
+	roomLockRetry    = 5
 )
 
 type (
@@ -72,16 +77,6 @@ func (r *pokerRepository) SubscribeRoomCondition(ctx context.Context, block time
 	panic("implement me")
 }
 
-func (r *pokerRepository) lockRoom(ctx context.Context, roomID poker.RoomID) error {
-	//TODO implement me
-	panic("implement")
-}
-
-func (r *pokerRepository) unlockRoom(ctx context.Context, roomID poker.RoomID) error {
-	//TODO implement me
-	panic("implement")
-}
-
 func (r *pokerRepository) getRoomCondition(ctx context.Context, roomID poker.RoomID) (*poker.RoomCondition, error) {
 	// TODO: streamからの取得に直す
 	j, err := r.mem.Get(ctx, roomConditionKey(roomID))
@@ -95,4 +90,33 @@ func (r *pokerRepository) getRoomCondition(ctx context.Context, roomID poker.Roo
 	}
 
 	return &rc, nil
+}
+
+func (r *pokerRepository) Lock(ctx context.Context, roomID poker.RoomID, f func(ctx context.Context, c *poker.RoomCondition) error) error {
+	bo := backoff.WithMaxRetries(backoff.NewExponentialBackOff(func(b *backoff.ExponentialBackOff) {
+		b.MaxElapsedTime = roomLockDuration
+	}), roomLockRetry)
+
+	lockKey := roomLockKey(roomID)
+	return backoff.Retry(func() error {
+		set, err := r.mem.SetNX(ctx, lockKey, []byte{}, roomLockDuration)
+		if err != nil {
+			return backoff.Permanent(err)
+		} else if !set {
+			return merror.NewUnavailable("lock could not be acquired")
+		}
+
+		defer func() {
+			if err := r.mem.Del(ctx, lockKey); err != nil {
+				logger.FromCtx(ctx).Error("failed to release lock: %s", err.Error())
+			}
+		}()
+
+		c, err := r.getRoomCondition(ctx, roomID)
+		if err != nil {
+			return backoff.Permanent(err)
+		}
+
+		return backoff.Permanent(f(ctx, c))
+	}, bo)
 }

@@ -31,5 +31,7 @@ type (
 		UpdateVoteState(ctx context.Context, roomID poker.RoomID, state poker.VoteState) error
 		ResetRoomCondition(ctx context.Context, roomID poker.RoomID) error
 		SubscribeRoomCondition(ctx context.Context, block time.Duration, fn RoomSubscriber) error
+
+		Lock(ctx context.Context, roomID poker.RoomID, f func(ctx context.Context, c *poker.RoomCondition) error) error
 	}
 )
