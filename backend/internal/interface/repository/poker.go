@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"encoding/json"
+	"log/slog"
 	"time"
 
 	"github.com/cenkalti/backoff/v4"
@@ -10,14 +11,15 @@ import (
 	"github.com/swallowarc/porker2/backend/internal/core/logger"
 	"github.com/swallowarc/porker2/backend/internal/core/merror"
 	"github.com/swallowarc/porker2/backend/internal/domain/poker"
-	"github.com/swallowarc/porker2/backend/internal/domain/user"
 	"github.com/swallowarc/porker2/backend/internal/interface/gateway"
 	"github.com/swallowarc/porker2/backend/internal/usecase/port"
 )
 
 const (
-	roomLockDuration = 3 * time.Second
-	roomLockRetry    = 5
+	roomSubscribeBlockDuration = 3 * time.Second
+	roomLockDuration           = 3 * time.Second
+	roomLockRetry              = 5
+	roomCreateRetry            = 10
 )
 
 type (
@@ -33,55 +35,93 @@ func NewPokerRepository(mem gateway.MemDBClient) port.PokerRepository {
 }
 
 func (r *pokerRepository) CreateRoom(ctx context.Context) (poker.RoomID, error) {
-	//TODO implement me
-	panic("implement me")
+	var c *poker.RoomCondition
+	for i := 0; i <= roomCreateRetry; i++ {
+		c = poker.NewRoomCondition()
+		_, err := r.mem.Get(ctx, roomConditionKey(c.RoomID))
+		if merror.IsNotFound(err) {
+			break
+		} else if err != nil {
+			return "", merror.WrapInternal(err, "failed to memDBCli.Get")
+		}
+
+		if i == roomCreateRetry {
+			return "", merror.NewUnavailable("room creation retry limit has been exceeded")
+		}
+	}
+
+	if err := r.publishRoomStream(ctx, c); err != nil {
+		return "", err
+	}
+
+	return c.RoomID, nil
 }
 
-func (r *pokerRepository) GetRoomIDByUserID(ctx context.Context, userID user.ID) (poker.RoomID, error) {
-	//TODO implement me
-	panic("implement me")
+func (r *pokerRepository) UpdateRoomWithLock(ctx context.Context, roomID poker.RoomID, modifier port.RoomModifier) error {
+	bo := backoff.WithMaxRetries(backoff.NewExponentialBackOff(func(b *backoff.ExponentialBackOff) {
+		b.MaxElapsedTime = roomLockDuration
+	}), roomLockRetry)
+
+	lockKey := roomLockKey(roomID)
+
+	err := backoff.Retry(func() error {
+		set, err := r.mem.SetNX(ctx, lockKey, []byte{}, roomLockDuration)
+		if err != nil {
+			return backoff.Permanent(err)
+		} else if !set {
+			return merror.NewUnavailable("lock could not be acquired")
+		}
+		return nil
+	}, bo)
+	if err != nil {
+		return err
+	}
+
+	inCtx, cancel := context.WithTimeout(ctx, roomLockDuration)
+	defer cancel()
+
+	defer func() {
+		if err := r.mem.Del(ctx, lockKey); err != nil {
+			if !merror.IsNotFound(err) {
+				logger.FromCtx(inCtx).Error("failed to release lock: %s", slog.String("error", err.Error()))
+			}
+		}
+	}()
+
+	c, err := r.GetRoomCondition(inCtx, roomID)
+	if err != nil {
+		return err
+	}
+
+	if err := modifier(inCtx, c); err != nil {
+		return err
+	}
+
+	return r.publishRoomStream(inCtx, c)
+}
+
+func (r *pokerRepository) publishRoomStream(ctx context.Context, condition *poker.RoomCondition) error {
+	j, err := condition.ToJson()
+	if err != nil {
+		return err
+	}
+
+	if err := r.mem.PublishStream(ctx, roomConditionKey(condition.RoomID), map[string]any{
+		keyRoomConditionMessage: j,
+	}); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (r *pokerRepository) GetRoomCondition(ctx context.Context, roomID poker.RoomID) (*poker.RoomCondition, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (r *pokerRepository) AddRoomUser(ctx context.Context, roomID poker.RoomID, userID user.ID) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (r *pokerRepository) RemoveRoomUser(ctx context.Context, userID user.ID) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (r *pokerRepository) UpdateBallot(ctx context.Context, roomID poker.RoomID, userID user.ID, point poker.Point) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (r *pokerRepository) UpdateVoteState(ctx context.Context, roomID poker.RoomID, state poker.VoteState) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (r *pokerRepository) ResetRoomCondition(ctx context.Context, roomID poker.RoomID) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (r *pokerRepository) SubscribeRoomCondition(ctx context.Context, block time.Duration, fn port.RoomSubscriber) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (r *pokerRepository) getRoomCondition(ctx context.Context, roomID poker.RoomID) (*poker.RoomCondition, error) {
-	// TODO: streamからの取得に直す
-	j, err := r.mem.Get(ctx, roomConditionKey(roomID))
+	j, err := r.mem.ReadStreamLatest(ctx, roomConditionKey(roomID), keyRoomConditionMessage)
 	if err != nil {
 		return nil, err
+	}
+	if j == "" {
+		return nil, merror.NewNotFound("room condition not found:%s", roomID)
 	}
 
 	var rc poker.RoomCondition
@@ -92,31 +132,31 @@ func (r *pokerRepository) getRoomCondition(ctx context.Context, roomID poker.Roo
 	return &rc, nil
 }
 
-func (r *pokerRepository) Lock(ctx context.Context, roomID poker.RoomID, f func(ctx context.Context, c *poker.RoomCondition) error) error {
-	bo := backoff.WithMaxRetries(backoff.NewExponentialBackOff(func(b *backoff.ExponentialBackOff) {
-		b.MaxElapsedTime = roomLockDuration
-	}), roomLockRetry)
-
-	lockKey := roomLockKey(roomID)
-	return backoff.Retry(func() error {
-		set, err := r.mem.SetNX(ctx, lockKey, []byte{}, roomLockDuration)
-		if err != nil {
-			return backoff.Permanent(err)
-		} else if !set {
-			return merror.NewUnavailable("lock could not be acquired")
-		}
-
-		defer func() {
-			if err := r.mem.Del(ctx, lockKey); err != nil {
-				logger.FromCtx(ctx).Error("failed to release lock: %s", err.Error())
+func (r *pokerRepository) SubscribeRoomCondition(ctx context.Context, roomID poker.RoomID, fn port.RoomSubscriber) error {
+	var (
+		messageID string
+		subscribe = true
+	)
+	for subscribe {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+			newMessageID, j, err := r.mem.ReadStream(ctx, roomConditionKey(roomID), keyRoomConditionMessage, messageID)
+			if err != nil {
+				return err
 			}
-		}()
+			messageID = newMessageID
 
-		c, err := r.getRoomCondition(ctx, roomID)
-		if err != nil {
-			return backoff.Permanent(err)
+			rc, err := poker.FromJson(j)
+			if err != nil {
+				return err
+			}
+			if subscribe, err = fn(ctx, rc); err != nil {
+				return err
+			}
 		}
+	}
 
-		return backoff.Permanent(f(ctx, c))
-	}, bo)
+	return nil
 }

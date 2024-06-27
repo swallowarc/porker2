@@ -5,17 +5,21 @@ import (
 	"strings"
 
 	"connectrpc.com/connect"
+
+	"github.com/swallowarc/porker2/backend/internal/usecase/port"
 )
 
 type (
 	Factory struct {
-		logger *slog.Logger
+		logger   *slog.Logger
+		userRepo port.UserRepository
 	}
 )
 
-func NewFactory(logger *slog.Logger) *Factory {
+func NewFactory(logger *slog.Logger, userRepo port.UserRepository) *Factory {
 	return &Factory{
-		logger: logger,
+		logger:   logger,
+		userRepo: userRepo,
 	}
 }
 
@@ -24,7 +28,7 @@ func (f *Factory) LogUnaryInterceptor() connect.UnaryInterceptorFunc {
 }
 
 func (f *Factory) AuthUnaryInterceptor() connect.UnaryInterceptorFunc {
-	return NewAuthUnaryInterceptor()
+	return NewAuthUnaryInterceptor(f.userRepo)
 }
 
 func getRPCName(req connect.AnyRequest) string {

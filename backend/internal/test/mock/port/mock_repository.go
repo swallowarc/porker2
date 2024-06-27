@@ -12,7 +12,6 @@ package mock_port
 import (
 	context "context"
 	reflect "reflect"
-	time "time"
 
 	poker "github.com/swallowarc/porker2/backend/internal/domain/poker"
 	user "github.com/swallowarc/porker2/backend/internal/domain/user"
@@ -134,6 +133,20 @@ func (mr *MockUserRepositoryMockRecorder) ResetLifetime(ctx, userID any) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ResetLifetime", reflect.TypeOf((*MockUserRepository)(nil).ResetLifetime), ctx, userID)
 }
 
+// UpdateRoomID mocks base method.
+func (m *MockUserRepository) UpdateRoomID(ctx context.Context, userID user.ID, roomID poker.RoomID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateRoomID", ctx, userID, roomID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateRoomID indicates an expected call of UpdateRoomID.
+func (mr *MockUserRepositoryMockRecorder) UpdateRoomID(ctx, userID, roomID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRoomID", reflect.TypeOf((*MockUserRepository)(nil).UpdateRoomID), ctx, userID, roomID)
+}
+
 // MockPokerRepository is a mock of PokerRepository interface.
 type MockPokerRepository struct {
 	ctrl     *gomock.Controller
@@ -155,20 +168,6 @@ func NewMockPokerRepository(ctrl *gomock.Controller) *MockPokerRepository {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockPokerRepository) EXPECT() *MockPokerRepositoryMockRecorder {
 	return m.recorder
-}
-
-// AddRoomUser mocks base method.
-func (m *MockPokerRepository) AddRoomUser(ctx context.Context, roomID poker.RoomID, userID user.ID) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddRoomUser", ctx, roomID, userID)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// AddRoomUser indicates an expected call of AddRoomUser.
-func (mr *MockPokerRepositoryMockRecorder) AddRoomUser(ctx, roomID, userID any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddRoomUser", reflect.TypeOf((*MockPokerRepository)(nil).AddRoomUser), ctx, roomID, userID)
 }
 
 // CreateRoom mocks base method.
@@ -201,87 +200,30 @@ func (mr *MockPokerRepositoryMockRecorder) GetRoomCondition(ctx, roomID any) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRoomCondition", reflect.TypeOf((*MockPokerRepository)(nil).GetRoomCondition), ctx, roomID)
 }
 
-// GetRoomIDByUserID mocks base method.
-func (m *MockPokerRepository) GetRoomIDByUserID(ctx context.Context, userID user.ID) (poker.RoomID, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetRoomIDByUserID", ctx, userID)
-	ret0, _ := ret[0].(poker.RoomID)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetRoomIDByUserID indicates an expected call of GetRoomIDByUserID.
-func (mr *MockPokerRepositoryMockRecorder) GetRoomIDByUserID(ctx, userID any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRoomIDByUserID", reflect.TypeOf((*MockPokerRepository)(nil).GetRoomIDByUserID), ctx, userID)
-}
-
-// RemoveRoomUser mocks base method.
-func (m *MockPokerRepository) RemoveRoomUser(ctx context.Context, userID user.ID) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RemoveRoomUser", ctx, userID)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// RemoveRoomUser indicates an expected call of RemoveRoomUser.
-func (mr *MockPokerRepositoryMockRecorder) RemoveRoomUser(ctx, userID any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveRoomUser", reflect.TypeOf((*MockPokerRepository)(nil).RemoveRoomUser), ctx, userID)
-}
-
-// ResetRoomCondition mocks base method.
-func (m *MockPokerRepository) ResetRoomCondition(ctx context.Context, roomID poker.RoomID) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ResetRoomCondition", ctx, roomID)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// ResetRoomCondition indicates an expected call of ResetRoomCondition.
-func (mr *MockPokerRepositoryMockRecorder) ResetRoomCondition(ctx, roomID any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ResetRoomCondition", reflect.TypeOf((*MockPokerRepository)(nil).ResetRoomCondition), ctx, roomID)
-}
-
 // SubscribeRoomCondition mocks base method.
-func (m *MockPokerRepository) SubscribeRoomCondition(ctx context.Context, block time.Duration, fn port.RoomSubscriber) error {
+func (m *MockPokerRepository) SubscribeRoomCondition(ctx context.Context, roomID poker.RoomID, fn port.RoomSubscriber) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SubscribeRoomCondition", ctx, block, fn)
+	ret := m.ctrl.Call(m, "SubscribeRoomCondition", ctx, roomID, fn)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SubscribeRoomCondition indicates an expected call of SubscribeRoomCondition.
-func (mr *MockPokerRepositoryMockRecorder) SubscribeRoomCondition(ctx, block, fn any) *gomock.Call {
+func (mr *MockPokerRepositoryMockRecorder) SubscribeRoomCondition(ctx, roomID, fn any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubscribeRoomCondition", reflect.TypeOf((*MockPokerRepository)(nil).SubscribeRoomCondition), ctx, block, fn)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubscribeRoomCondition", reflect.TypeOf((*MockPokerRepository)(nil).SubscribeRoomCondition), ctx, roomID, fn)
 }
 
-// UpdateBallot mocks base method.
-func (m *MockPokerRepository) UpdateBallot(ctx context.Context, roomID poker.RoomID, userID user.ID, point poker.Point) error {
+// UpdateRoomWithLock mocks base method.
+func (m *MockPokerRepository) UpdateRoomWithLock(ctx context.Context, roomID poker.RoomID, modifier port.RoomModifier) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateBallot", ctx, roomID, userID, point)
+	ret := m.ctrl.Call(m, "UpdateRoomWithLock", ctx, roomID, modifier)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// UpdateBallot indicates an expected call of UpdateBallot.
-func (mr *MockPokerRepositoryMockRecorder) UpdateBallot(ctx, roomID, userID, point any) *gomock.Call {
+// UpdateRoomWithLock indicates an expected call of UpdateRoomWithLock.
+func (mr *MockPokerRepositoryMockRecorder) UpdateRoomWithLock(ctx, roomID, modifier any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateBallot", reflect.TypeOf((*MockPokerRepository)(nil).UpdateBallot), ctx, roomID, userID, point)
-}
-
-// UpdateVoteState mocks base method.
-func (m *MockPokerRepository) UpdateVoteState(ctx context.Context, roomID poker.RoomID, state poker.VoteState) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateVoteState", ctx, roomID, state)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// UpdateVoteState indicates an expected call of UpdateVoteState.
-func (mr *MockPokerRepositoryMockRecorder) UpdateVoteState(ctx, roomID, state any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateVoteState", reflect.TypeOf((*MockPokerRepository)(nil).UpdateVoteState), ctx, roomID, state)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRoomWithLock", reflect.TypeOf((*MockPokerRepository)(nil).UpdateRoomWithLock), ctx, roomID, modifier)
 }

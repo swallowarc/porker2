@@ -15,7 +15,9 @@ import (
 )
 
 const (
-	maxRetries = 5
+	maxRetries    = 5
+	latestEntry   = "+"
+	earliestEntry = "-"
 )
 
 type (
@@ -42,14 +44,14 @@ func (c *redisClient) Ping(ctx context.Context) error {
 	return nil
 }
 
-func (c *redisClient) Set(ctx context.Context, key string, value interface{}, duration time.Duration) error {
+func (c *redisClient) Set(ctx context.Context, key string, value any, duration time.Duration) error {
 	if err := c.cli.Set(ctx, key, value, duration).Err(); err != nil {
 		return merror.WrapInternal(err, "failed to redis Set")
 	}
 	return nil
 }
 
-func (c *redisClient) SetNX(ctx context.Context, key string, value interface{}, duration time.Duration) (bool, error) {
+func (c *redisClient) SetNX(ctx context.Context, key string, value any, duration time.Duration) (bool, error) {
 	ret, err := c.cli.SetNX(ctx, key, value, duration).Result()
 	if err != nil {
 		return false, merror.WrapInternal(err, "failed to redis SetNX")
@@ -80,14 +82,14 @@ func (c *redisClient) Del(ctx context.Context, key string) error {
 	return nil
 }
 
-func (c *redisClient) SAdd(ctx context.Context, key string, values ...interface{}) error {
+func (c *redisClient) SAdd(ctx context.Context, key string, values ...any) error {
 	if err := c.cli.SAdd(ctx, key, values...).Err(); err != nil {
 		return merror.WrapInternal(err, "failed to redis SAdd")
 	}
 	return nil
 }
 
-func (c *redisClient) SRem(ctx context.Context, key string, members ...interface{}) error {
+func (c *redisClient) SRem(ctx context.Context, key string, members ...any) error {
 	err := c.cli.SRem(ctx, key, members...).Err()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
@@ -109,8 +111,8 @@ func (c *redisClient) SMembers(ctx context.Context, key string) ([]string, error
 	return members, nil
 }
 
-func (c *redisClient) PublishStream(ctx context.Context, streamKey string, messages map[string]interface{}) error {
-	values := make([]interface{}, 0, len(messages)*2)
+func (c *redisClient) PublishStream(ctx context.Context, streamKey string, messages map[string]any) error {
+	values := make([]any, 0, len(messages)*2)
 	for k, v := range messages {
 		values = append(values, k, v)
 	}
@@ -142,7 +144,7 @@ func (c *redisClient) ReadStream(ctx context.Context, streamKey, messageKey, pre
 	}
 
 	stream := streams[0]
-	msg := stream.Messages[len(stream.Messages)-1]
+	msg := stream.Messages[len(stream.Messages)-1] // latest message
 	v, ok := msg.Values[messageKey].(string)
 	if !ok {
 		logger.FromCtx(ctx).Warn("cast to string from stream message failed", slog.Any("message", msg))
@@ -152,8 +154,23 @@ func (c *redisClient) ReadStream(ctx context.Context, streamKey, messageKey, pre
 	return msg.ID, v, nil
 }
 
-func (c *redisClient) ReadStreamLatest(ctx context.Context, streamKey, messageKey string) (id, message string, err error) {
-	return c.ReadStream(ctx, streamKey, messageKey, "0")
+func (c *redisClient) ReadStreamLatest(ctx context.Context, streamKey, messageKey string) (message string, err error) {
+	cmd := c.cli.XRevRangeN(ctx, streamKey, latestEntry, earliestEntry, 1)
+	messages, err := cmd.Result()
+	if err != nil {
+		return "", merror.WrapInternal(err, "failed to redis XRevRangeN")
+	}
+	if len(messages) == 0 {
+		return "", nil
+	}
+
+	msg, ok := messages[0].Values[messageKey].(string)
+	if !ok {
+		logger.FromCtx(ctx).Warn("cast to string from stream message failed", slog.Any("message", msg))
+		return "", nil
+	}
+
+	return msg, nil
 }
 
 func (c *redisClient) Expire(ctx context.Context, key string, duration time.Duration) error {

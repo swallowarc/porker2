@@ -694,8 +694,10 @@ func (*ResetVotesResponse) Descriptor() ([]byte, []int) {
 // - Unauthenticated:
 //   - cookieのtokenがない、または無効
 //
-// - FailedPrecondition:
+// - NotFound:
 //   - 指定されたroomに参加していない
+//
+// - FailedPrecondition:
 //   - roomが開票可能な状態でない
 type ShowVotesRequest struct {
 	state         protoimpl.MessageState
@@ -789,14 +791,14 @@ func (*ShowVotesResponse) Descriptor() ([]byte, []int) {
 //   - cookieのtokenがない、または無効
 //
 // - NotFound:
-//   - 指定されたユーザがroomに参加していない
+//   - 実行ユーザが指定されたroomに参加していない
 //
 // - PermissionDenied:
 //   - 実行ユーザがroomのオーナーではない
 //
 // - FailedPrecondition:
-//   - 実行ユーザが指定されたroomに参加していない
 //   - 実行ユーザ自身のIDが指定されている
+//   - target_user_idが指定されたroomに参加していない
 type KickUserRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

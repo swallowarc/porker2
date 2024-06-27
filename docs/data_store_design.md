@@ -39,9 +39,9 @@
 
 #### Join 1st user
 
-| Description        | Type   | Key                      | Value               | Note            |
-|--------------------|--------|--------------------------|---------------------|-----------------|
-| **room condition** | Stream | room_condition:(room_id) | room_condition{...} | LT:60m (re-set) |
+| Description        | Type   | Key                      | Stream message key     | Value               | Note            |
+|--------------------|--------|--------------------------|------------------------|---------------------|-----------------|
+| **room condition** | Stream | room_condition:(room_id) | room_condition_message | room_condition{...} | LT:60m (re-set) |
 
 - RoomのLifetime は退室以外の操作がRoomに行われるたびにリセットする. (60m 無操作でRoom削除)
 
@@ -68,9 +68,9 @@
 
 - (user_infoは記載省略するがuser_id_1の入室時と同様に処理)
 
-| Description        | Type   | Key                      | Value               | Note            |
-|--------------------|--------|--------------------------|---------------------|-----------------|
-| **room condition** | Stream | room_condition:(room_id) | room_condition{...} | LT:60m (re-set) |
+| Description        | Type   | Key                      | Stream message key     | Value               | Note            |
+|--------------------|--------|--------------------------|------------------------|---------------------|-----------------|
+| **room condition** | Stream | room_condition:(room_id) | room_condition_message | room_condition{...} | LT:60m (re-set) |
 
 ```json
 // room condition
@@ -99,10 +99,10 @@
 同タイミングで複数のユーザが投票する場合、競合が発生する可能性があるため、Lock用のキーを用意する。
 SETXでLockし、Streamの読み込み&Publish後にLockを解除する。
 
-| Description        | Type   | Key                      | Value               | Note                     |
-|--------------------|--------|--------------------------|---------------------|--------------------------|
-| **room condition** | Stream | room_condition:(room_id) | room_condition{...} | LT:60m (re-set)          |
-| **room lock**      | String | room_lock:(room_id)      | (Empty)             | LT:5s Streamにpublish後に削除 |
+| Description        | Type   | Key                      | Stream message key     | Value               | Note                     |
+|--------------------|--------|--------------------------|------------------------|---------------------|--------------------------|
+| **room condition** | Stream | room_condition:(room_id) | room_condition_message | room_condition{...} | LT:60m (re-set)          |
+| **room lock**      | String | room_lock:(room_id)      | -                      | (Empty)             | LT:5s Streamにpublish後に削除 |
 
 ```json
 // room condition
@@ -173,9 +173,9 @@ SETXでLockし、Streamの読み込み&Publish後にLockを解除する。
 
 ### KickUser
 
-| Description        | Type   | Key                      | Value               | Note            |
-|--------------------|--------|--------------------------|---------------------|-----------------|
-| **room condition** | Stream | room_condition:(room_id) | room_condition{...} | LT:60m (re-set) |
+| Description        | Type   | Key                      | Stream message key     | Value               | Note            |
+|--------------------|--------|--------------------------|------------------------|---------------------|-----------------|
+| **room condition** | Stream | room_condition:(room_id) | room_condition_message | room_condition{...} | LT:60m (re-set) |
 
 ```json
 // room condition
@@ -196,9 +196,9 @@ SETXでLockし、Streamの読み込み&Publish後にLockを解除する。
 
 ### LeaveRoom
 
-| Description        | Type   | Key                      | Value               | Note            |
-|--------------------|--------|--------------------------|---------------------|-----------------|
-| **room condition** | Stream | room_condition:(room_id) | room_condition{...} | LT: (no update) |
+| Description        | Type   | Key                      | Stream message key     | Value               | Note            |
+|--------------------|--------|--------------------------|------------------------|---------------------|-----------------|
+| **room condition** | Stream | room_condition:(room_id) | room_condition_message | room_condition{...} | LT: (no update) |
 
 - room conditionからも自分の情報を削除する.
 

@@ -128,13 +128,12 @@ func (mr *MockMemDBClientMockRecorder) ReadStream(ctx, streamKey, messageKey, pr
 }
 
 // ReadStreamLatest mocks base method.
-func (m *MockMemDBClient) ReadStreamLatest(ctx context.Context, streamKey, messageKey string) (string, string, error) {
+func (m *MockMemDBClient) ReadStreamLatest(ctx context.Context, streamKey, messageKey string) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ReadStreamLatest", ctx, streamKey, messageKey)
 	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(string)
-	ret2, _ := ret[2].(error)
-	return ret0, ret1, ret2
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // ReadStreamLatest indicates an expected call of ReadStreamLatest.

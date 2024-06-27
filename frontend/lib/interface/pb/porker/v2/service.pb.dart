@@ -681,8 +681,9 @@ class ResetVotesResponse extends $pb.GeneratedMessage {
 ///  Errors:
 ///  - Unauthenticated:
 ///    - cookieのtokenがない、または無効
-///  - FailedPrecondition:
+///  - NotFound:
 ///    - 指定されたroomに参加していない
+///  - FailedPrecondition:
 ///    - roomが開票可能な状態でない
 class ShowVotesRequest extends $pb.GeneratedMessage {
   factory ShowVotesRequest({
@@ -772,12 +773,12 @@ class ShowVotesResponse extends $pb.GeneratedMessage {
 ///  - Unauthenticated:
 ///    - cookieのtokenがない、または無効
 ///  - NotFound:
-///    - 指定されたユーザがroomに参加していない
+///    - 実行ユーザが指定されたroomに参加していない
 ///  - PermissionDenied:
 ///    - 実行ユーザがroomのオーナーではない
 ///  - FailedPrecondition:
-///    - 実行ユーザが指定されたroomに参加していない
 ///    - 実行ユーザ自身のIDが指定されている
+///    - target_user_idが指定されたroomに参加していない
 class KickUserRequest extends $pb.GeneratedMessage {
   factory KickUserRequest({
     $core.String? roomId,

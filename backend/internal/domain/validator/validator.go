@@ -28,7 +28,7 @@ func NewValidator() (Validator, error) {
 	gv := govalidator.New()
 	for tag, fn := range validations {
 		if err := gv.RegisterValidation(tag, fn); err != nil {
-			return nil, merror.WrapInternal(err, "failed to register validation: %w", err)
+			return nil, merror.WrapInternal(err, "failed to register validation: %v", err)
 		}
 	}
 

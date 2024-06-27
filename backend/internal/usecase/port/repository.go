@@ -3,7 +3,6 @@ package port
 
 import (
 	"context"
-	"time"
 
 	"github.com/swallowarc/porker2/backend/internal/domain/poker"
 	"github.com/swallowarc/porker2/backend/internal/domain/user"
@@ -12,26 +11,23 @@ import (
 type (
 	UserRepository interface {
 		Create(ctx context.Context, userName user.Name) (user.ID, string, error)
+		UpdateRoomID(ctx context.Context, userID user.ID, roomID poker.RoomID) error
 		Delete(ctx context.Context, userID user.ID) error
 		ResetLifetime(ctx context.Context, userID user.ID) error
+
 		GetIDByAccessToken(ctx context.Context, token string) (user.ID, error)
 		GetByID(ctx context.Context, userID user.ID) (user.Name, string, poker.RoomID, error)
 		GetIDByName(ctx context.Context, userName user.Name) (user.ID, error)
 	}
 
-	RoomSubscriber func(ctx context.Context, condition *poker.RoomCondition) error
+	RoomModifier   func(ctx context.Context, condition *poker.RoomCondition) error
+	RoomSubscriber func(ctx context.Context, condition *poker.RoomCondition) (bool, error)
 
 	PokerRepository interface {
 		CreateRoom(ctx context.Context) (poker.RoomID, error)
-		GetRoomIDByUserID(ctx context.Context, userID user.ID) (poker.RoomID, error)
-		GetRoomCondition(ctx context.Context, roomID poker.RoomID) (*poker.RoomCondition, error)
-		AddRoomUser(ctx context.Context, roomID poker.RoomID, userID user.ID) error
-		RemoveRoomUser(ctx context.Context, userID user.ID) error
-		UpdateBallot(ctx context.Context, roomID poker.RoomID, userID user.ID, point poker.Point) error
-		UpdateVoteState(ctx context.Context, roomID poker.RoomID, state poker.VoteState) error
-		ResetRoomCondition(ctx context.Context, roomID poker.RoomID) error
-		SubscribeRoomCondition(ctx context.Context, block time.Duration, fn RoomSubscriber) error
+		UpdateRoomWithLock(ctx context.Context, roomID poker.RoomID, modifier RoomModifier) error
 
-		Lock(ctx context.Context, roomID poker.RoomID, f func(ctx context.Context, c *poker.RoomCondition) error) error
+		GetRoomCondition(ctx context.Context, roomID poker.RoomID) (*poker.RoomCondition, error)
+		SubscribeRoomCondition(ctx context.Context, roomID poker.RoomID, fn RoomSubscriber) error
 	}
 )

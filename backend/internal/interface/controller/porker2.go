@@ -83,13 +83,13 @@ func (p *porker2) JoinRoom(ctx context.Context, r *connect.Request[pb.JoinRoomRe
 		return err
 	}
 
-	fn := func(ctx context.Context, rc *poker.RoomCondition) error {
+	fn := func(ctx context.Context, rc *poker.RoomCondition) (bool, error) {
 		if err := stream.Send(&pb.JoinRoomResponse{
 			Condition: roomConditionToProto(rc),
 		}); err != nil {
-			return err
+			return false, err
 		}
-		return nil
+		return true, nil
 	}
 
 	if err := p.pokerItr.JoinRoom(ctx, user.FromContextID(ctx), roomIDFromProto(r.Msg.RoomId), fn); err != nil {

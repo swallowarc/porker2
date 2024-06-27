@@ -72,7 +72,7 @@ func roomIDFromProto(p string) poker.RoomID {
 func roomConditionToProto(rc *poker.RoomCondition) *pb.RoomCondition {
 	return &pb.RoomCondition{
 		RoomId:      rc.RoomID.String(),
-		AdminUserId: rc.AdminUserID,
+		AdminUserId: rc.AdminUserID.String(),
 		VoteState:   pb.VoteState(rc.VoteState),
 		Ballots:     ballotsToProto(rc.Ballots),
 	}

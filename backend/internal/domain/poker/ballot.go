@@ -8,12 +8,6 @@ import (
 
 type (
 	Point int32
-
-	Ballot struct {
-		UerName user.Name
-		UserID  user.ID `validate:"user_id"`
-		Point   Point   `validate:"point"`
-	}
 )
 
 const (
@@ -50,4 +44,24 @@ var (
 
 func (p Point) Valid() bool {
 	return slices.Contains(PointList, p)
+}
+
+type (
+	Ballot struct {
+		UserID  user.ID `validate:"user_id"`
+		UerName user.Name
+		Point   Point `validate:"point"`
+	}
+)
+
+func newBallot(userID user.ID, userName user.Name) *Ballot {
+	return &Ballot{
+		UserID:  userID,
+		UerName: userName,
+		Point:   PointUnspecified,
+	}
+}
+
+func (b *Ballot) Reset() {
+	b.Point = PointUnspecified
 }

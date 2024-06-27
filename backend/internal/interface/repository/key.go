@@ -8,7 +8,7 @@ import (
 )
 
 /*
-	UserRepository keys
+	User keys
 */
 
 const (
@@ -30,12 +30,13 @@ func userNameKey(name user.Name) string {
 }
 
 /*
-	PokerRepository keys
+	Poker keys
 */
 
 const (
-	keyFormatRoomCondition = "porker2_room_condition:%s"
-	keyFormatRoomLock      = "porker2_room_Lock:%s"
+	keyFormatRoomCondition  = "porker2_room_condition:%s"
+	keyRoomConditionMessage = "porker2_room_condition_message"
+	keyFormatRoomLock       = "porker2_room_Lock:%s"
 )
 
 func roomConditionKey(id poker.RoomID) string {

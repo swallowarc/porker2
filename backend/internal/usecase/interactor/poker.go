@@ -2,40 +2,34 @@ package interactor
 
 import (
 	"context"
-	"time"
 
+	"github.com/swallowarc/porker2/backend/internal/core/logger"
 	"github.com/swallowarc/porker2/backend/internal/core/merror"
 	"github.com/swallowarc/porker2/backend/internal/domain/poker"
 	"github.com/swallowarc/porker2/backend/internal/domain/user"
 	"github.com/swallowarc/porker2/backend/internal/usecase/port"
 )
 
-const roomSubscribeBlockDuration = 3 * time.Second
-
 type (
 	pokerInteractor struct {
-		repo port.PokerRepository
+		userRepo  port.UserRepository
+		pokerRepo port.PokerRepository
 	}
 )
 
-func NewPoker(repo port.PokerRepository) Poker {
-	return &pokerInteractor{repo: repo}
+func NewPoker(userRepo port.UserRepository, pokerRepo port.PokerRepository) Poker {
+	return &pokerInteractor{
+		userRepo:  userRepo,
+		pokerRepo: pokerRepo,
+	}
 }
 
 func (i *pokerInteractor) CreateRoom(ctx context.Context) (poker.RoomID, error) {
-	return i.repo.CreateRoom(ctx)
+	return i.pokerRepo.CreateRoom(ctx)
 }
 
 func (i *pokerInteractor) JoinRoom(ctx context.Context, userID user.ID, roomID poker.RoomID, fn port.RoomSubscriber) error {
-	condition, err := i.repo.GetRoomCondition(ctx, roomID)
-	if err != nil {
-		return err
-	}
-	if !condition.CanJoin() {
-		return merror.NewFailedPrecondition("", "room is not joinable")
-	}
-
-	joinedRoomID, err := i.repo.GetRoomIDByUserID(ctx, userID)
+	userName, _, joinedRoomID, err := i.userRepo.GetByID(ctx, userID)
 	if err != nil {
 		if !merror.IsNotFound(err) {
 			return err
@@ -43,33 +37,61 @@ func (i *pokerInteractor) JoinRoom(ctx context.Context, userID user.ID, roomID p
 	} else {
 		if joinedRoomID != roomID {
 			// Leave the room if the user is already in other room.
-			if err := i.repo.RemoveRoomUser(ctx, userID); err != nil {
+			if err := i.LeaveRoom(ctx, userID); err != nil {
 				return err
 			}
 		}
 	}
 
-	for {
-		if err := i.repo.SubscribeRoomCondition(ctx, roomSubscribeBlockDuration, func(ctx context.Context, condition *poker.RoomCondition) error {
-			if err := fn(ctx, condition); err != nil {
-				return err
-			}
-			return nil
-		}); err != nil {
-			return err
-		}
+	if err := i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.RoomCondition) error {
+		return c.Join(userID, userName)
+	}); err != nil {
+		return err
 	}
+
+	if err := i.pokerRepo.SubscribeRoomCondition(ctx, roomID, func(ctx context.Context, c *poker.RoomCondition) (bool, error) {
+		if !c.IsUserIn(userID) {
+			logger.FromCtx(ctx).Info("stop subscribing room condition (user is not in the room)")
+			return false, nil
+		}
+		return fn(ctx, c)
+
+	}); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (i *pokerInteractor) LeaveRoom(ctx context.Context, userID user.ID) error {
-	return i.repo.RemoveRoomUser(ctx, userID)
+	_, _, joinedRoomID, err := i.userRepo.GetByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+	// If the user is not in any room, do nothing.
+	if joinedRoomID == "" {
+		return nil
+	}
+
+	if err := i.pokerRepo.UpdateRoomWithLock(ctx, joinedRoomID, func(ctx context.Context, c *poker.RoomCondition) error {
+		c.Leave(userID)
+		return nil
+	}); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (i *pokerInteractor) CastVote(ctx context.Context, userID user.ID, roomID poker.RoomID, point poker.Point) error {
 	if err := i.checkUserRoomJoin(ctx, userID, roomID); err != nil {
 		return err
 	}
-	return i.repo.UpdateBallot(ctx, roomID, userID, point)
+
+	return i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.RoomCondition) error {
+		c.Vote(userID, point)
+		return nil
+	})
 }
 
 func (i *pokerInteractor) ShowVotes(ctx context.Context, userID user.ID, roomID poker.RoomID) error {
@@ -77,7 +99,10 @@ func (i *pokerInteractor) ShowVotes(ctx context.Context, userID user.ID, roomID 
 		return err
 	}
 
-	return i.repo.UpdateVoteState(ctx, roomID, poker.VoteStateOpen)
+	return i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.RoomCondition) error {
+		c.Open()
+		return nil
+	})
 }
 
 func (i *pokerInteractor) ResetVotes(ctx context.Context, userID user.ID, roomID poker.RoomID) error {
@@ -85,7 +110,10 @@ func (i *pokerInteractor) ResetVotes(ctx context.Context, userID user.ID, roomID
 		return err
 	}
 
-	return i.repo.ResetRoomCondition(ctx, roomID)
+	return i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.RoomCondition) error {
+		c.Reset()
+		return nil
+	})
 }
 
 func (i *pokerInteractor) Kick(ctx context.Context, userID, targetUserID user.ID, roomID poker.RoomID) error {
@@ -93,19 +121,13 @@ func (i *pokerInteractor) Kick(ctx context.Context, userID, targetUserID user.ID
 		return err
 	}
 
-	condition, err := i.repo.GetRoomCondition(ctx, roomID)
-	if err != nil {
-		return err
-	}
-	if !condition.IsAdmin(userID) {
-		return merror.NewPermissionDenied("", "user is not admin")
-	}
-
-	return i.repo.RemoveRoomUser(ctx, targetUserID)
+	return i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.RoomCondition) error {
+		return c.Kick(userID, targetUserID)
+	})
 }
 
 func (i *pokerInteractor) checkUserRoomJoin(ctx context.Context, userID user.ID, roomID poker.RoomID) error {
-	joinedRoomID, err := i.repo.GetRoomIDByUserID(ctx, userID)
+	_, _, joinedRoomID, err := i.userRepo.GetByID(ctx, userID)
 	if err != nil {
 		if merror.IsNotFound(err) {
 			return merror.NewFailedPrecondition("", "user is not in any room")

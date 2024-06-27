@@ -13,10 +13,6 @@ import (
 	"github.com/swallowarc/porker2/backend/internal/usecase/port"
 )
 
-const (
-	idGenerateRetryLimit = 10
-)
-
 type (
 	userRepository struct {
 		mem gateway.MemDBClient
@@ -56,6 +52,26 @@ func (r *userRepository) Create(ctx context.Context, userName user.Name) (user.I
 	}
 
 	return u.ID, u.Token, nil
+}
+
+func (r *userRepository) UpdateRoomID(ctx context.Context, userID user.ID, roomID poker.RoomID) error {
+	u, err := r.getUserModel(ctx, userID)
+	if err != nil {
+		return merror.WrapInternal(err, "failed to unmarshal user")
+	}
+
+	u.RoomID = roomID
+
+	j, err := u.jsonMarshalUserInfo()
+	if err != nil {
+		return merror.WrapInternal(err, "failed to marshal user")
+	}
+
+	if err := r.mem.Set(ctx, userIDKey(userID), j, user.SessionLifetime); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (r *userRepository) Delete(ctx context.Context, userID user.ID) error {

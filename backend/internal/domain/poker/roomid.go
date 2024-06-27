@@ -19,7 +19,7 @@ type (
 	RoomID string
 )
 
-func NewRoomID() RoomID {
+func newRoomID() RoomID {
 	return RoomID(random.RandString6ByParam(roomIDLength, roomIDAvailableChars))
 }
 
