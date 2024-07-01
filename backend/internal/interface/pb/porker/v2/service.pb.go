@@ -306,6 +306,7 @@ func (x *CreateRoomResponse) GetRoomId() string {
 //
 // - FailedPrecondition:
 //   - roomが満員
+//   - 指定されたroomに参加していない
 type JoinRoomRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

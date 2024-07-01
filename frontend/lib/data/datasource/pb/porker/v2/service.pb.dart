@@ -290,6 +290,7 @@ class CreateRoomResponse extends $pb.GeneratedMessage {
 ///    - roomが存在しない
 ///  - FailedPrecondition:
 ///    - roomが満員
+///    - 指定されたroomに参加していない
 class JoinRoomRequest extends $pb.GeneratedMessage {
   factory JoinRoomRequest({
     $core.String? roomId,
