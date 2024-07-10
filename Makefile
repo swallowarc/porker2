@@ -8,6 +8,7 @@ GOGENERATE = $(GOCMD) generate
 FLUTTER_CMD = flutter
 
 MOCK_DIR=backend/internal/test/mock/
+FRONTEND_DIR=frontend/
 
 .PHONY: setup/tools git/add_subtree protoc
 
@@ -29,5 +30,8 @@ mock/gen: mock/clean
 	$(GOGENERATE) ./backend/internal/usecase/interactor/...
 	$(GOGENERATE) ./backend/internal/usecase/port/...
 
-lint/frontend:
-	cd frontend && dart run custom_lint
+fe/lint:
+	cd $(FRONTEND_DIR) && dart run custom_lint
+
+fe/build-runner:
+	cd $(FRONTEND_DIR) && flutter pub run build_runner build --delete-conflicting-outputs

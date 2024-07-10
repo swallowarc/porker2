@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/presentation/page/login_page.dart';
 
 void main() {
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -15,15 +18,15 @@ class MyApp extends StatelessWidget {
       title: 'Porker2',
       theme: ThemeData(
         brightness: Brightness.light,
-        fontFamily: "CherryBombOne",
+        fontFamily: "YuseiMagic",
         useMaterial3: true,
       ),
       darkTheme: ThemeData(
         brightness: Brightness.dark,
-        fontFamily: "CherryBombOne",
+        fontFamily: "YuseiMagic",
         useMaterial3: true,
       ),
-      home: const SignInPage2(),
+      home: const LoginPage(),
     );
   }
 }

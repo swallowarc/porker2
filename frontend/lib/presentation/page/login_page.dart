@@ -1,39 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:porker2fe/presentation/const.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class SignInPage2 extends StatelessWidget {
-  const SignInPage2({Key? key}) : super(key: key);
+class LoginPage extends HookConsumerWidget {
+  const LoginPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final bool isSmallScreen = MediaQuery.of(context).size.width < 600;
 
     return Scaffold(
         body: Center(
-            child: isSmallScreen
-                ? const Column(
-                    mainAxisSize: MainAxisSize.min,
+          child: isSmallScreen
+              ? const Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _Logo(),
+                    _FormContent(),
+                  ],
+                )
+              : Container(
+                  padding: const EdgeInsets.all(32.0),
+                  constraints: const BoxConstraints(maxWidth: 800),
+                  child: const Row(
                     children: [
-                      _Logo(),
-                      _FormContent(),
+                      Expanded(child: _Logo()),
+                      Expanded(
+                        child: Center(child: _FormContent()),
+                      ),
                     ],
-                  )
-                : Container(
-                    padding: const EdgeInsets.all(32.0),
-                    constraints: const BoxConstraints(maxWidth: 800),
-                    child: const Row(
-                      children: [
-                        Expanded(child: _Logo()),
-                        Expanded(
-                          child: Center(child: _FormContent()),
-                        ),
-                      ],
-                    ),
-                  )));
+                  ),
+                ),
+        ),
+        bottomNavigationBar: const _BottomBar());
   }
 }
 
 class _Logo extends StatelessWidget {
-  const _Logo({Key? key}) : super(key: key);
+  const _Logo();
 
   @override
   Widget build(BuildContext context) {
@@ -53,11 +58,14 @@ class _Logo extends StatelessWidget {
             "Welcome to Porker2",
             textAlign: TextAlign.center,
             style: isSmallScreen
-                ? Theme.of(context).textTheme.bodyMedium
+                ? Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: Colors.orange, fontSize: 24)
                 : Theme.of(context)
                     .textTheme
                     .bodyLarge
-                    ?.copyWith(color: Colors.orange),
+                    ?.copyWith(color: Colors.orange, fontSize: 24),
           ),
         )
       ],
@@ -66,7 +74,7 @@ class _Logo extends StatelessWidget {
 }
 
 class _FormContent extends StatefulWidget {
-  const _FormContent({Key? key}) : super(key: key);
+  const _FormContent();
 
   @override
   State<_FormContent> createState() => __FormContentState();
@@ -137,4 +145,47 @@ class __FormContentState extends State<_FormContent> {
   }
 
   Widget _gap() => const SizedBox(height: 16);
+}
+
+class _BottomBar extends StatelessWidget {
+  const _BottomBar();
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isDarkMode =
+        MediaQuery.of(context).platformBrightness == Brightness.dark;
+    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+
+    return BottomAppBar(
+      color: backgroundColor,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Tooltip(
+            message: 'GitHub',
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTap: _launchGithub,
+                child: Image(
+                  fit: BoxFit.scaleDown,
+                  image: isDarkMode
+                      ? const AssetImage("images/github-mark-white.png")
+                      : const AssetImage("images/github-mark.png"),
+                  height: 30,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _launchGithub() async {
+    final Uri url = Uri.parse(githubUrl);
+    if (!await launchUrl(url)) {
+      throw Exception('Could not launch $url');
+    }
+  }
 }
