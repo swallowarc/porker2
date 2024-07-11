@@ -11,14 +11,13 @@ final router = GoRouter(
 );
 
 @TypedGoRoute<LoginRoute>(
-    path: '/',
-    routes: [
-      // TypedGoRoute<DetailRoute>(path: 'detail')
-    ]
+  path: '/',
 )
 class LoginRoute extends GoRouteData {
   const LoginRoute();
 
   @override
-  Widget build(BuildContext context, GoRouterState state) => const LoginPage();
+  Widget build(BuildContext context, GoRouterState state) {
+    return const LoginPage();
+  }
 }

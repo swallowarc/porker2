@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/presentation/page/login_page.dart';
+import 'package:porker2fe/presentation/router/router.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,11 +13,13 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Porker2',
+    final GoRouter goRouter = GoRouter(
+      routes: $appRoutes,
+    );
+    return MaterialApp.router(
+      routerConfig: goRouter,
       theme: ThemeData(
         brightness: Brightness.light,
         fontFamily: "YuseiMagic",
@@ -26,7 +30,6 @@ class MyApp extends StatelessWidget {
         fontFamily: "YuseiMagic",
         useMaterial3: true,
       ),
-      home: const LoginPage(),
     );
   }
 }
