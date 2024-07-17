@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:porker2fe/presentation/page/login_page.dart';
 import 'package:porker2fe/presentation/router/router.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  setUrlStrategy(PathUrlStrategy());
 
   runApp(const ProviderScope(child: MyApp()));
 }

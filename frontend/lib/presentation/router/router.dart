@@ -10,11 +10,11 @@ final router = GoRouter(
   routes: $appRoutes,
 );
 
-@TypedGoRoute<LoginRoute>(
-  path: '/',
-)
+@TypedGoRoute<LoginRoute>(path: '/')
 class LoginRoute extends GoRouteData {
-  const LoginRoute();
+  LoginRoute({this.from = ""});
+
+  final String from;
 
   @override
   Widget build(BuildContext context, GoRouterState state) {

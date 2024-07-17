@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/presentation/const.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -8,10 +9,12 @@ class LoginPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bool isSmallScreen = MediaQuery.of(context).size.width < 600;
+    final bool isSmallScreen =
+        MediaQuery.of(context).size.width < smallScreenBoundary;
 
     return Scaffold(
-        body: Center(
+      body: Center(
+        child: SingleChildScrollView(
           child: isSmallScreen
               ? const Column(
                   mainAxisSize: MainAxisSize.min,
@@ -33,7 +36,9 @@ class LoginPage extends HookConsumerWidget {
                   ),
                 ),
         ),
-        bottomNavigationBar: const _BottomBar());
+      ),
+      bottomNavigationBar: const _BottomBar(),
+    );
   }
 }
 
@@ -42,7 +47,8 @@ class _Logo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isSmallScreen = MediaQuery.of(context).size.width < 600;
+    final bool isSmallScreen =
+        MediaQuery.of(context).size.width < smallScreenBoundary;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -100,15 +106,19 @@ class __FormContentState extends State<_FormContent> {
                   return 'Please enter some text (´・ω・`)';
                 }
 
-                bool emailValid = RegExp(
-                        r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-                    .hasMatch(value);
+                bool emailValid =
+                    RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]{1,10}$")
+                        .hasMatch(value);
                 if (!emailValid) {
                   return 'Please enter a valid name';
                 }
 
+                context.go('/?from=123');
+
                 return null;
               },
+              maxLength: 10,
+              maxLines: 1,
               decoration: const InputDecoration(
                 labelText: 'User name',
                 hintText: 'Enter your name',
@@ -161,18 +171,20 @@ class _BottomBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Tooltip(
-            message: 'GitHub',
-            child: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: GestureDetector(
-                onTap: _launchGithub,
-                child: Image(
-                  fit: BoxFit.scaleDown,
-                  image: isDarkMode
-                      ? const AssetImage("images/github-mark-white.png")
-                      : const AssetImage("images/github-mark.png"),
-                  height: 30,
+          Expanded(
+            child: Tooltip(
+              message: 'GitHub',
+              child: MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTap: _launchGithub,
+                  child: Image(
+                    fit: BoxFit.scaleDown,
+                    image: isDarkMode
+                        ? const AssetImage("images/github-mark-white.png")
+                        : const AssetImage("images/github-mark.png"),
+                    height: 30,
+                  ),
                 ),
               ),
             ),
