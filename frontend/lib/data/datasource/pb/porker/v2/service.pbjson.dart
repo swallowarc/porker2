@@ -32,12 +32,14 @@ const LoginResponse$json = {
   '1': 'LoginResponse',
   '2': [
     {'1': 'token', '3': 1, '4': 1, '5': 9, '10': 'token'},
+    {'1': 'user_id', '3': 2, '4': 1, '5': 9, '10': 'userId'},
   ],
 };
 
 /// Descriptor for `LoginResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List loginResponseDescriptor = $convert.base64Decode(
-    'Cg1Mb2dpblJlc3BvbnNlEhQKBXRva2VuGAEgASgJUgV0b2tlbg==');
+    'Cg1Mb2dpblJlc3BvbnNlEhQKBXRva2VuGAEgASgJUgV0b2tlbhIXCgd1c2VyX2lkGAIgASgJUg'
+    'Z1c2VySWQ=');
 
 @$core.Deprecated('Use logoutRequestDescriptor instead')
 const LogoutRequest$json = {
@@ -129,14 +131,14 @@ const CastVoteRequest$json = {
   '1': 'CastVoteRequest',
   '2': [
     {'1': 'room_id', '3': 1, '4': 1, '5': 9, '10': 'roomId'},
-    {'1': 'ballot', '3': 2, '4': 1, '5': 11, '6': '.porker.v2.Ballot', '10': 'ballot'},
+    {'1': 'point', '3': 2, '4': 1, '5': 14, '6': '.porker.v2.Point', '10': 'point'},
   ],
 };
 
 /// Descriptor for `CastVoteRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List castVoteRequestDescriptor = $convert.base64Decode(
-    'Cg9DYXN0Vm90ZVJlcXVlc3QSFwoHcm9vbV9pZBgBIAEoCVIGcm9vbUlkEikKBmJhbGxvdBgCIA'
-    'EoCzIRLnBvcmtlci52Mi5CYWxsb3RSBmJhbGxvdA==');
+    'Cg9DYXN0Vm90ZVJlcXVlc3QSFwoHcm9vbV9pZBgBIAEoCVIGcm9vbUlkEiYKBXBvaW50GAIgAS'
+    'gOMhAucG9ya2VyLnYyLlBvaW50UgVwb2ludA==');
 
 @$core.Deprecated('Use castVoteResponseDescriptor instead')
 const CastVoteResponse$json = {

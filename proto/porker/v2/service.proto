@@ -38,6 +38,7 @@ message LoginRequest {
 
 message LoginResponse {
   string token = 1; // TODO: tokenはcookieに変更する
+  string user_id = 2;
 }
 
 /* Logout ログアウト
@@ -107,7 +108,7 @@ message LeaveRoomResponse {}
  */
 message CastVoteRequest {
   string room_id = 1;
-  Ballot ballot = 2;
+  Point point = 2;
 }
 
 message CastVoteResponse {}

@@ -15,6 +15,7 @@ import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 import 'resource.pb.dart' as $0;
+import 'resource.pbenum.dart' as $0;
 
 ///  Login ログイン
 ///  ログインが成功した場合、tokenを返す。
@@ -77,10 +78,14 @@ class LoginRequest extends $pb.GeneratedMessage {
 class LoginResponse extends $pb.GeneratedMessage {
   factory LoginResponse({
     $core.String? token,
+    $core.String? userId,
   }) {
     final $result = create();
     if (token != null) {
       $result.token = token;
+    }
+    if (userId != null) {
+      $result.userId = userId;
     }
     return $result;
   }
@@ -90,6 +95,7 @@ class LoginResponse extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'LoginResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'porker.v2'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'token')
+    ..aOS(2, _omitFieldNames ? '' : 'userId')
     ..hasRequiredFields = false
   ;
 
@@ -122,6 +128,15 @@ class LoginResponse extends $pb.GeneratedMessage {
   $core.bool hasToken() => $_has(0);
   @$pb.TagNumber(1)
   void clearToken() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get userId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set userId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasUserId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearUserId() => clearField(2);
 }
 
 ///  Logout ログアウト
@@ -493,14 +508,14 @@ class LeaveRoomResponse extends $pb.GeneratedMessage {
 class CastVoteRequest extends $pb.GeneratedMessage {
   factory CastVoteRequest({
     $core.String? roomId,
-    $0.Ballot? ballot,
+    $0.Point? point,
   }) {
     final $result = create();
     if (roomId != null) {
       $result.roomId = roomId;
     }
-    if (ballot != null) {
-      $result.ballot = ballot;
+    if (point != null) {
+      $result.point = point;
     }
     return $result;
   }
@@ -510,7 +525,7 @@ class CastVoteRequest extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'CastVoteRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'porker.v2'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'roomId')
-    ..aOM<$0.Ballot>(2, _omitFieldNames ? '' : 'ballot', subBuilder: $0.Ballot.create)
+    ..e<$0.Point>(2, _omitFieldNames ? '' : 'point', $pb.PbFieldType.OE, defaultOrMaker: $0.Point.POINT_UNSPECIFIED, valueOf: $0.Point.valueOf, enumValues: $0.Point.values)
     ..hasRequiredFields = false
   ;
 
@@ -545,15 +560,13 @@ class CastVoteRequest extends $pb.GeneratedMessage {
   void clearRoomId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $0.Ballot get ballot => $_getN(1);
+  $0.Point get point => $_getN(1);
   @$pb.TagNumber(2)
-  set ballot($0.Ballot v) { setField(2, v); }
+  set point($0.Point v) { setField(2, v); }
   @$pb.TagNumber(2)
-  $core.bool hasBallot() => $_has(1);
+  $core.bool hasPoint() => $_has(1);
   @$pb.TagNumber(2)
-  void clearBallot() => clearField(2);
-  @$pb.TagNumber(2)
-  $0.Ballot ensureBallot() => $_ensure(1);
+  void clearPoint() => clearField(2);
 }
 
 class CastVoteResponse extends $pb.GeneratedMessage {

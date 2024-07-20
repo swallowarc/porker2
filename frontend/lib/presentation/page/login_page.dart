@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:porker2fe/domain/usecase/user.dart';
 import 'package:porker2fe/presentation/const.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -106,11 +107,9 @@ class __FormContentState extends State<_FormContent> {
                   return 'Please enter some text (´・ω・`)';
                 }
 
-                bool emailValid =
-                    RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]{1,10}$")
-                        .hasMatch(value);
+                bool emailValid = userNameRegExp.hasMatch(value);
                 if (!emailValid) {
-                  return 'Please enter a valid name';
+                  return 'Please enter a valid name (alphabet or number)';
                 }
 
                 context.go('/?from=123');
@@ -162,12 +161,8 @@ class _BottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isDarkMode =
-        MediaQuery.of(context).platformBrightness == Brightness.dark;
-    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
-
     return BottomAppBar(
-      color: backgroundColor,
+      color: Theme.of(context).scaffoldBackgroundColor,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -180,7 +175,8 @@ class _BottomBar extends StatelessWidget {
                   onTap: _launchGithub,
                   child: Image(
                     fit: BoxFit.scaleDown,
-                    image: isDarkMode
+                    image: MediaQuery.of(context).platformBrightness ==
+                            Brightness.dark
                         ? const AssetImage("images/github-mark-white.png")
                         : const AssetImage("images/github-mark.png"),
                     height: 30,

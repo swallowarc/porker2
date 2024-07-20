@@ -43,13 +43,6 @@ func pointToProto(p poker.Point) pb.Point {
 	}
 }
 
-func ballotFromProto(p *pb.Ballot) *poker.Ballot {
-	return &poker.Ballot{
-		UserID: userIDFromProto(p.UserId),
-		Point:  pointFromProto(p.Point),
-	}
-}
-
 func ballotToProto(b *poker.Ballot) *pb.Ballot {
 	return &pb.Ballot{
 		UserId: b.UserID.String(),

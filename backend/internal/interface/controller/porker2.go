@@ -50,7 +50,8 @@ func (p *porker2) Login(ctx context.Context, r *connect.Request[pb.LoginRequest]
 
 	return &connect.Response[pb.LoginResponse]{
 		Msg: &pb.LoginResponse{
-			Token: token, // TODO: cookieで返すようにしたい
+			Token:  token, // TODO: cookieで返すようにしたい
+			UserId: id.String(),
 		},
 	}, nil
 }
@@ -115,20 +116,20 @@ func (p *porker2) LeaveRoom(ctx context.Context, r *connect.Request[pb.LeaveRoom
 
 func (p *porker2) CastVote(ctx context.Context, r *connect.Request[pb.CastVoteRequest]) (*connect.Response[pb.CastVoteResponse], error) {
 	roomID := roomIDFromProto(r.Msg.RoomId)
-	ballot := ballotFromProto(r.Msg.Ballot)
+	point := pointFromProto(r.Msg.Point)
 
 	vs := struct {
-		roomID poker.RoomID `validate:"room_id"`
-		ballot *poker.Ballot
+		RoomID poker.RoomID `validate:"room_id"`
+		Point  poker.Point  `validate:"point"`
 	}{
-		roomID: roomID,
-		ballot: ballot,
+		RoomID: roomID,
+		Point:  point,
 	}
 	if err := p.v.StructWithMessage(vs, "invalid argument"); err != nil {
 		return nil, err
 	}
 
-	if err := p.pokerItr.CastVote(ctx, user.FromContextID(ctx), roomID, ballot.Point); err != nil {
+	if err := p.pokerItr.CastVote(ctx, user.FromContextID(ctx), roomID, point); err != nil {
 		return nil, err
 	}
 
