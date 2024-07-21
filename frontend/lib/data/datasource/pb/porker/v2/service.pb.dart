@@ -9,13 +9,12 @@
 // ignore_for_file: non_constant_identifier_names, prefer_final_fields
 // ignore_for_file: unnecessary_import, unnecessary_this, unused_import
 
-import 'dart:async' as $async;
 import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
-import 'resource.pb.dart' as $0;
-import 'resource.pbenum.dart' as $0;
+import 'resource.pb.dart' as $1;
+import 'resource.pbenum.dart' as $1;
 
 ///  Login ログイン
 ///  ログインが成功した場合、tokenを返す。
@@ -358,7 +357,7 @@ class JoinRoomRequest extends $pb.GeneratedMessage {
 
 class JoinRoomResponse extends $pb.GeneratedMessage {
   factory JoinRoomResponse({
-    $0.RoomCondition? condition,
+    $1.RoomCondition? condition,
   }) {
     final $result = create();
     if (condition != null) {
@@ -371,7 +370,7 @@ class JoinRoomResponse extends $pb.GeneratedMessage {
   factory JoinRoomResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'JoinRoomResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'porker.v2'), createEmptyInstance: create)
-    ..aOM<$0.RoomCondition>(1, _omitFieldNames ? '' : 'condition', subBuilder: $0.RoomCondition.create)
+    ..aOM<$1.RoomCondition>(1, _omitFieldNames ? '' : 'condition', subBuilder: $1.RoomCondition.create)
     ..hasRequiredFields = false
   ;
 
@@ -397,15 +396,15 @@ class JoinRoomResponse extends $pb.GeneratedMessage {
   static JoinRoomResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $0.RoomCondition get condition => $_getN(0);
+  $1.RoomCondition get condition => $_getN(0);
   @$pb.TagNumber(1)
-  set condition($0.RoomCondition v) { setField(1, v); }
+  set condition($1.RoomCondition v) { setField(1, v); }
   @$pb.TagNumber(1)
   $core.bool hasCondition() => $_has(0);
   @$pb.TagNumber(1)
   void clearCondition() => clearField(1);
   @$pb.TagNumber(1)
-  $0.RoomCondition ensureCondition() => $_ensure(0);
+  $1.RoomCondition ensureCondition() => $_ensure(0);
 }
 
 ///  LeaveRoom roomから退出する。
@@ -508,7 +507,7 @@ class LeaveRoomResponse extends $pb.GeneratedMessage {
 class CastVoteRequest extends $pb.GeneratedMessage {
   factory CastVoteRequest({
     $core.String? roomId,
-    $0.Point? point,
+    $1.Point? point,
   }) {
     final $result = create();
     if (roomId != null) {
@@ -525,7 +524,7 @@ class CastVoteRequest extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'CastVoteRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'porker.v2'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'roomId')
-    ..e<$0.Point>(2, _omitFieldNames ? '' : 'point', $pb.PbFieldType.OE, defaultOrMaker: $0.Point.POINT_UNSPECIFIED, valueOf: $0.Point.valueOf, enumValues: $0.Point.values)
+    ..e<$1.Point>(2, _omitFieldNames ? '' : 'point', $pb.PbFieldType.OE, defaultOrMaker: $1.Point.POINT_UNSPECIFIED, valueOf: $1.Point.valueOf, enumValues: $1.Point.values)
     ..hasRequiredFields = false
   ;
 
@@ -560,9 +559,9 @@ class CastVoteRequest extends $pb.GeneratedMessage {
   void clearRoomId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $0.Point get point => $_getN(1);
+  $1.Point get point => $_getN(1);
   @$pb.TagNumber(2)
-  set point($0.Point v) { setField(2, v); }
+  set point($1.Point v) { setField(2, v); }
   @$pb.TagNumber(2)
   $core.bool hasPoint() => $_has(1);
   @$pb.TagNumber(2)
@@ -887,39 +886,6 @@ class KickUserResponse extends $pb.GeneratedMessage {
   @$core.pragma('dart2js:noInline')
   static KickUserResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<KickUserResponse>(create);
   static KickUserResponse? _defaultInstance;
-}
-
-class Porker2ServiceApi {
-  $pb.RpcClient _client;
-  Porker2ServiceApi(this._client);
-
-  $async.Future<LoginResponse> login($pb.ClientContext? ctx, LoginRequest request) =>
-    _client.invoke<LoginResponse>(ctx, 'Porker2Service', 'Login', request, LoginResponse())
-  ;
-  $async.Future<LogoutResponse> logout($pb.ClientContext? ctx, LogoutRequest request) =>
-    _client.invoke<LogoutResponse>(ctx, 'Porker2Service', 'Logout', request, LogoutResponse())
-  ;
-  $async.Future<KickUserResponse> kickUser($pb.ClientContext? ctx, KickUserRequest request) =>
-    _client.invoke<KickUserResponse>(ctx, 'Porker2Service', 'KickUser', request, KickUserResponse())
-  ;
-  $async.Future<CreateRoomResponse> createRoom($pb.ClientContext? ctx, CreateRoomRequest request) =>
-    _client.invoke<CreateRoomResponse>(ctx, 'Porker2Service', 'CreateRoom', request, CreateRoomResponse())
-  ;
-  $async.Future<JoinRoomResponse> joinRoom($pb.ClientContext? ctx, JoinRoomRequest request) =>
-    _client.invoke<JoinRoomResponse>(ctx, 'Porker2Service', 'JoinRoom', request, JoinRoomResponse())
-  ;
-  $async.Future<LeaveRoomResponse> leaveRoom($pb.ClientContext? ctx, LeaveRoomRequest request) =>
-    _client.invoke<LeaveRoomResponse>(ctx, 'Porker2Service', 'LeaveRoom', request, LeaveRoomResponse())
-  ;
-  $async.Future<CastVoteResponse> castVote($pb.ClientContext? ctx, CastVoteRequest request) =>
-    _client.invoke<CastVoteResponse>(ctx, 'Porker2Service', 'CastVote', request, CastVoteResponse())
-  ;
-  $async.Future<ShowVotesResponse> showVotes($pb.ClientContext? ctx, ShowVotesRequest request) =>
-    _client.invoke<ShowVotesResponse>(ctx, 'Porker2Service', 'ShowVotes', request, ShowVotesResponse())
-  ;
-  $async.Future<ResetVotesResponse> resetVotes($pb.ClientContext? ctx, ResetVotesRequest request) =>
-    _client.invoke<ResetVotesResponse>(ctx, 'Porker2Service', 'ResetVotes', request, ResetVotesResponse())
-  ;
 }
 
 

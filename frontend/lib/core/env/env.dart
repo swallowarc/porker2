@@ -1,17 +1,9 @@
-enum DeployTarget { development, production }
-
 const _isProduction = bool.fromEnvironment('dart.vm.product');
+const _backendURI = String.fromEnvironment("BACKEND_URI", defaultValue: "/");
+const _backendPort = int.fromEnvironment("BACKEND_PORT", defaultValue: 5000);
 
 class Env {
-  final DeployTarget _deployTarget;
-
-  get deployTarget => _deployTarget;
-
-  Env()
-      : _deployTarget =
-            _isProduction ? DeployTarget.production : DeployTarget.development;
-
-  bool isProduction() {
-    return _isProduction;
-  }
+  get isProduction => _isProduction;
+  get backendURI => _backendURI;
+  get backendPort => _backendPort;
 }

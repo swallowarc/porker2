@@ -13,8 +13,6 @@ import 'dart:convert' as $convert;
 import 'dart:core' as $core;
 import 'dart:typed_data' as $typed_data;
 
-import 'resource.pbjson.dart' as $0;
-
 @$core.Deprecated('Use loginRequestDescriptor instead')
 const LoginRequest$json = {
   '1': 'LoginRequest',
@@ -213,58 +211,4 @@ const KickUserResponse$json = {
 /// Descriptor for `KickUserResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List kickUserResponseDescriptor = $convert.base64Decode(
     'ChBLaWNrVXNlclJlc3BvbnNl');
-
-const $core.Map<$core.String, $core.dynamic> Porker2ServiceBase$json = {
-  '1': 'Porker2Service',
-  '2': [
-    {'1': 'Login', '2': '.porker.v2.LoginRequest', '3': '.porker.v2.LoginResponse'},
-    {'1': 'Logout', '2': '.porker.v2.LogoutRequest', '3': '.porker.v2.LogoutResponse'},
-    {'1': 'KickUser', '2': '.porker.v2.KickUserRequest', '3': '.porker.v2.KickUserResponse'},
-    {'1': 'CreateRoom', '2': '.porker.v2.CreateRoomRequest', '3': '.porker.v2.CreateRoomResponse'},
-    {'1': 'JoinRoom', '2': '.porker.v2.JoinRoomRequest', '3': '.porker.v2.JoinRoomResponse', '6': true},
-    {'1': 'LeaveRoom', '2': '.porker.v2.LeaveRoomRequest', '3': '.porker.v2.LeaveRoomResponse'},
-    {'1': 'CastVote', '2': '.porker.v2.CastVoteRequest', '3': '.porker.v2.CastVoteResponse'},
-    {'1': 'ShowVotes', '2': '.porker.v2.ShowVotesRequest', '3': '.porker.v2.ShowVotesResponse'},
-    {'1': 'ResetVotes', '2': '.porker.v2.ResetVotesRequest', '3': '.porker.v2.ResetVotesResponse'},
-  ],
-};
-
-@$core.Deprecated('Use porker2ServiceDescriptor instead')
-const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>> Porker2ServiceBase$messageJson = {
-  '.porker.v2.LoginRequest': LoginRequest$json,
-  '.porker.v2.LoginResponse': LoginResponse$json,
-  '.porker.v2.LogoutRequest': LogoutRequest$json,
-  '.porker.v2.LogoutResponse': LogoutResponse$json,
-  '.porker.v2.KickUserRequest': KickUserRequest$json,
-  '.porker.v2.KickUserResponse': KickUserResponse$json,
-  '.porker.v2.CreateRoomRequest': CreateRoomRequest$json,
-  '.porker.v2.CreateRoomResponse': CreateRoomResponse$json,
-  '.porker.v2.JoinRoomRequest': JoinRoomRequest$json,
-  '.porker.v2.JoinRoomResponse': JoinRoomResponse$json,
-  '.porker.v2.RoomCondition': $0.RoomCondition$json,
-  '.porker.v2.Ballot': $0.Ballot$json,
-  '.porker.v2.LeaveRoomRequest': LeaveRoomRequest$json,
-  '.porker.v2.LeaveRoomResponse': LeaveRoomResponse$json,
-  '.porker.v2.CastVoteRequest': CastVoteRequest$json,
-  '.porker.v2.CastVoteResponse': CastVoteResponse$json,
-  '.porker.v2.ShowVotesRequest': ShowVotesRequest$json,
-  '.porker.v2.ShowVotesResponse': ShowVotesResponse$json,
-  '.porker.v2.ResetVotesRequest': ResetVotesRequest$json,
-  '.porker.v2.ResetVotesResponse': ResetVotesResponse$json,
-};
-
-/// Descriptor for `Porker2Service`. Decode as a `google.protobuf.ServiceDescriptorProto`.
-final $typed_data.Uint8List porker2ServiceDescriptor = $convert.base64Decode(
-    'Cg5Qb3JrZXIyU2VydmljZRI6CgVMb2dpbhIXLnBvcmtlci52Mi5Mb2dpblJlcXVlc3QaGC5wb3'
-    'JrZXIudjIuTG9naW5SZXNwb25zZRI9CgZMb2dvdXQSGC5wb3JrZXIudjIuTG9nb3V0UmVxdWVz'
-    'dBoZLnBvcmtlci52Mi5Mb2dvdXRSZXNwb25zZRJDCghLaWNrVXNlchIaLnBvcmtlci52Mi5LaW'
-    'NrVXNlclJlcXVlc3QaGy5wb3JrZXIudjIuS2lja1VzZXJSZXNwb25zZRJJCgpDcmVhdGVSb29t'
-    'EhwucG9ya2VyLnYyLkNyZWF0ZVJvb21SZXF1ZXN0Gh0ucG9ya2VyLnYyLkNyZWF0ZVJvb21SZX'
-    'Nwb25zZRJFCghKb2luUm9vbRIaLnBvcmtlci52Mi5Kb2luUm9vbVJlcXVlc3QaGy5wb3JrZXIu'
-    'djIuSm9pblJvb21SZXNwb25zZTABEkYKCUxlYXZlUm9vbRIbLnBvcmtlci52Mi5MZWF2ZVJvb2'
-    '1SZXF1ZXN0GhwucG9ya2VyLnYyLkxlYXZlUm9vbVJlc3BvbnNlEkMKCENhc3RWb3RlEhoucG9y'
-    'a2VyLnYyLkNhc3RWb3RlUmVxdWVzdBobLnBvcmtlci52Mi5DYXN0Vm90ZVJlc3BvbnNlEkYKCV'
-    'Nob3dWb3RlcxIbLnBvcmtlci52Mi5TaG93Vm90ZXNSZXF1ZXN0GhwucG9ya2VyLnYyLlNob3dW'
-    'b3Rlc1Jlc3BvbnNlEkkKClJlc2V0Vm90ZXMSHC5wb3JrZXIudjIuUmVzZXRWb3Rlc1JlcXVlc3'
-    'QaHS5wb3JrZXIudjIuUmVzZXRWb3Rlc1Jlc3BvbnNl');
 

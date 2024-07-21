@@ -2,7 +2,9 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:grpc/grpc.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/core/error/error.dart';
+import 'package:porker2fe/data/datasource/local_storage/local_storage.dart';
 import 'package:porker2fe/data/datasource/pb/porker/v2/service.pb.dart';
+import 'package:porker2fe/data/datasource/pb/porker/v2/service.pbgrpc.dart';
 import 'package:protobuf/protobuf.dart';
 
 part 'user.freezed.dart';
@@ -25,9 +27,10 @@ class UserState with _$UserState {
 }
 
 class User extends StateNotifier<UserState> {
-  final Porker2ServiceApi _apiCli;
+  final Porker2ServiceClient _apiCli;
+  final LocalStorage _localStorage;
 
-  User(this._apiCli) : super(const UserState("", "", ""));
+  User(this._apiCli, this._localStorage) : super(const UserState("", "", ""));
 
   Future<void> login(String userName) async {
     if (state.accessToken.isNotEmpty) {
@@ -39,8 +42,8 @@ class User extends StateNotifier<UserState> {
     }
 
     try {
-      final LoginResponse res = await _apiCli.login(
-          ClientContext(), LoginRequest(userName: userName));
+      final LoginResponse res =
+          await _apiCli.login(LoginRequest(userName: userName));
       state = state.copyWith(
           userName: userName, userID: res.userId, accessToken: res.token);
     } on GrpcError catch (e) {
@@ -52,7 +55,7 @@ class User extends StateNotifier<UserState> {
   }
 
   Future<void> logout() async {
-    await _apiCli.logout(ClientContext(), LogoutRequest());
+    await _apiCli.logout(LogoutRequest());
     state = const UserState("", "", "");
   }
 
