@@ -1,6 +1,6 @@
 //
 //  Generated code. Do not modify.
-//  source: porker/v2/resource.proto
+//  source: porker/v2/domain.proto
 //
 // @dart = 2.12
 

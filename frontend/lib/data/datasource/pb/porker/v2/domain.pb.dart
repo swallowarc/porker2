@@ -1,6 +1,6 @@
 //
 //  Generated code. Do not modify.
-//  source: porker/v2/resource.proto
+//  source: porker/v2/domain.proto
 //
 // @dart = 2.12
 
@@ -13,9 +13,9 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
-import 'resource.pbenum.dart';
+import 'domain.pbenum.dart';
 
-export 'resource.pbenum.dart';
+export 'domain.pbenum.dart';
 
 class Ballot extends $pb.GeneratedMessage {
   factory Ballot({

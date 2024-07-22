@@ -14,7 +14,7 @@ final router = GoRouter(
 class LoginRoute extends GoRouteData {
   LoginRoute({this.from = ""});
 
-  final String from;
+  final String from; // TODO: sample
 
   @override
   Widget build(BuildContext context, GoRouterState state) {

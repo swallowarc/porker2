@@ -1,7 +1,7 @@
 syntax = "proto3";
 package porker.v2;
 
-import "porker/v2/resource.proto";
+import "porker/v2/domain.proto";
 
 option go_package = "github.com/swallowarc/porker2/backend/internal/interface/pb/porker/v2;porkerv2";
 

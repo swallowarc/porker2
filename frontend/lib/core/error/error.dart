@@ -8,13 +8,13 @@ class ExpectedError implements Exception {
 }
 
 class UnexpectedError implements Exception {
-  final String message;
-  final Exception? exception;
+  final String _message;
+  final Exception? _cause;
 
-  UnexpectedError(this.message, [this.exception]);
+  UnexpectedError(this._message, [this._cause]);
 
   @override
-  String toString() => message;
+  String toString() => _message;
 
-  Exception get cause => exception ?? this;
+  Exception get cause => _cause ?? this;
 }

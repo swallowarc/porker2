@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:porker2fe/data/datasource/local_storage/local_storage.dart';
-import 'package:porker2fe/domain/usecase/user.dart';
+import 'package:porker2fe/domain/entity/user.dart';
 import 'package:porker2fe/presentation/const.dart';
 import 'package:porker2fe/presentation/provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';

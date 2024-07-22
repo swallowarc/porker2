@@ -11,10 +11,12 @@ Future<void> errorHandle(
     call();
   } on FormatException catch (e) {
     errCallBack(e.message);
+  } on ArgumentError catch (e) {
+    errCallBack(e.message);
   } on ExpectedError catch (e) {
     errCallBack(e.message);
   } on UnexpectedError catch (e) {
-    logger.e(e.message, error: e.cause);
+    logger.e(e.toString(), error: e.cause);
     errCallBack(unexpectedMessage);
   } catch (e) {
     logger.e(e.toString());

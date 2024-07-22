@@ -13,8 +13,8 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
-import 'resource.pb.dart' as $1;
-import 'resource.pbenum.dart' as $1;
+import 'domain.pb.dart' as $1;
+import 'domain.pbenum.dart' as $1;
 
 ///  Login ログイン
 ///  ログインが成功した場合、tokenを返す。
