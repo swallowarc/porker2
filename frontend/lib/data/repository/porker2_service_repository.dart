@@ -4,6 +4,8 @@ import 'package:porker2fe/data/datasource/pb/porker/v2/service.pbgrpc.dart';
 import 'package:porker2fe/domain/entity/user.dart';
 import 'package:porker2fe/domain/port/repository.dart';
 
+// TODO: 全体的にエラーハンドリング実装する
+
 class Porker2ServiceRepositoryImpl extends Porker2ServiceRepository {
   final Porker2ServiceClient _client;
 
@@ -22,13 +24,6 @@ class Porker2ServiceRepositoryImpl extends Porker2ServiceRepository {
   @override
   Future<void> logout() async {
     _client.logout(LogoutRequest());
-  }
-
-  @override
-  Future<void> kickUser(String roomID, targetUserID) async {
-    _client.kickUser(KickUserRequest()
-      ..roomId = roomID
-      ..targetUserId = targetUserID);
   }
 
   @override
@@ -65,5 +60,12 @@ class Porker2ServiceRepositoryImpl extends Porker2ServiceRepository {
   @override
   Future<void> showVotes(String roomID) async {
     _client.showVotes(ShowVotesRequest()..roomId = roomID);
+  }
+
+  @override
+  Future<void> kickUser(String roomID, targetUserID) async {
+    _client.kickUser(KickUserRequest()
+      ..roomId = roomID
+      ..targetUserId = targetUserID);
   }
 }

@@ -1,5 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:grpc/grpc.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/domain/entity/user.dart';
 import 'package:porker2fe/domain/port/repository.dart';

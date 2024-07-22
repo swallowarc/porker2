@@ -5,11 +5,14 @@ import 'package:porker2fe/data/datasource/pb/porker/v2/service.pbgrpc.dart';
 import 'package:porker2fe/data/repository/local_storage_repository.dart';
 import 'package:porker2fe/data/repository/porker2_service_repository.dart';
 import 'package:porker2fe/domain/port/repository.dart';
+import 'package:porker2fe/domain/usecase/poker.dart';
 import 'package:porker2fe/domain/usecase/user.dart';
+
+/// core layer -----------------------------------------------------------------
 
 final Provider<Env> envProvider = Provider<Env>((ref) => Env());
 
-/// data layer
+/// data layer -----------------------------------------------------------------
 
 final grpcChannelProvider = Provider.autoDispose<ClientChannel>((ref) {
   final env = ref.read(envProvider);
@@ -30,6 +33,8 @@ Provider<Porker2ServiceClient> porker2ServiceApiProvider =
     Provider<Porker2ServiceClient>(
         (ref) => Porker2ServiceClient(ref.read(grpcChannelProvider)));
 
+/// domain layer ---------------------------------------------------------------
+
 /// port
 
 Provider<LocalStorageRepository> localStorageRepositoryProvider =
@@ -39,9 +44,13 @@ Provider<Porker2ServiceRepository> porker2ServiceRepositoryProvider =
     Provider<Porker2ServiceRepository>((ref) =>
         Porker2ServiceRepositoryImpl(ref.read(porker2ServiceApiProvider)));
 
-/// domain layer
+/// usecase
 
 Provider<User> userProvider = Provider<User>((ref) => User(
       ref.read(porker2ServiceRepositoryProvider),
       ref.read(localStorageRepositoryProvider),
+    ));
+
+Provider<Poker> pokerProvider = Provider<Poker>((ref) => Poker(
+      ref.read(porker2ServiceRepositoryProvider),
     ));

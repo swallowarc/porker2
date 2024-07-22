@@ -29,10 +29,6 @@ class Porker2ServiceClient extends $grpc.Client {
       '/porker.v2.Porker2Service/Logout',
       ($0.LogoutRequest value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.LogoutResponse.fromBuffer(value));
-  static final _$kickUser = $grpc.ClientMethod<$0.KickUserRequest, $0.KickUserResponse>(
-      '/porker.v2.Porker2Service/KickUser',
-      ($0.KickUserRequest value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $0.KickUserResponse.fromBuffer(value));
   static final _$createRoom = $grpc.ClientMethod<$0.CreateRoomRequest, $0.CreateRoomResponse>(
       '/porker.v2.Porker2Service/CreateRoom',
       ($0.CreateRoomRequest value) => value.writeToBuffer(),
@@ -57,6 +53,10 @@ class Porker2ServiceClient extends $grpc.Client {
       '/porker.v2.Porker2Service/ResetVotes',
       ($0.ResetVotesRequest value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.ResetVotesResponse.fromBuffer(value));
+  static final _$kickUser = $grpc.ClientMethod<$0.KickUserRequest, $0.KickUserResponse>(
+      '/porker.v2.Porker2Service/KickUser',
+      ($0.KickUserRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.KickUserResponse.fromBuffer(value));
 
   Porker2ServiceClient($grpc.ClientChannel channel,
       {$grpc.CallOptions? options,
@@ -70,10 +70,6 @@ class Porker2ServiceClient extends $grpc.Client {
 
   $grpc.ResponseFuture<$0.LogoutResponse> logout($0.LogoutRequest request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$logout, request, options: options);
-  }
-
-  $grpc.ResponseFuture<$0.KickUserResponse> kickUser($0.KickUserRequest request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$kickUser, request, options: options);
   }
 
   $grpc.ResponseFuture<$0.CreateRoomResponse> createRoom($0.CreateRoomRequest request, {$grpc.CallOptions? options}) {
@@ -99,6 +95,10 @@ class Porker2ServiceClient extends $grpc.Client {
   $grpc.ResponseFuture<$0.ResetVotesResponse> resetVotes($0.ResetVotesRequest request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$resetVotes, request, options: options);
   }
+
+  $grpc.ResponseFuture<$0.KickUserResponse> kickUser($0.KickUserRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$kickUser, request, options: options);
+  }
 }
 
 @$pb.GrpcServiceName('porker.v2.Porker2Service')
@@ -120,13 +120,6 @@ abstract class Porker2ServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.LogoutRequest.fromBuffer(value),
         ($0.LogoutResponse value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.KickUserRequest, $0.KickUserResponse>(
-        'KickUser',
-        kickUser_Pre,
-        false,
-        false,
-        ($core.List<$core.int> value) => $0.KickUserRequest.fromBuffer(value),
-        ($0.KickUserResponse value) => value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.CreateRoomRequest, $0.CreateRoomResponse>(
         'CreateRoom',
         createRoom_Pre,
@@ -169,6 +162,13 @@ abstract class Porker2ServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.ResetVotesRequest.fromBuffer(value),
         ($0.ResetVotesResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.KickUserRequest, $0.KickUserResponse>(
+        'KickUser',
+        kickUser_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.KickUserRequest.fromBuffer(value),
+        ($0.KickUserResponse value) => value.writeToBuffer()));
   }
 
   $async.Future<$0.LoginResponse> login_Pre($grpc.ServiceCall call, $async.Future<$0.LoginRequest> request) async {
@@ -177,10 +177,6 @@ abstract class Porker2ServiceBase extends $grpc.Service {
 
   $async.Future<$0.LogoutResponse> logout_Pre($grpc.ServiceCall call, $async.Future<$0.LogoutRequest> request) async {
     return logout(call, await request);
-  }
-
-  $async.Future<$0.KickUserResponse> kickUser_Pre($grpc.ServiceCall call, $async.Future<$0.KickUserRequest> request) async {
-    return kickUser(call, await request);
   }
 
   $async.Future<$0.CreateRoomResponse> createRoom_Pre($grpc.ServiceCall call, $async.Future<$0.CreateRoomRequest> request) async {
@@ -207,13 +203,17 @@ abstract class Porker2ServiceBase extends $grpc.Service {
     return resetVotes(call, await request);
   }
 
+  $async.Future<$0.KickUserResponse> kickUser_Pre($grpc.ServiceCall call, $async.Future<$0.KickUserRequest> request) async {
+    return kickUser(call, await request);
+  }
+
   $async.Future<$0.LoginResponse> login($grpc.ServiceCall call, $0.LoginRequest request);
   $async.Future<$0.LogoutResponse> logout($grpc.ServiceCall call, $0.LogoutRequest request);
-  $async.Future<$0.KickUserResponse> kickUser($grpc.ServiceCall call, $0.KickUserRequest request);
   $async.Future<$0.CreateRoomResponse> createRoom($grpc.ServiceCall call, $0.CreateRoomRequest request);
   $async.Stream<$0.JoinRoomResponse> joinRoom($grpc.ServiceCall call, $0.JoinRoomRequest request);
   $async.Future<$0.LeaveRoomResponse> leaveRoom($grpc.ServiceCall call, $0.LeaveRoomRequest request);
   $async.Future<$0.CastVoteResponse> castVote($grpc.ServiceCall call, $0.CastVoteRequest request);
   $async.Future<$0.ShowVotesResponse> showVotes($grpc.ServiceCall call, $0.ShowVotesRequest request);
   $async.Future<$0.ResetVotesResponse> resetVotes($grpc.ServiceCall call, $0.ResetVotesRequest request);
+  $async.Future<$0.KickUserResponse> kickUser($grpc.ServiceCall call, $0.KickUserRequest request);
 }

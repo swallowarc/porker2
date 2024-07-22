@@ -8,7 +8,6 @@ option go_package = "github.com/swallowarc/porker2/backend/internal/interface/pb
 service Porker2Service {
   rpc Login(LoginRequest) returns (LoginResponse);
   rpc Logout(LogoutRequest) returns (LogoutResponse);
-  rpc KickUser(KickUserRequest) returns (KickUserResponse);
 
   rpc CreateRoom(CreateRoomRequest) returns (CreateRoomResponse);
   rpc JoinRoom(JoinRoomRequest) returns (stream JoinRoomResponse);
@@ -16,6 +15,7 @@ service Porker2Service {
   rpc CastVote(CastVoteRequest) returns (CastVoteResponse);
   rpc ShowVotes(ShowVotesRequest) returns (ShowVotesResponse);
   rpc ResetVotes(ResetVotesRequest) returns (ResetVotesResponse);
+  rpc KickUser(KickUserRequest) returns (KickUserResponse);
 }
 
 /* セッションについて
