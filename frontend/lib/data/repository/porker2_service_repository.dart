@@ -15,10 +15,7 @@ class Porker2ServiceRepositoryImpl extends Porker2ServiceRepository {
       final res = await _client.login(LoginRequest()..userName = userName);
       return LoginResult(userID: res.userId, token: res.token);
     } on GrpcError catch (e) {
-      if (e.code == StatusCode.alreadyExists) {
-        throw alreadyUsedNameError;
-      }
-      rethrow;
+      throw (e.code == StatusCode.alreadyExists) ? alreadyUsedNameError : e;
     }
   }
 
