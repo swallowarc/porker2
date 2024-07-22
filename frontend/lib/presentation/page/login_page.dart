@@ -11,9 +11,6 @@ class LoginPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final p = ref.watch(userProvider);
-    p.logout();
-
     final bool isSmallScreen =
         MediaQuery.of(context).size.width < smallScreenBoundary;
 
