@@ -8,11 +8,11 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   setUrlStrategy(PathUrlStrategy());
 
-  runApp(const ProviderScope(child: MyApp()));
+  runApp(const ProviderScope(child: Porker2()));
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class Porker2 extends StatelessWidget {
+  const Porker2({super.key});
 
   @override
   Widget build(BuildContext context) {
