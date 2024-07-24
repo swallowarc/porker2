@@ -8,7 +8,7 @@ Future<void> errorHandle(
   const unexpectedMessage = "An unexpected error has occurred";
 
   try {
-    call();
+    await call();
   } on FormatException catch (e) {
     errCallBack(e.message);
   } on ArgumentError catch (e) {

@@ -36,7 +36,7 @@ func NewPorker2Controller(
 }
 
 func (p *porker2) Login(ctx context.Context, r *connect.Request[pb.LoginRequest]) (*connect.Response[pb.LoginResponse], error) {
-	if err := p.v.VarWithMessage(validator.TagUserName, r.Msg.UserName, "invalid argument"); err != nil {
+	if err := p.v.VarWithMessage(r.Msg.UserName, validator.TagUserName, "invalid argument"); err != nil {
 		return nil, err
 	}
 
@@ -80,7 +80,7 @@ func (p *porker2) CreateRoom(ctx context.Context, _ *connect.Request[pb.CreateRo
 }
 
 func (p *porker2) JoinRoom(ctx context.Context, r *connect.Request[pb.JoinRoomRequest], stream *connect.ServerStream[pb.JoinRoomResponse]) error {
-	if err := p.v.VarWithMessage(validator.TagRoomID, r.Msg.RoomId, "invalid argument"); err != nil {
+	if err := p.v.VarWithMessage(r.Msg.RoomId, validator.TagRoomID, "invalid argument"); err != nil {
 		return err
 	}
 
@@ -101,7 +101,7 @@ func (p *porker2) JoinRoom(ctx context.Context, r *connect.Request[pb.JoinRoomRe
 }
 
 func (p *porker2) LeaveRoom(ctx context.Context, r *connect.Request[pb.LeaveRoomRequest]) (*connect.Response[pb.LeaveRoomResponse], error) {
-	if err := p.v.VarWithMessage(validator.TagRoomID, r.Msg.RoomId, "invalid argument"); err != nil {
+	if err := p.v.VarWithMessage(r.Msg.RoomId, validator.TagRoomID, "invalid argument"); err != nil {
 		return nil, err
 	}
 
@@ -139,7 +139,7 @@ func (p *porker2) CastVote(ctx context.Context, r *connect.Request[pb.CastVoteRe
 }
 
 func (p *porker2) ShowVotes(ctx context.Context, r *connect.Request[pb.ShowVotesRequest]) (*connect.Response[pb.ShowVotesResponse], error) {
-	if err := p.v.VarWithMessage(validator.TagRoomID, r.Msg.RoomId, "invalid argument"); err != nil {
+	if err := p.v.VarWithMessage(r.Msg.RoomId, validator.TagRoomID, "invalid argument"); err != nil {
 		return nil, err
 	}
 
@@ -151,7 +151,7 @@ func (p *porker2) ShowVotes(ctx context.Context, r *connect.Request[pb.ShowVotes
 }
 
 func (p *porker2) ResetVotes(ctx context.Context, r *connect.Request[pb.ResetVotesRequest]) (*connect.Response[pb.ResetVotesResponse], error) {
-	if err := p.v.VarWithMessage(validator.TagRoomID, r.Msg.RoomId, "invalid argument"); err != nil {
+	if err := p.v.VarWithMessage(r.Msg.RoomId, validator.TagRoomID, "invalid argument"); err != nil {
 		return nil, err
 	}
 

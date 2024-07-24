@@ -9,6 +9,9 @@ import (
 	"time"
 
 	"connectrpc.com/connect"
+	"github.com/rs/cors"
+	"golang.org/x/net/http2"
+	"golang.org/x/net/http2/h2c"
 
 	"github.com/swallowarc/porker2/backend/internal/interface/interceptor"
 	pbconn "github.com/swallowarc/porker2/backend/internal/interface/pb/porker/v2/porkerv2connect"
@@ -30,8 +33,10 @@ func NewServer(logger *slog.Logger, conf Config, controller pbconn.Porker2Servic
 	return &Server{
 		logger: logger,
 		httpServer: &http.Server{
-			Addr:    fmt.Sprintf("%s:%d", conf.Host, conf.Port),
-			Handler: mux,
+			Addr: fmt.Sprintf("%s:%d", conf.Host, conf.Port),
+			Handler: cors.AllowAll().Handler(
+				h2c.NewHandler(mux, &http2.Server{}),
+			),
 
 			ReadTimeout:  time.Duration(conf.ReadTimeoutSec) * time.Second,
 			WriteTimeout: time.Duration(conf.WriteTimeoutSec) * time.Second,

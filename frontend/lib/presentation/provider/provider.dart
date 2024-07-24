@@ -1,4 +1,5 @@
 import 'package:grpc/grpc.dart';
+import 'package:grpc/grpc_web.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/core/env/env.dart';
 import 'package:porker2fe/data/datasource/pb/porker/v2/service.pbgrpc.dart';
@@ -14,24 +15,14 @@ final Provider<Env> envProvider = Provider<Env>((ref) => Env());
 
 /// data layer -----------------------------------------------------------------
 
-final grpcChannelProvider = Provider.autoDispose<ClientChannel>((ref) {
-  final env = ref.read(envProvider);
-  final channel = ClientChannel(
-    env.backendURI,
-    port: env.backendPort,
-    options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
-  );
-
-  ref.onDispose(() {
-    channel.shutdown();
-  });
-
-  return channel;
-});
-
 Provider<Porker2ServiceClient> porker2ServiceApiProvider =
-    Provider<Porker2ServiceClient>(
-        (ref) => Porker2ServiceClient(ref.read(grpcChannelProvider)));
+    Provider<Porker2ServiceClient>((ref) {
+  final env = ref.read(envProvider);
+  final channel = GrpcWebClientChannel.xhr(Uri.parse(env.backendURI));
+  ref.onDispose(() => channel.shutdown());
+
+  return Porker2ServiceClient(channel);
+});
 
 /// domain layer ---------------------------------------------------------------
 

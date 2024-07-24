@@ -6,6 +6,7 @@ GOCMD = go
 GOINSTALL = $(GOCMD) install
 GOGENERATE = $(GOCMD) generate
 FLUTTER_CMD = flutter
+DOCKER_COMPOSE_CMD = docker-compose
 
 MOCK_DIR=backend/internal/test/mock/
 FRONTEND_DIR=frontend/
@@ -19,6 +20,13 @@ setup/tools:
 	$(GOINSTALL) google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
 	$(GOINSTALL) connectrpc.com/connect/cmd/protoc-gen-connect-go@v1.16.2
 	$(FLUTTER_CMD) pub global activate protoc_plugin
+
+setup/redis:
+ifeq ($(shell uname),Linux)
+	$(DOCKER_COMPOSE_CMD) -f ./docker/docker-compose.yaml -f ./docker/docker-compose.override.yaml up -d
+else
+	$(DOCKER_COMPOSE_CMD) -f ./docker/docker-compose.yaml up -d
+endif
 
 protoc:
 	buf generate

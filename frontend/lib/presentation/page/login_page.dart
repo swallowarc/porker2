@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:porker2fe/core/logger/logger.dart';
 import 'package:porker2fe/domain/entity/user.dart';
 import 'package:porker2fe/presentation/const.dart';
+import 'package:porker2fe/presentation/error_handle.dart';
+import 'package:porker2fe/presentation/provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class LoginPage extends HookConsumerWidget {
@@ -17,19 +20,19 @@ class LoginPage extends HookConsumerWidget {
       body: Center(
         child: SingleChildScrollView(
           child: isSmallScreen
-              ? const Column(
+              ? Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _Logo(),
+                    const _Logo(),
                     _FormContent(),
                   ],
                 )
               : Container(
                   padding: const EdgeInsets.all(32.0),
                   constraints: const BoxConstraints(maxWidth: 800),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Expanded(child: _Logo()),
+                      const Expanded(child: _Logo()),
                       Expanded(
                         child: Center(child: _FormContent()),
                       ),
@@ -80,18 +83,21 @@ class _Logo extends StatelessWidget {
   }
 }
 
-class _FormContent extends StatefulWidget {
-  const _FormContent();
+// class _FormContent extends StatefulWidget {
+//   const _FormContent();
+//
+//   @override
+//   State<_FormContent> createState() => __FormContentState();
+// }
 
-  @override
-  State<_FormContent> createState() => __FormContentState();
-}
-
-class __FormContentState extends State<_FormContent> {
+class _FormContent extends HookConsumerWidget {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(userProvider);
+    final TextEditingController _userNameController = TextEditingController();
+
     return Container(
       constraints: const BoxConstraints(maxWidth: 300),
       child: Form(
@@ -101,6 +107,7 @@ class __FormContentState extends State<_FormContent> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextFormField(
+              controller: _userNameController,
               validator: (value) {
                 // add email validation
                 if (value == null || value.isEmpty) {
@@ -142,7 +149,11 @@ class __FormContentState extends State<_FormContent> {
                 ),
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
-                    /// do something
+                    errorHandle(() async {
+                      await user.login(_userNameController.text);
+                    }, (errMessage) {
+                      logger.e(errMessage);
+                    });
                   }
                 },
               ),

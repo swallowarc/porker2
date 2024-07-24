@@ -5,7 +5,7 @@ import 'package:porker2fe/core/env/env.dart';
 final logger = newLogger();
 
 Logger newLogger() {
-  if (Env().isProduction()) {
+  if (Env().isProduction) {
     Logger.level = Level.error;
     return Logger(
       filter: null, // Use the default LogFilter (-> only log in debug mode)

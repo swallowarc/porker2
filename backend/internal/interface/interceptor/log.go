@@ -13,10 +13,17 @@ import (
 func NewLogUnaryInterceptor(l *slog.Logger) connect.UnaryInterceptorFunc {
 	return func(next connect.UnaryFunc) connect.UnaryFunc {
 		return func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
-			l = slog.With(slog.String("request_id", uuid.NewString()))
+			l = l.With(slog.String("request_id", uuid.NewString()))
 			ctx = logger.SetLogger(ctx, l)
 
-			return next(ctx, req)
+			res, err := next(ctx, req)
+
+			if err != nil {
+				l.Error("failed to call unary", slog.Any("error", err))
+			} else {
+				l.Info("success to call unary")
+			}
+			return res, err
 		}
 	}
 }
