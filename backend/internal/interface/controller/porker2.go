@@ -12,11 +12,13 @@ import (
 	"github.com/swallowarc/porker2/backend/internal/domain/validator"
 	pb "github.com/swallowarc/porker2/backend/internal/interface/pb/porker/v2"
 	pbconn "github.com/swallowarc/porker2/backend/internal/interface/pb/porker/v2/porkerv2connect"
+	"github.com/swallowarc/porker2/backend/internal/interface/session"
 	"github.com/swallowarc/porker2/backend/internal/usecase/interactor"
 )
 
 type (
 	porker2 struct {
+		session  session.Manager
 		v        validator.Validator
 		userItr  interactor.User
 		pokerItr interactor.Poker
@@ -24,11 +26,13 @@ type (
 )
 
 func NewPorker2Controller(
+	session session.Manager,
 	v validator.Validator,
 	userItr interactor.User,
 	pokerItr interactor.Poker,
 ) pbconn.Porker2ServiceHandler {
 	return &porker2{
+		session:  session,
 		v:        v,
 		userItr:  userItr,
 		pokerItr: pokerItr,
@@ -48,16 +52,20 @@ func (p *porker2) Login(ctx context.Context, r *connect.Request[pb.LoginRequest]
 
 	logger.FromCtx(ctx).Info("user login", slog.String(id.String(), name.String()))
 
-	return &connect.Response[pb.LoginResponse]{
+	res := &connect.Response[pb.LoginResponse]{
 		Msg: &pb.LoginResponse{
 			Token:  token, // TODO: cookieで返すようにしたい
 			UserId: id.String(),
 		},
-	}, nil
+	}
+
+	res.Header().Add("Set-Cookie", p.session.CreateCookieString(token))
+
+	return res, nil
 }
 
 func (p *porker2) Logout(ctx context.Context, _ *connect.Request[pb.LogoutRequest]) (*connect.Response[pb.LogoutResponse], error) {
-	if err := p.userItr.Logout(ctx, user.FromContextID(ctx)); err != nil {
+	if err := p.userItr.Logout(ctx, p.session.UserIDFromCtx(ctx)); err != nil {
 		return nil, err
 	}
 
@@ -93,7 +101,7 @@ func (p *porker2) JoinRoom(ctx context.Context, r *connect.Request[pb.JoinRoomRe
 		return true, nil
 	}
 
-	if err := p.pokerItr.JoinRoom(ctx, user.FromContextID(ctx), roomIDFromProto(r.Msg.RoomId), fn); err != nil {
+	if err := p.pokerItr.JoinRoom(ctx, p.session.UserIDFromCtx(ctx), roomIDFromProto(r.Msg.RoomId), fn); err != nil {
 		return err
 	}
 
@@ -105,7 +113,7 @@ func (p *porker2) LeaveRoom(ctx context.Context, r *connect.Request[pb.LeaveRoom
 		return nil, err
 	}
 
-	if err := p.pokerItr.LeaveRoom(ctx, user.FromContextID(ctx)); err != nil {
+	if err := p.pokerItr.LeaveRoom(ctx, p.session.UserIDFromCtx(ctx)); err != nil {
 		return nil, err
 	}
 
@@ -129,7 +137,7 @@ func (p *porker2) CastVote(ctx context.Context, r *connect.Request[pb.CastVoteRe
 		return nil, err
 	}
 
-	if err := p.pokerItr.CastVote(ctx, user.FromContextID(ctx), roomID, point); err != nil {
+	if err := p.pokerItr.CastVote(ctx, p.session.UserIDFromCtx(ctx), roomID, point); err != nil {
 		return nil, err
 	}
 
@@ -143,7 +151,7 @@ func (p *porker2) ShowVotes(ctx context.Context, r *connect.Request[pb.ShowVotes
 		return nil, err
 	}
 
-	if err := p.pokerItr.ShowVotes(ctx, user.FromContextID(ctx), roomIDFromProto(r.Msg.RoomId)); err != nil {
+	if err := p.pokerItr.ShowVotes(ctx, p.session.UserIDFromCtx(ctx), roomIDFromProto(r.Msg.RoomId)); err != nil {
 		return nil, err
 	}
 
@@ -155,7 +163,7 @@ func (p *porker2) ResetVotes(ctx context.Context, r *connect.Request[pb.ResetVot
 		return nil, err
 	}
 
-	if err := p.pokerItr.ResetVotes(ctx, user.FromContextID(ctx), roomIDFromProto(r.Msg.RoomId)); err != nil {
+	if err := p.pokerItr.ResetVotes(ctx, p.session.UserIDFromCtx(ctx), roomIDFromProto(r.Msg.RoomId)); err != nil {
 		return nil, err
 	}
 
@@ -177,7 +185,7 @@ func (p *porker2) KickUser(ctx context.Context, r *connect.Request[pb.KickUserRe
 		return nil, err
 	}
 
-	if err := p.pokerItr.Kick(ctx, user.FromContextID(ctx), targetUserID, roomID); err != nil {
+	if err := p.pokerItr.Kick(ctx, p.session.UserIDFromCtx(ctx), targetUserID, roomID); err != nil {
 		return nil, err
 	}
 

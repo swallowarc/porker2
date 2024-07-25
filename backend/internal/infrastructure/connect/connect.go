@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	"connectrpc.com/authn"
 	"connectrpc.com/connect"
 	"github.com/rs/cors"
 	"golang.org/x/net/http2"
@@ -15,6 +16,7 @@ import (
 
 	"github.com/swallowarc/porker2/backend/internal/interface/interceptor"
 	pbconn "github.com/swallowarc/porker2/backend/internal/interface/pb/porker/v2/porkerv2connect"
+	"github.com/swallowarc/porker2/backend/internal/interface/session"
 )
 
 type (
@@ -24,19 +26,24 @@ type (
 	}
 )
 
-func NewServer(logger *slog.Logger, conf Config, controller pbconn.Porker2ServiceHandler, f *interceptor.Factory) *Server {
-	opt := connect.WithInterceptors(f.LogUnaryInterceptor(), f.AuthUnaryInterceptor())
+func NewServer(logger *slog.Logger, conf Config, controller pbconn.Porker2ServiceHandler, session session.Manager, f *interceptor.Factory) *Server {
+	opt := connect.WithInterceptors(f.LogUnaryInterceptor())
 
 	mux := http.NewServeMux()
 	mux.Handle(pbconn.NewPorker2ServiceHandler(controller, opt))
 
+	md := authn.NewMiddleware(session.VerifyToken)
+
+	handler := h2c.NewHandler(md.Wrap(mux), &http2.Server{})
+	if conf.CORSAllowAll {
+		handler = cors.AllowAll().Handler(handler)
+	}
+
 	return &Server{
 		logger: logger,
 		httpServer: &http.Server{
-			Addr: fmt.Sprintf("%s:%d", conf.Host, conf.Port),
-			Handler: cors.AllowAll().Handler(
-				h2c.NewHandler(mux, &http2.Server{}),
-			),
+			Addr:    fmt.Sprintf("%s:%d", conf.Host, conf.Port),
+			Handler: handler,
 
 			ReadTimeout:  time.Duration(conf.ReadTimeoutSec) * time.Second,
 			WriteTimeout: time.Duration(conf.WriteTimeoutSec) * time.Second,

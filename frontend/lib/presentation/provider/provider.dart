@@ -1,4 +1,3 @@
-import 'package:grpc/grpc.dart';
 import 'package:grpc/grpc_web.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/core/env/env.dart';
@@ -21,12 +20,13 @@ Provider<Porker2ServiceClient> porker2ServiceApiProvider =
   final channel = GrpcWebClientChannel.xhr(Uri.parse(env.backendURI));
   ref.onDispose(() => channel.shutdown());
 
-  return Porker2ServiceClient(channel);
+  return Porker2ServiceClient(
+      channel /*, options: WebCallOptions(withCredentials: true) */);
 });
 
-/// domain layer ---------------------------------------------------------------
+/// interface layer ------------------------------------------------------------
 
-/// port
+/// repository
 
 Provider<LocalStorageRepository> localStorageRepositoryProvider =
     Provider<LocalStorageRepository>((ref) => LocalStorageRepositoryImpl());
@@ -34,6 +34,8 @@ Provider<LocalStorageRepository> localStorageRepositoryProvider =
 Provider<Porker2ServiceRepository> porker2ServiceRepositoryProvider =
     Provider<Porker2ServiceRepository>((ref) =>
         Porker2ServiceRepositoryImpl(ref.read(porker2ServiceApiProvider)));
+
+/// domain layer ---------------------------------------------------------------
 
 /// usecase
 
