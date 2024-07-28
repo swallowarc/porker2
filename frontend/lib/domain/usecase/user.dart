@@ -10,7 +10,6 @@ class UserState with _$UserState {
   const factory UserState(
     String userID,
     String userName,
-    String accessToken,
   ) = _UserState;
 }
 
@@ -18,10 +17,10 @@ class User extends StateNotifier<UserState> {
   final Porker2ServiceRepository _svcRepo;
   final LocalStorageRepository _storageRepo;
 
-  User(this._svcRepo, this._storageRepo) : super(const UserState("", "", ""));
+  User(this._svcRepo, this._storageRepo) : super(const UserState("", ""));
 
   Future<void> login(String userName) async {
-    if (state.accessToken.isNotEmpty) {
+    if (state.userID.isNotEmpty) {
       throw alreadyLoginError;
     }
 
@@ -33,7 +32,6 @@ class User extends StateNotifier<UserState> {
     state = state.copyWith(
       userName: userName,
       userID: result.userID,
-      accessToken: result.token,
     );
 
     await _storageRepo.setUserName(userName);
@@ -41,8 +39,8 @@ class User extends StateNotifier<UserState> {
 
   Future<void> logout() async {
     await _svcRepo.logout();
-    state = const UserState("", "", "");
+    state = const UserState("", "");
   }
 
-  bool get alreadyLogin => state.accessToken.isNotEmpty;
+  bool get alreadyLogin => state.userID.isNotEmpty;
 }

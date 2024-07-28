@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -96,7 +98,7 @@ class _FormContent extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userProvider);
-    final TextEditingController _userNameController = TextEditingController();
+    final TextEditingController userNameController = TextEditingController();
 
     return Container(
       constraints: const BoxConstraints(maxWidth: 300),
@@ -107,7 +109,7 @@ class _FormContent extends HookConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextFormField(
-              controller: _userNameController,
+              controller: userNameController,
               validator: (value) {
                 // add email validation
                 if (value == null || value.isEmpty) {
@@ -118,8 +120,6 @@ class _FormContent extends HookConsumerWidget {
                 if (!emailValid) {
                   return 'Please enter a valid name (alphabet or number)';
                 }
-
-                context.go('/?from=123');
 
                 return null;
               },
@@ -150,9 +150,13 @@ class _FormContent extends HookConsumerWidget {
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
                     errorHandle(() async {
-                      await user.login(_userNameController.text);
+                      await user.login(userNameController.text);
                     }, (errMessage) {
                       logger.e(errMessage);
+                    }).then((_) {
+
+                      user.logout();
+                      // context.go('/?from=123');
                     });
                   }
                 },

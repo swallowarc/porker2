@@ -15,7 +15,7 @@ class Porker2ServiceRepositoryImpl extends Porker2ServiceRepository {
   Future<LoginResult> login(String userName) async {
     try {
       final res = await _client.login(LoginRequest()..userName = userName);
-      return LoginResult(userID: res.userId, token: res.token);
+      return LoginResult(userID: res.userId); // tokenはcookieに保存される
     } on GrpcError catch (e) {
       throw (e.code == StatusCode.alreadyExists) ? alreadyUsedNameError : e;
     }

@@ -2,9 +2,8 @@ import 'package:porker2fe/data/datasource/pb/porker/v2/domain.pb.dart';
 
 class LoginResult {
   final String userID;
-  final String token;
 
-  LoginResult({required this.userID, required this.token});
+  LoginResult({required this.userID});
 }
 
 abstract class Porker2ServiceRepository {
@@ -30,5 +29,5 @@ abstract class Porker2ServiceRepository {
 abstract class LocalStorageRepository {
   Future<String> getUserName();
 
-  Future<void> setUserName(String token);
+  Future<void> setUserName(String name);
 }

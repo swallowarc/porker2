@@ -18,7 +18,6 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$UserState {
   String get userID => throw _privateConstructorUsedError;
   String get userName => throw _privateConstructorUsedError;
-  String get accessToken => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $UserStateCopyWith<UserState> get copyWith =>
@@ -30,7 +29,7 @@ abstract class $UserStateCopyWith<$Res> {
   factory $UserStateCopyWith(UserState value, $Res Function(UserState) then) =
       _$UserStateCopyWithImpl<$Res, UserState>;
   @useResult
-  $Res call({String userID, String userName, String accessToken});
+  $Res call({String userID, String userName});
 }
 
 /// @nodoc
@@ -48,7 +47,6 @@ class _$UserStateCopyWithImpl<$Res, $Val extends UserState>
   $Res call({
     Object? userID = null,
     Object? userName = null,
-    Object? accessToken = null,
   }) {
     return _then(_value.copyWith(
       userID: null == userID
@@ -58,10 +56,6 @@ class _$UserStateCopyWithImpl<$Res, $Val extends UserState>
       userName: null == userName
           ? _value.userName
           : userName // ignore: cast_nullable_to_non_nullable
-              as String,
-      accessToken: null == accessToken
-          ? _value.accessToken
-          : accessToken // ignore: cast_nullable_to_non_nullable
               as String,
     ) as $Val);
   }
@@ -75,7 +69,7 @@ abstract class _$$UserStateImplCopyWith<$Res>
       __$$UserStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String userID, String userName, String accessToken});
+  $Res call({String userID, String userName});
 }
 
 /// @nodoc
@@ -91,7 +85,6 @@ class __$$UserStateImplCopyWithImpl<$Res>
   $Res call({
     Object? userID = null,
     Object? userName = null,
-    Object? accessToken = null,
   }) {
     return _then(_$UserStateImpl(
       null == userID
@@ -102,10 +95,6 @@ class __$$UserStateImplCopyWithImpl<$Res>
           ? _value.userName
           : userName // ignore: cast_nullable_to_non_nullable
               as String,
-      null == accessToken
-          ? _value.accessToken
-          : accessToken // ignore: cast_nullable_to_non_nullable
-              as String,
     ));
   }
 }
@@ -113,18 +102,16 @@ class __$$UserStateImplCopyWithImpl<$Res>
 /// @nodoc
 
 class _$UserStateImpl implements _UserState {
-  const _$UserStateImpl(this.userID, this.userName, this.accessToken);
+  const _$UserStateImpl(this.userID, this.userName);
 
   @override
   final String userID;
   @override
   final String userName;
-  @override
-  final String accessToken;
 
   @override
   String toString() {
-    return 'UserState(userID: $userID, userName: $userName, accessToken: $accessToken)';
+    return 'UserState(userID: $userID, userName: $userName)';
   }
 
   @override
@@ -134,13 +121,11 @@ class _$UserStateImpl implements _UserState {
             other is _$UserStateImpl &&
             (identical(other.userID, userID) || other.userID == userID) &&
             (identical(other.userName, userName) ||
-                other.userName == userName) &&
-            (identical(other.accessToken, accessToken) ||
-                other.accessToken == accessToken));
+                other.userName == userName));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, userID, userName, accessToken);
+  int get hashCode => Object.hash(runtimeType, userID, userName);
 
   @JsonKey(ignore: true)
   @override
@@ -150,15 +135,13 @@ class _$UserStateImpl implements _UserState {
 }
 
 abstract class _UserState implements UserState {
-  const factory _UserState(final String userID, final String userName,
-      final String accessToken) = _$UserStateImpl;
+  const factory _UserState(final String userID, final String userName) =
+      _$UserStateImpl;
 
   @override
   String get userID;
   @override
   String get userName;
-  @override
-  String get accessToken;
   @override
   @JsonKey(ignore: true)
   _$$UserStateImplCopyWith<_$UserStateImpl> get copyWith =>

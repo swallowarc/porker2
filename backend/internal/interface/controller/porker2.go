@@ -50,11 +50,10 @@ func (p *porker2) Login(ctx context.Context, r *connect.Request[pb.LoginRequest]
 		return nil, err
 	}
 
-	logger.FromCtx(ctx).Info("user login", slog.String(id.String(), name.String()))
+	logger.FromCtx(ctx).Info("user login", slog.String("name", name.String()), slog.String("id", id.String()))
 
 	res := &connect.Response[pb.LoginResponse]{
 		Msg: &pb.LoginResponse{
-			Token:  token, // TODO: cookieで返すようにしたい
 			UserId: id.String(),
 		},
 	}

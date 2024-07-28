@@ -10,6 +10,7 @@ DOCKER_COMPOSE_CMD = docker-compose
 
 MOCK_DIR=backend/internal/test/mock/
 FRONTEND_DIR=frontend/
+FRONTEND_DEBUG_PORT=53676
 
 .PHONY: setup/tools git/add_subtree protoc
 
@@ -43,3 +44,6 @@ fe/lint:
 
 fe/build-runner:
 	cd $(FRONTEND_DIR) && flutter pub run build_runner build --delete-conflicting-outputs
+
+fe/run-for-debug:
+	cd $(FRONTEND_DIR) && flutter run -d chrome --web-port=$(FRONTEND_DEBUG_PORT)

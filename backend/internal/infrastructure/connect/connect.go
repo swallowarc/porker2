@@ -35,15 +35,21 @@ func NewServer(logger *slog.Logger, conf Config, controller pbconn.Porker2Servic
 	md := authn.NewMiddleware(session.VerifyToken)
 
 	handler := h2c.NewHandler(md.Wrap(mux), &http2.Server{})
-	if conf.CORSAllowAll {
-		handler = cors.AllowAll().Handler(handler)
-	}
+
+	// see https://connectrpc.com/docs/cors/#preflight-response
+	c := cors.New(cors.Options{
+		AllowedOrigins:   conf.CORSAllowOrigins,
+		AllowCredentials: true, // Necessary to use cookies
+		AllowedMethods:   []string{"POST"},
+		AllowedHeaders:   []string{"Content-Type", "x-grpc-web", "grpc-timeout", "x-user-agent"},
+		ExposedHeaders:   []string{"grpc-status", "grpc-message", "grpc-status-details-bin"},
+	})
 
 	return &Server{
 		logger: logger,
 		httpServer: &http.Server{
 			Addr:    fmt.Sprintf("%s:%d", conf.Host, conf.Port),
-			Handler: handler,
+			Handler: c.Handler(handler),
 
 			ReadTimeout:  time.Duration(conf.ReadTimeoutSec) * time.Second,
 			WriteTimeout: time.Duration(conf.WriteTimeoutSec) * time.Second,

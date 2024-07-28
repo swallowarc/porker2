@@ -76,13 +76,9 @@ class LoginRequest extends $pb.GeneratedMessage {
 
 class LoginResponse extends $pb.GeneratedMessage {
   factory LoginResponse({
-    $core.String? token,
     $core.String? userId,
   }) {
     final $result = create();
-    if (token != null) {
-      $result.token = token;
-    }
     if (userId != null) {
       $result.userId = userId;
     }
@@ -93,8 +89,7 @@ class LoginResponse extends $pb.GeneratedMessage {
   factory LoginResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'LoginResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'porker.v2'), createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'token')
-    ..aOS(2, _omitFieldNames ? '' : 'userId')
+    ..aOS(1, _omitFieldNames ? '' : 'userId')
     ..hasRequiredFields = false
   ;
 
@@ -120,22 +115,13 @@ class LoginResponse extends $pb.GeneratedMessage {
   static LoginResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get token => $_getSZ(0);
+  $core.String get userId => $_getSZ(0);
   @$pb.TagNumber(1)
-  set token($core.String v) { $_setString(0, v); }
+  set userId($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasToken() => $_has(0);
+  $core.bool hasUserId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearToken() => clearField(1);
-
-  @$pb.TagNumber(2)
-  $core.String get userId => $_getSZ(1);
-  @$pb.TagNumber(2)
-  set userId($core.String v) { $_setString(1, v); }
-  @$pb.TagNumber(2)
-  $core.bool hasUserId() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearUserId() => clearField(2);
+  void clearUserId() => clearField(1);
 }
 
 ///  Logout ログアウト

@@ -20,8 +20,8 @@ Provider<Porker2ServiceClient> porker2ServiceApiProvider =
   final channel = GrpcWebClientChannel.xhr(Uri.parse(env.backendURI));
   ref.onDispose(() => channel.shutdown());
 
-  return Porker2ServiceClient(
-      channel /*, options: WebCallOptions(withCredentials: true) */);
+  return Porker2ServiceClient(channel,
+      options: WebCallOptions(withCredentials: true));
 });
 
 /// interface layer ------------------------------------------------------------
