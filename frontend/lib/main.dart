@@ -20,6 +20,7 @@ class Porker2 extends StatelessWidget {
       routes: $appRoutes,
     );
     return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
       routerConfig: goRouter,
       theme: ThemeData(
         brightness: Brightness.light,

@@ -4,12 +4,12 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/core/logger/logger.dart';
 import 'package:porker2fe/domain/entity/room.dart';
-import 'package:porker2fe/domain/entity/user.dart';
 import 'package:porker2fe/presentation/const.dart';
 import 'package:porker2fe/presentation/error_handle.dart';
 import 'package:porker2fe/presentation/provider/provider.dart';
 import 'package:porker2fe/presentation/widget/bottom_bar.dart';
 import 'package:porker2fe/presentation/widget/logo.dart';
+import 'package:porker2fe/presentation/widget/rainbow_text.dart';
 
 class RoomSelectPage extends HookConsumerWidget {
   const RoomSelectPage({super.key});
@@ -23,6 +23,22 @@ class RoomSelectPage extends HookConsumerWidget {
         Logo(type: LogoType.roomSelect, message: "Join or Create a room");
 
     return Scaffold(
+      appBar: AppBar(
+        title: const RainbowText(
+          text: appBarTitle,
+          style: TextStyle(
+            fontSize: 30,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              ref.read(userProvider).logout();
+            },
+          ),
+        ],
+      ),
       body: Center(
         child: SingleChildScrollView(
           child: isSmallScreen

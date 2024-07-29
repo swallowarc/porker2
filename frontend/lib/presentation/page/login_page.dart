@@ -9,6 +9,7 @@ import 'package:porker2fe/presentation/error_handle.dart';
 import 'package:porker2fe/presentation/provider/provider.dart';
 import 'package:porker2fe/presentation/widget/bottom_bar.dart';
 import 'package:porker2fe/presentation/widget/logo.dart';
+import 'package:porker2fe/presentation/widget/rainbow_text.dart';
 
 class LoginPage extends HookConsumerWidget {
   const LoginPage({super.key});
@@ -21,6 +22,14 @@ class LoginPage extends HookConsumerWidget {
     const logo = Logo(type: LogoType.login, message: "Welcome to Porker2");
 
     return Scaffold(
+      appBar: AppBar(
+        title: const RainbowText(
+          text: appBarTitle,
+          style: TextStyle(
+            fontSize: 30,
+          ),
+        ),
+      ),
       body: Center(
         child: SingleChildScrollView(
           child: isSmallScreen
