@@ -8,6 +8,7 @@ part of 'router.dart';
 
 List<RouteBase> get $appRoutes => [
       $loginRoute,
+      $roomSelectRoute,
     ];
 
 RouteBase get $loginRoute => GoRouteData.$route(
@@ -25,6 +26,28 @@ extension $LoginRouteExtension on LoginRoute {
         queryParams: {
           if (from != "") 'from': from,
         },
+      );
+
+  void go(BuildContext context) => context.go(location);
+
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $roomSelectRoute => GoRouteData.$route(
+      path: '/room',
+      factory: $RoomSelectRouteExtension._fromState,
+    );
+
+extension $RoomSelectRouteExtension on RoomSelectRoute {
+  static RoomSelectRoute _fromState(GoRouterState state) => RoomSelectRoute();
+
+  String get location => GoRouteData.$location(
+        '/room',
       );
 
   void go(BuildContext context) => context.go(location);

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:porker2fe/presentation/page/login_page.dart';
+import 'package:porker2fe/presentation/page/room_select_page.dart';
 
 part 'router.g.dart';
 
@@ -19,5 +20,15 @@ class LoginRoute extends GoRouteData {
   @override
   Widget build(BuildContext context, GoRouterState state) {
     return const LoginPage();
+  }
+}
+
+@TypedGoRoute<RoomSelectRoute>(path: '/room')
+class RoomSelectRoute extends GoRouteData {
+  RoomSelectRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const RoomSelectPage();
   }
 }

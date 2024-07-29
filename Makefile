@@ -6,7 +6,7 @@ GOCMD = go
 GOINSTALL = $(GOCMD) install
 GOGENERATE = $(GOCMD) generate
 FLUTTER_CMD = flutter
-DOCKER_COMPOSE_CMD = docker-compose
+DOCKER_COMPOSE_CMD = docker compose
 
 MOCK_DIR=backend/internal/test/mock/
 FRONTEND_DIR=frontend/

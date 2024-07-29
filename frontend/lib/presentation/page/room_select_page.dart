@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/core/logger/logger.dart';
+import 'package:porker2fe/domain/entity/room.dart';
 import 'package:porker2fe/domain/entity/user.dart';
 import 'package:porker2fe/presentation/const.dart';
 import 'package:porker2fe/presentation/error_handle.dart';
@@ -10,15 +11,16 @@ import 'package:porker2fe/presentation/provider/provider.dart';
 import 'package:porker2fe/presentation/widget/bottom_bar.dart';
 import 'package:porker2fe/presentation/widget/logo.dart';
 
-class LoginPage extends HookConsumerWidget {
-  const LoginPage({super.key});
+class RoomSelectPage extends HookConsumerWidget {
+  const RoomSelectPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool isSmallScreen =
         MediaQuery.of(context).size.width < smallScreenBoundary;
 
-    const logo = Logo(type: LogoType.login, message: "Welcome to Porker2");
+    const logo =
+        Logo(type: LogoType.roomSelect, message: "Join or Create a room");
 
     return Scaffold(
       body: Center(
@@ -56,7 +58,9 @@ class _FormContent extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userProvider);
-    final TextEditingController userNameController = TextEditingController();
+    final TextEditingController roomIDController = TextEditingController();
+    final bool isSmallScreen =
+        MediaQuery.of(context).size.width < smallScreenBoundary;
 
     return Container(
       constraints: const BoxConstraints(maxWidth: 300),
@@ -67,27 +71,73 @@ class _FormContent extends HookConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextFormField(
-              controller: userNameController,
+              controller: roomIDController,
+              keyboardType: TextInputType.number,
               inputFormatters: <TextInputFormatter>[
-                FilteringTextInputFormatter.allow(userNameCharRegExp),
+                FilteringTextInputFormatter.allow(roomIDCharRegExp),
               ],
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter some text  (´・ω・`)';
+                  return 'Please enter room ID  (；´Д｀)';
                 }
 
-                return userNameFormatRegExp.hasMatch(value)
+                return roomIDFormatRegExp.hasMatch(value)
                     ? null
-                    : 'Please enter a valid name (alphabet or number)';
+                    : 'Please enter a valid ID (5 digits)';
               },
-              maxLength: 10,
+              maxLength: 5,
               maxLines: 1,
               decoration: const InputDecoration(
-                labelText: 'User name',
-                hintText: 'Enter your name',
+                labelText: 'Room ID',
+                hintText: 'Enter room ID',
                 prefixIcon: Icon(Icons.edit),
                 border: OutlineInputBorder(),
               ),
+            ),
+            const SizedBox(height: 5),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.indigo,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4)),
+                ),
+                child: const Padding(
+                  padding: EdgeInsets.all(10.0),
+                  child: Text(
+                    'Join',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                onPressed: () {
+                  if (_formKey.currentState?.validate() ?? false) {
+                    errorHandle(() async {
+                      await user.login(roomIDController.text);
+                    }, (errMessage) {
+                      logger.e(errMessage);
+                    }).then((_) {
+                      user.logout();
+                      // context.go('/?from=123');
+                    });
+                  }
+                },
+              ),
+            ),
+            _gap(),
+            Text(
+              "or",
+              textAlign: TextAlign.center,
+              style: isSmallScreen
+                  ? Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(color: Colors.orange, fontSize: 24)
+                  : Theme.of(context)
+                      .textTheme
+                      .bodyLarge
+                      ?.copyWith(color: Colors.orange, fontSize: 24),
             ),
             _gap(),
             SizedBox(
@@ -95,28 +145,26 @@ class _FormContent extends HookConsumerWidget {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
-                  backgroundColor: Colors.orange,
+                  backgroundColor: Colors.pink,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(4)),
                 ),
                 child: const Padding(
                   padding: EdgeInsets.all(10.0),
                   child: Text(
-                    'Login',
+                    'Create a room',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
                 onPressed: () {
-                  if (_formKey.currentState?.validate() ?? false) {
-                    errorHandle(() async {
-                      await user.login(userNameController.text);
-                    }, (errMessage) {
-                      logger.e(errMessage);
-                    }).then((_) {
-                      // user.logout();
-                      GoRouter.of(context).go('/room');
-                    });
-                  }
+                  errorHandle(() async {
+                    await user.login(roomIDController.text);
+                  }, (errMessage) {
+                    logger.e(errMessage);
+                  }).then((_) {
+                    // user.logout();
+                    GoRouter.of(context).go('/room');
+                  });
                 },
               ),
             ),
@@ -126,5 +174,5 @@ class _FormContent extends HookConsumerWidget {
     );
   }
 
-  Widget _gap() => const SizedBox(height: 16);
+  Widget _gap() => const SizedBox(height: 12);
 }

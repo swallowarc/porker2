@@ -24,7 +24,7 @@ class User extends StateNotifier<UserState> {
       throw alreadyLoginError;
     }
 
-    if (!userNameRegExp.hasMatch(userName)) {
+    if (!userNameFormatRegExp.hasMatch(userName)) {
       throw nameFormatError;
     }
 

@@ -1,6 +1,7 @@
 import 'package:porker2fe/core/error/error.dart';
 
-final userNameRegExp = RegExp(r"^[a-zA-Z0-9_-]{1,10}$");
+final userNameCharRegExp = RegExp(r"[a-zA-Z0-9_-]");
+final userNameFormatRegExp = RegExp(r"^[a-zA-Z0-9_-]{1,10}$");
 
 const nameFormatError = FormatException(
   "user name format exception",
