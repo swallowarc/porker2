@@ -108,9 +108,8 @@ class _FormContent extends HookConsumerWidget {
                 ),
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
-                    invoke(context, () async {
-                      await user.login(userNameController.text);
-                    }, () => GoRouter.of(context).go('/room'));
+                    invoke(context, () => user.login(userNameController.text),
+                        () => GoRouter.of(context).go('/room'));
                   }
                 },
               ),

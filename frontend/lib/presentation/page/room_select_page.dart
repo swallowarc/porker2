@@ -112,9 +112,8 @@ class _FormContent extends HookConsumerWidget {
                 ),
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
-                    invoke(context, () async {
-                      await user.login(roomIDController.text);
-                    }, () => user.logout());
+                    invoke(context, () => user.login(roomIDController.text),
+                        () => user.logout());
                   }
                 },
               ),
@@ -151,9 +150,8 @@ class _FormContent extends HookConsumerWidget {
                   ),
                 ),
                 onPressed: () {
-                  invoke(context, () async {
-                    await user.login(roomIDController.text);
-                  }, () => GoRouter.of(context).go('/room'));
+                  invoke(context, () => user.login(roomIDController.text),
+                      () => GoRouter.of(context).go('/room'));
                 },
               ),
             ),

@@ -36,9 +36,8 @@ class Porker2AppBar extends HookConsumerWidget implements PreferredSizeWidget {
           child: IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {
-              invoke(context, () async {
-                user.logout();
-              }, () => GoRouter.of(context).pop());
+              invoke(context, () => user.logout(),
+                  () => GoRouter.of(context).pop());
             },
           ),
         ),
