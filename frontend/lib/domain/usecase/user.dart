@@ -20,15 +20,16 @@ class User extends StateNotifier<UserState> {
   User(this._svcRepo, this._storageRepo) : super(const UserState("", ""));
 
   Future<void> login(String userName) async {
-    if (state.userID.isNotEmpty) {
-      throw alreadyLoginError;
-    }
-
     if (!userNameFormatRegExp.hasMatch(userName)) {
       throw nameFormatError;
     }
 
+    if (state.userID.isNotEmpty) {
+      throw alreadyLoginError;
+    }
+
     final result = await _svcRepo.login(userName);
+
     state = state.copyWith(
       userName: userName,
       userID: result.userID,

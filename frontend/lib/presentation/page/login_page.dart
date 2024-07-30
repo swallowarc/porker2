@@ -2,34 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:porker2fe/core/logger/logger.dart';
 import 'package:porker2fe/domain/entity/user.dart';
 import 'package:porker2fe/presentation/const.dart';
-import 'package:porker2fe/presentation/error_handle.dart';
+import 'package:porker2fe/presentation/invoke.dart';
 import 'package:porker2fe/presentation/provider/provider.dart';
+import 'package:porker2fe/presentation/widget/app_bar.dart';
 import 'package:porker2fe/presentation/widget/bottom_bar.dart';
 import 'package:porker2fe/presentation/widget/logo.dart';
-import 'package:porker2fe/presentation/widget/rainbow_text.dart';
 
 class LoginPage extends HookConsumerWidget {
   const LoginPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    const logo = Logo(type: LogoType.login, message: "Welcome to Porker2");
     final bool isSmallScreen =
         MediaQuery.of(context).size.width < smallScreenBoundary;
 
-    const logo = Logo(type: LogoType.login, message: "Welcome to Porker2");
-
     return Scaffold(
-      appBar: AppBar(
-        title: const RainbowText(
-          text: appBarTitle,
-          style: TextStyle(
-            fontSize: 30,
-          ),
-        ),
-      ),
+      appBar: const Porker2AppBar(),
       body: Center(
         child: SingleChildScrollView(
           child: isSmallScreen
@@ -117,14 +108,9 @@ class _FormContent extends HookConsumerWidget {
                 ),
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
-                    errorHandle(() async {
+                    invoke(context, () async {
                       await user.login(userNameController.text);
-                    }, (errMessage) {
-                      logger.e(errMessage);
-                    }).then((_) {
-                      // user.logout();
-                      GoRouter.of(context).go('/room');
-                    });
+                    }, () => GoRouter.of(context).go('/room'));
                   }
                 },
               ),

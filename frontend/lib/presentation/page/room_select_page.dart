@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:porker2fe/core/logger/logger.dart';
 import 'package:porker2fe/domain/entity/room.dart';
 import 'package:porker2fe/presentation/const.dart';
-import 'package:porker2fe/presentation/error_handle.dart';
+import 'package:porker2fe/presentation/invoke.dart';
 import 'package:porker2fe/presentation/provider/provider.dart';
+import 'package:porker2fe/presentation/widget/app_bar.dart';
 import 'package:porker2fe/presentation/widget/bottom_bar.dart';
 import 'package:porker2fe/presentation/widget/logo.dart';
-import 'package:porker2fe/presentation/widget/rainbow_text.dart';
 
 class RoomSelectPage extends HookConsumerWidget {
   const RoomSelectPage({super.key});
@@ -18,27 +17,11 @@ class RoomSelectPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final bool isSmallScreen =
         MediaQuery.of(context).size.width < smallScreenBoundary;
-
     const logo =
         Logo(type: LogoType.roomSelect, message: "Join or Create a room");
 
     return Scaffold(
-      appBar: AppBar(
-        title: const RainbowText(
-          text: appBarTitle,
-          style: TextStyle(
-            fontSize: 30,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              ref.read(userProvider).logout();
-            },
-          ),
-        ],
-      ),
+      appBar: const Porker2AppBar(),
       body: Center(
         child: SingleChildScrollView(
           child: isSmallScreen
@@ -129,14 +112,9 @@ class _FormContent extends HookConsumerWidget {
                 ),
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
-                    errorHandle(() async {
+                    invoke(context, () async {
                       await user.login(roomIDController.text);
-                    }, (errMessage) {
-                      logger.e(errMessage);
-                    }).then((_) {
-                      user.logout();
-                      // context.go('/?from=123');
-                    });
+                    }, () => user.logout());
                   }
                 },
               ),
@@ -173,14 +151,9 @@ class _FormContent extends HookConsumerWidget {
                   ),
                 ),
                 onPressed: () {
-                  errorHandle(() async {
+                  invoke(context, () async {
                     await user.login(roomIDController.text);
-                  }, (errMessage) {
-                    logger.e(errMessage);
-                  }).then((_) {
-                    // user.logout();
-                    GoRouter.of(context).go('/room');
-                  });
+                  }, () => GoRouter.of(context).go('/room'));
                 },
               ),
             ),

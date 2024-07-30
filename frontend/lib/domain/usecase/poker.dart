@@ -45,5 +45,5 @@ class Poker extends StateNotifier<RoomCondition> {
         targetUserID,
       );
 
-  bool get inRoom => _subscribing;
+  bool get inRoom => state.roomId.isNotEmpty;
 }

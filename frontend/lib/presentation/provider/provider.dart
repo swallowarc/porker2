@@ -7,6 +7,7 @@ import 'package:porker2fe/data/repository/porker2_service_repository.dart';
 import 'package:porker2fe/domain/port/repository.dart';
 import 'package:porker2fe/domain/usecase/poker.dart';
 import 'package:porker2fe/domain/usecase/user.dart';
+import 'package:porker2fe/presentation/widget/app_bar.dart';
 
 /// core layer -----------------------------------------------------------------
 
@@ -47,3 +48,5 @@ Provider<User> userProvider = Provider<User>((ref) => User(
 Provider<Poker> pokerProvider = Provider<Poker>((ref) => Poker(
       ref.read(porker2ServiceRepositoryProvider),
     ));
+
+/// presentation layer ---------------------------------------------------------

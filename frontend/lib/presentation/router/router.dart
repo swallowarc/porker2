@@ -11,7 +11,12 @@ final router = GoRouter(
   routes: $appRoutes,
 );
 
-@TypedGoRoute<LoginRoute>(path: '/')
+@TypedGoRoute<LoginRoute>(
+  path: '/',
+  routes: [
+    TypedGoRoute<RoomSelectRoute>(path: 'room'),
+  ],
+)
 class LoginRoute extends GoRouteData {
   LoginRoute({this.from = ""});
 
@@ -23,7 +28,6 @@ class LoginRoute extends GoRouteData {
   }
 }
 
-@TypedGoRoute<RoomSelectRoute>(path: '/room')
 class RoomSelectRoute extends GoRouteData {
   RoomSelectRoute();
 
