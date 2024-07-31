@@ -25,7 +25,7 @@ class LoginRoute extends GoRouteData {
 
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return const MainScreen(child: LoginPage());
+    return const MainScreen(title: "Welcome to Porker2", child: LoginPage());
   }
 }
 
@@ -34,6 +34,6 @@ class RoomSelectRoute extends GoRouteData {
 
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return const MainScreen(child: RoomSelectPage());
+    return const MainScreen(title: "Room Select", child: RoomSelectPage());
   }
 }

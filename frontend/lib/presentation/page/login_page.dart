@@ -15,7 +15,7 @@ class LoginPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    const logo = Logo(type: LogoType.login, message: "Welcome to Porker2");
+    const logo = Logo(type: LogoType.login, message: "Enter your name");
     final bool isSmallScreen =
         MediaQuery.of(context).size.width < smallScreenBoundary;
 

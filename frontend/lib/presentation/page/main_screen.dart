@@ -11,14 +11,15 @@ import 'package:porker2fe/presentation/widget/bottom_bar.dart';
 import 'package:porker2fe/presentation/widget/logo.dart';
 
 class MainScreen extends HookConsumerWidget {
+  final String title;
   final Widget child;
 
-  const MainScreen({super.key, required this.child});
+  const MainScreen({super.key, required this.title, required this.child});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: const Porker2AppBar(),
+      appBar: Porker2AppBar(title: title),
       body: child,
       bottomNavigationBar: const BottomBar(),
     );

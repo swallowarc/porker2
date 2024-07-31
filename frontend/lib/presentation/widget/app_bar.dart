@@ -7,7 +7,9 @@ import 'package:porker2fe/presentation/provider/provider.dart';
 import 'package:porker2fe/presentation/widget/rainbow_text.dart';
 
 class Porker2AppBar extends HookConsumerWidget implements PreferredSizeWidget {
-  const Porker2AppBar({super.key}) : super();
+  final String title;
+
+  const Porker2AppBar({super.key, required this.title}) : super();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -45,7 +47,12 @@ class Porker2AppBar extends HookConsumerWidget implements PreferredSizeWidget {
     }
 
     return AppBar(
-      title: _Title(),
+      title: RainbowText(
+        text: title,
+        style: const TextStyle(
+          fontSize: 30,
+        ),
+      ),
       actions: actions,
       automaticallyImplyLeading: false,
     );
@@ -53,16 +60,4 @@ class Porker2AppBar extends HookConsumerWidget implements PreferredSizeWidget {
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
-}
-
-class _Title extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return const RainbowText(
-      text: appBarTitle,
-      style: TextStyle(
-        fontSize: 30,
-      ),
-    );
-  }
 }
