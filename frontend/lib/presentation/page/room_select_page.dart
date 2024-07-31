@@ -20,33 +20,29 @@ class RoomSelectPage extends HookConsumerWidget {
     const logo =
         Logo(type: LogoType.roomSelect, message: "Join or Create a room");
 
-    return Scaffold(
-      appBar: const Porker2AppBar(),
-      body: Center(
-        child: SingleChildScrollView(
-          child: isSmallScreen
-              ? Column(
-                  mainAxisSize: MainAxisSize.min,
+    return Center(
+      child: SingleChildScrollView(
+        child: isSmallScreen
+            ? Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  logo,
+                  _FormContent(),
+                ],
+              )
+            : Container(
+                padding: const EdgeInsets.all(32.0),
+                constraints: const BoxConstraints(maxWidth: 800),
+                child: Row(
                   children: [
-                    logo,
-                    _FormContent(),
+                    const Expanded(child: logo),
+                    Expanded(
+                      child: Center(child: _FormContent()),
+                    ),
                   ],
-                )
-              : Container(
-                  padding: const EdgeInsets.all(32.0),
-                  constraints: const BoxConstraints(maxWidth: 800),
-                  child: Row(
-                    children: [
-                      const Expanded(child: logo),
-                      Expanded(
-                        child: Center(child: _FormContent()),
-                      ),
-                    ],
-                  ),
                 ),
-        ),
+              ),
       ),
-      bottomNavigationBar: const BottomBar(),
     );
   }
 }
