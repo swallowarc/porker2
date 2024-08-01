@@ -19,29 +19,35 @@ class LoginPage extends HookConsumerWidget {
     final bool isSmallScreen =
         MediaQuery.of(context).size.width < smallScreenBoundary;
 
-    return Center(
+    final body = Center(
       child: SingleChildScrollView(
         child: isSmallScreen
             ? Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            logo,
-            _FormContent(),
-          ],
-        )
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  logo,
+                  _FormContent(),
+                ],
+              )
             : Container(
-          padding: const EdgeInsets.all(32.0),
-          constraints: const BoxConstraints(maxWidth: 800),
-          child: Row(
-            children: [
-              const Expanded(child: logo),
-              Expanded(
-                child: Center(child: _FormContent()),
+                padding: const EdgeInsets.all(32.0),
+                constraints: const BoxConstraints(maxWidth: 800),
+                child: Row(
+                  children: [
+                    const Expanded(child: logo),
+                    Expanded(
+                      child: Center(child: _FormContent()),
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
-        ),
       ),
+    );
+
+    return Scaffold(
+      appBar: const Porker2AppBar(title: "Welcome to Porker2"),
+      body: body,
+      bottomNavigationBar: const BottomBar(),
     );
   }
 }

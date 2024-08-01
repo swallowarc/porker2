@@ -20,7 +20,7 @@ class RoomSelectPage extends HookConsumerWidget {
     const logo =
         Logo(type: LogoType.roomSelect, message: "Join or Create a room");
 
-    return Center(
+    final body = Center(
       child: SingleChildScrollView(
         child: isSmallScreen
             ? Column(
@@ -43,6 +43,12 @@ class RoomSelectPage extends HookConsumerWidget {
                 ),
               ),
       ),
+    );
+
+    return Scaffold(
+      appBar: const Porker2AppBar(title: "How to join?"),
+      body: body,
+      bottomNavigationBar: const BottomBar(),
     );
   }
 }

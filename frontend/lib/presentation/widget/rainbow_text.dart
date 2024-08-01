@@ -6,7 +6,8 @@ class RainbowText extends StatelessWidget {
   final double step;
   final double offset;
 
-  const RainbowText({super.key,
+  const RainbowText({
+    super.key,
     required this.text,
     required this.style,
     this.step = 0.1,
