@@ -4,14 +4,14 @@ class TwoChoiceDialog extends StatelessWidget {
   final String title;
   final String message;
   final Function() onYes;
-  final Function() onNo;
+  final Function()? onNo;
 
   const TwoChoiceDialog({
     super.key,
     required this.title,
     required this.message,
     required this.onYes,
-    required this.onNo,
+    this.onNo,
   });
 
   @override
@@ -21,11 +21,14 @@ class TwoChoiceDialog extends StatelessWidget {
       content: Text(message),
       actions: <Widget>[
         GestureDetector(
-          onTap: onYes,
+          onTap: () {
+            onYes();
+            Navigator.pop(context);
+          },
           child: const Text('Yes'),
         ),
         GestureDetector(
-          onTap: onNo,
+          onTap: onNo ?? () => Navigator.pop(context),
           child: const Text('No'),
         )
       ],
