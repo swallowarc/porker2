@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:porker2fe/presentation/const.dart';
+import 'package:porker2fe/core/logger/logger.dart';
 import 'package:porker2fe/presentation/invoke.dart';
 import 'package:porker2fe/presentation/provider/provider.dart';
+import 'package:porker2fe/presentation/widget/dialog.dart';
 import 'package:porker2fe/presentation/widget/rainbow_text.dart';
 
 class Porker2AppBar extends HookConsumerWidget implements PreferredSizeWidget {
@@ -24,7 +25,16 @@ class Porker2AppBar extends HookConsumerWidget implements PreferredSizeWidget {
           child: IconButton(
             icon: const Icon(Icons.door_back_door_outlined),
             onPressed: () {
-              poker.leaveRoom();
+              showDialog<void>(
+                context: context,
+                builder: (_) => TwoChoiceDialog(
+                  title: 'Leave Room',
+                  message: 'Do you want to leave this poker?',
+                  onYes: () => invoke(context, () => poker.leaveRoom(),
+                      () => GoRouter.of(context).pop()),
+                  onNo: () {},
+                ),
+              );
             },
           ),
         ),
@@ -37,9 +47,17 @@ class Porker2AppBar extends HookConsumerWidget implements PreferredSizeWidget {
           message: 'Logout',
           child: IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () {
-              invoke(context, () => user.logout(),
-                  () => GoRouter.of(context).pop());
+            onPressed: () async {
+              showDialog<void>(
+                context: context,
+                builder: (_) => TwoChoiceDialog(
+                  title: 'Logout',
+                  message: 'Do you want to log out?',
+                  onYes: () => invoke(context, () => user.logout(),
+                      () => GoRouter.of(context).go('/')),
+                  onNo: () {},
+                ),
+              );
             },
           ),
         ),
