@@ -46,7 +46,7 @@ class RoomSelectPage extends HookConsumerWidget {
     );
 
     return Scaffold(
-      appBar: const Porker2AppBar(title: "How to join?"),
+      appBar: const Porker2AppBar(title: "How to join?", enableDrawer: false),
       body: body,
       bottomNavigationBar: const BottomBar(),
     );
@@ -152,8 +152,9 @@ class _FormContent extends HookConsumerWidget {
                   ),
                 ),
                 onPressed: () {
-                  invoke(context, () => user.login(roomIDController.text),
-                      () => GoRouter.of(context).go('/room'));
+                  GoRouter.of(context).go('/poker');
+                  // invoke(context, () => user.login(roomIDController.text),
+                  //     () => GoRouter.of(context).go('/poker'));
                 },
               ),
             ),

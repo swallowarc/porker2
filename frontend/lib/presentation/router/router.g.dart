@@ -8,6 +8,7 @@ part of 'router.dart';
 
 List<RouteBase> get $appRoutes => [
       $loginRoute,
+      $pokerRoute,
     ];
 
 RouteBase get $loginRoute => GoRouteData.$route(
@@ -48,6 +49,28 @@ extension $RoomSelectRouteExtension on RoomSelectRoute {
 
   String get location => GoRouteData.$location(
         '/room',
+      );
+
+  void go(BuildContext context) => context.go(location);
+
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $pokerRoute => GoRouteData.$route(
+      path: '/poker',
+      factory: $PokerRouteExtension._fromState,
+    );
+
+extension $PokerRouteExtension on PokerRoute {
+  static PokerRoute _fromState(GoRouterState state) => PokerRoute();
+
+  String get location => GoRouteData.$location(
+        '/poker',
       );
 
   void go(BuildContext context) => context.go(location);

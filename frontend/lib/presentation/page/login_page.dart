@@ -45,7 +45,8 @@ class LoginPage extends HookConsumerWidget {
     );
 
     return Scaffold(
-      appBar: const Porker2AppBar(title: "Welcome to Porker2"),
+      appBar:
+          const Porker2AppBar(title: "Welcome to Porker2", enableDrawer: false),
       body: body,
       bottomNavigationBar: const BottomBar(),
     );
@@ -111,7 +112,7 @@ class _FormContent extends HookConsumerWidget {
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
                     invoke(context, () => user.login(userNameController.text),
-                        () => GoRouter.of(context).push('/room'));
+                        () => GoRouter.of(context).go('/room'));
                   }
                 },
               ),

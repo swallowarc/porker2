@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:porker2fe/core/logger/logger.dart';
+import 'package:porker2fe/presentation/const.dart';
 import 'package:porker2fe/presentation/invoke.dart';
 import 'package:porker2fe/presentation/provider/provider.dart';
 import 'package:porker2fe/presentation/widget/dialog.dart';
@@ -9,14 +9,20 @@ import 'package:porker2fe/presentation/widget/rainbow_text.dart';
 
 class Porker2AppBar extends HookConsumerWidget implements PreferredSizeWidget {
   final String title;
+  final bool enableDrawer;
 
-  const Porker2AppBar({super.key, required this.title}) : super();
+  const Porker2AppBar(
+      {super.key, required this.title, required this.enableDrawer})
+      : super();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userProvider);
     final poker = ref.watch(pokerProvider);
     final actions = <Widget>[];
+
+    final bool isSmallScreen =
+        MediaQuery.of(context).size.width < smallScreenBoundary;
 
     if (poker.inRoom) {
       actions.add(
@@ -31,7 +37,7 @@ class Porker2AppBar extends HookConsumerWidget implements PreferredSizeWidget {
                   title: 'Leave Room',
                   message: 'Do you want to leave this poker?',
                   onYes: () => invoke(context, () => poker.leaveRoom(),
-                      () => GoRouter.of(context).pop()),
+                      () => GoRouter.of(context).go('/room')),
                 ),
               );
             },
@@ -71,6 +77,14 @@ class Porker2AppBar extends HookConsumerWidget implements PreferredSizeWidget {
       ),
       actions: actions,
       automaticallyImplyLeading: false,
+      leading: enableDrawer && isSmallScreen
+          ? IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () {
+                Scaffold.of(context).openDrawer(); // Drawerを開く
+              },
+            )
+          : null,
     );
   }
 
