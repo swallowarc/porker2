@@ -18,7 +18,7 @@ const List<Point> pointList = [
 
 const pointListLength = 11;
 
-final Map<Point, Color> _displayColors = {
+final Map<Point, Color> _pointColors = {
   Point.POINT_COFFEE: Colors.teal.shade100,
   Point.POINT_0: Colors.grey.shade200,
   Point.POINT_0_5: Colors.lightBlue.shade100,
@@ -32,28 +32,101 @@ final Map<Point, Color> _displayColors = {
   Point.POINT_QUESTION: Colors.purple.shade100,
 };
 
-class PokerCard extends StatefulWidget {
+class HandCard extends StatefulWidget {
   final Point point;
+  final Function() onTap;
+  final int delayMilliseconds;
 
-  const PokerCard({super.key, required this.point});
+  const HandCard(
+      {super.key,
+      required this.point,
+      required this.onTap,
+      required this.delayMilliseconds});
 
   @override
-  PokerCardState createState() => PokerCardState();
+  HandCardState createState() => HandCardState();
 }
 
-class PokerCardState extends State<PokerCard>
-    with SingleTickerProviderStateMixin {
+class HandCardState extends State<HandCard>
+    with TickerProviderStateMixin {
+  late AnimationController _initialController;
+  late AnimationController _tapController;
+  late Animation<Offset> _initialOffsetAnimation;
+  late Animation<Offset> _tapOffsetAnimation;
+
+  bool _isSelected = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // 初期表示用のアニメーションコントローラ
+    _initialController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+
+    // タップ時用のアニメーションコントローラ
+    _tapController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+
+    // 初期表示時のアニメーション
+    _initialOffsetAnimation = Tween<Offset>(
+      begin: const Offset(0, 10),
+      end: const Offset(0, 0),
+    ).animate(CurvedAnimation(
+      parent: _initialController,
+      curve: Curves.easeInOut,
+    ));
+
+    // タップ時のアニメーション
+    _tapOffsetAnimation = Tween<Offset>(
+      begin: const Offset(0, 0),
+      end: const Offset(0, -0.5),
+    ).animate(CurvedAnimation(
+      parent: _tapController,
+      curve: Curves.easeInOut,
+    ));
+
+    // 初期表示のアニメーションを実行
+    Future.delayed(Duration(milliseconds: widget.delayMilliseconds), () {
+      if (mounted) {
+        _initialController.forward();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _initialController.dispose();
+    _tapController.dispose();
+    super.dispose();
+  }
+
+  void _handleTap() {
+    widget.onTap();
+
+    setState(() {
+      if (!_isSelected) {
+        _tapController.forward();
+      } else {
+        _tapController.reverse();
+      }
+      _isSelected = !_isSelected;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        print('Card ${widget.point.toString()} tapped');
-      },
+    final card = GestureDetector(
+      onTap: _handleTap,
       child: SizedBox(
         width: 100,
         height: 130,
         child: Card(
-          color: _displayColors[widget.point],
+          color: _pointColors[widget.point],
           child: Center(
             child: Text(
               pointFromPb(widget.point),
@@ -62,6 +135,20 @@ class PokerCardState extends State<PokerCard>
           ),
         ),
       ),
+    );
+
+    return AnimatedBuilder(
+      animation: Listenable.merge([_initialController, _tapController]),
+      builder: (BuildContext context, Widget? child) {
+        // 初期アニメーションか、タップ時のアニメーションかを選択
+        final offset = _initialController.isCompleted
+            ? _tapOffsetAnimation
+            : _initialOffsetAnimation;
+        return SlideTransition(
+          position: offset,
+          child: card,
+        );
+      },
     );
   }
 }

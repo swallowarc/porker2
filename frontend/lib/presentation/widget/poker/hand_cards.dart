@@ -55,7 +55,13 @@ class HandCards extends StatelessWidget {
                   top: topOffset,
                   child: Transform.rotate(
                     angle: angle,
-                    child: PokerCard(point: pointList[index]),
+                    child: HandCard(
+                      point: pointList[index],
+                      onTap: () {
+                        print('Card ${pointList[index].toString()} tapped');
+                      },
+                      delayMilliseconds: index * 100,
+                    ),
                   ),
                 );
               }),
