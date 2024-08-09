@@ -8,7 +8,7 @@ class HandCards extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: SizedBox(
-        height: 220,
+        height: 210,
         child: LayoutBuilder(
           builder: (context, constraints) {
             return Stack(

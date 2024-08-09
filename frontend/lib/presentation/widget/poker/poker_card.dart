@@ -47,14 +47,12 @@ class HandCard extends StatefulWidget {
   HandCardState createState() => HandCardState();
 }
 
-class HandCardState extends State<HandCard>
-    with TickerProviderStateMixin {
+class HandCardState extends State<HandCard> with TickerProviderStateMixin {
   late AnimationController _initialController;
-  late AnimationController _tapController;
   late Animation<Offset> _initialOffsetAnimation;
-  late Animation<Offset> _tapOffsetAnimation;
 
-  bool _isSelected = false;
+  late AnimationController _tapController;
+  late Animation<Offset> _tapOffsetAnimation;
 
   @override
   void initState() {
@@ -109,12 +107,11 @@ class HandCardState extends State<HandCard>
     widget.onTap();
 
     setState(() {
-      if (!_isSelected) {
-        _tapController.forward();
-      } else {
+      if (_tapController.isCompleted) {
         _tapController.reverse();
+      } else {
+        _tapController.forward();
       }
-      _isSelected = !_isSelected;
     });
   }
 
