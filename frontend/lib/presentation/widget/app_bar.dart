@@ -10,9 +10,15 @@ import 'package:porker2fe/presentation/widget/rainbow_text.dart';
 class Porker2AppBar extends HookConsumerWidget implements PreferredSizeWidget {
   final String title;
   final bool enableDrawer;
+  final bool enableLogout;
+  final bool enableLeaveRoom;
 
   const Porker2AppBar(
-      {super.key, required this.title, required this.enableDrawer})
+      {super.key,
+      required this.title,
+      required this.enableDrawer,
+      required this.enableLogout,
+      required this.enableLeaveRoom})
       : super();
 
   @override
@@ -24,7 +30,7 @@ class Porker2AppBar extends HookConsumerWidget implements PreferredSizeWidget {
     final bool isMediumScreen =
         MediaQuery.of(context).size.width < mediumScreenBoundary;
 
-    if (poker.inRoom) {
+    if (enableLeaveRoom) {
       actions.add(
         Tooltip(
           message: 'Leave Room',
@@ -46,7 +52,7 @@ class Porker2AppBar extends HookConsumerWidget implements PreferredSizeWidget {
       );
     }
 
-    if (user.alreadyLogin) {
+    if (enableLogout) {
       actions.add(
         Tooltip(
           message: 'Logout',

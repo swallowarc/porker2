@@ -17,7 +17,11 @@ class PokerPage extends HookConsumerWidget {
     );
 
     return Scaffold(
-      appBar: const Porker2AppBar(title: "Room ID: 12345", enableDrawer: true),
+      appBar: const Porker2AppBar(
+          title: "Room ID: 12345",
+          enableDrawer: true,
+          enableLeaveRoom: true,
+          enableLogout: true),
       body: Row(
         children: [
           isMediumScreen ? Container() : _Drawer(),
