@@ -21,8 +21,8 @@ class Porker2AppBar extends HookConsumerWidget implements PreferredSizeWidget {
     final poker = ref.watch(pokerProvider);
     final actions = <Widget>[];
 
-    final bool isSmallScreen =
-        MediaQuery.of(context).size.width < smallScreenBoundary;
+    final bool isMediumScreen =
+        MediaQuery.of(context).size.width < mediumScreenBoundary;
 
     if (poker.inRoom) {
       actions.add(
@@ -77,7 +77,7 @@ class Porker2AppBar extends HookConsumerWidget implements PreferredSizeWidget {
       ),
       actions: actions,
       automaticallyImplyLeading: false,
-      leading: enableDrawer && isSmallScreen
+      leading: enableDrawer && isMediumScreen
           ? IconButton(
               icon: const Icon(Icons.menu),
               onPressed: () {

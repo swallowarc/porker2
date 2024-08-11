@@ -8,18 +8,13 @@ part of 'router.dart';
 
 List<RouteBase> get $appRoutes => [
       $loginRoute,
+      $roomSelectRoute,
       $pokerRoute,
     ];
 
 RouteBase get $loginRoute => GoRouteData.$route(
       path: '/',
       factory: $LoginRouteExtension._fromState,
-      routes: [
-        GoRouteData.$route(
-          path: 'room',
-          factory: $RoomSelectRouteExtension._fromState,
-        ),
-      ],
     );
 
 extension $LoginRouteExtension on LoginRoute {
@@ -43,6 +38,11 @@ extension $LoginRouteExtension on LoginRoute {
 
   void replace(BuildContext context) => context.replace(location);
 }
+
+RouteBase get $roomSelectRoute => GoRouteData.$route(
+      path: '/room',
+      factory: $RoomSelectRouteExtension._fromState,
+    );
 
 extension $RoomSelectRouteExtension on RoomSelectRoute {
   static RoomSelectRoute _fromState(GoRouterState state) => RoomSelectRoute();

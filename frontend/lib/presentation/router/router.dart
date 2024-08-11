@@ -26,7 +26,7 @@ class LoginRoute extends GoRouteData {
   }
 }
 
-@TypedGoRoute<LoginRoute>(
+@TypedGoRoute<RoomSelectRoute>(
   path: '/room',
 )
 class RoomSelectRoute extends GoRouteData {

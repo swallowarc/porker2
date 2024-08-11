@@ -9,8 +9,8 @@ class PokerPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bool isSmallScreen =
-        MediaQuery.of(context).size.width < smallScreenBoundary;
+    final bool isMediumScreen =
+        MediaQuery.of(context).size.width < mediumScreenBoundary;
 
     final body = Center(
       child: SingleChildScrollView(),
@@ -20,12 +20,11 @@ class PokerPage extends HookConsumerWidget {
       appBar: const Porker2AppBar(title: "Room ID: 12345", enableDrawer: true),
       body: Row(
         children: [
-          isSmallScreen ? Container() : _Drawer(),
+          isMediumScreen ? Container() : _Drawer(),
           body,
         ],
       ),
-      drawer: isSmallScreen ? _Drawer() : null,
-      bottomNavigationBar: const BottomBar(),
+      drawer: isMediumScreen ? _Drawer() : null,
     );
   }
 }

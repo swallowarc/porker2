@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:porker2fe/data/datasource/pb/porker/v2/domain.pb.dart';
 import 'package:porker2fe/domain/entity/point.dart';
 
-const List<Point> pointList = [
+const List<Point> pointOrder = [
   Point.POINT_COFFEE,
   Point.POINT_0,
   Point.POINT_0_5,
@@ -18,7 +18,7 @@ const List<Point> pointList = [
 
 const pointListLength = 11;
 
-final Map<Point, Color> _pointColors = {
+final Map<Point, Color> pointColors = {
   Point.POINT_COFFEE: Colors.teal.shade100,
   Point.POINT_0: Colors.grey.shade200,
   Point.POINT_0_5: Colors.lightBlue.shade100,
@@ -58,19 +58,10 @@ class HandCardState extends State<HandCard> with TickerProviderStateMixin {
   void initState() {
     super.initState();
 
-    // 初期表示用のアニメーションコントローラ
     _initialController = AnimationController(
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
-
-    // タップ時用のアニメーションコントローラ
-    _tapController = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      vsync: this,
-    );
-
-    // 初期表示時のアニメーション
     _initialOffsetAnimation = Tween<Offset>(
       begin: const Offset(0, 10),
       end: const Offset(0, 0),
@@ -79,7 +70,10 @@ class HandCardState extends State<HandCard> with TickerProviderStateMixin {
       curve: Curves.easeInOut,
     ));
 
-    // タップ時のアニメーション
+    _tapController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
     _tapOffsetAnimation = Tween<Offset>(
       begin: const Offset(0, 0),
       end: const Offset(0, -0.5),
@@ -88,7 +82,6 @@ class HandCardState extends State<HandCard> with TickerProviderStateMixin {
       curve: Curves.easeInOut,
     ));
 
-    // 初期表示のアニメーションを実行
     Future.delayed(Duration(milliseconds: widget.delayMilliseconds), () {
       if (mounted) {
         _initialController.forward();
@@ -123,7 +116,7 @@ class HandCardState extends State<HandCard> with TickerProviderStateMixin {
         width: 100,
         height: 130,
         child: Card(
-          color: _pointColors[widget.point],
+          color: pointColors[widget.point],
           child: Center(
             child: Text(
               pointFromPb(widget.point),
@@ -137,7 +130,6 @@ class HandCardState extends State<HandCard> with TickerProviderStateMixin {
     return AnimatedBuilder(
       animation: Listenable.merge([_initialController, _tapController]),
       builder: (BuildContext context, Widget? child) {
-        // 初期アニメーションか、タップ時のアニメーションかを選択
         final offset = _initialController.isCompleted
             ? _tapOffsetAnimation
             : _initialOffsetAnimation;

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:porker2fe/presentation/widget/poker/poker_card.dart';
+import 'package:porker2fe/presentation/widget/poker/hand_card.dart';
 
 class HandCards extends StatelessWidget {
   const HandCards({super.key});
@@ -12,7 +12,7 @@ class HandCards extends StatelessWidget {
         child: LayoutBuilder(
           builder: (context, constraints) {
             return Stack(
-              children: List.generate(pointList.length, (index) {
+              children: List.generate(pointOrder.length, (index) {
                 const indexCenter = pointListLength ~/ 2;
                 const indexLast = pointListLength - 1;
 
@@ -56,9 +56,9 @@ class HandCards extends StatelessWidget {
                   child: Transform.rotate(
                     angle: angle,
                     child: HandCard(
-                      point: pointList[index],
+                      point: pointOrder[index],
                       onTap: () {
-                        print('Card ${pointList[index].toString()} tapped');
+                        print('Card ${pointOrder[index].toString()} tapped');
                       },
                       delayMilliseconds: index * 100,
                     ),

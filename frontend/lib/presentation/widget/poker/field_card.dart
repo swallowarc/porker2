@@ -1,76 +1,103 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:porker2fe/data/datasource/pb/porker/v2/domain.pb.dart';
+import 'package:porker2fe/domain/entity/point.dart';
+import 'package:porker2fe/presentation/widget/poker/hand_card.dart';
 
-class FieldCard extends HookConsumerWidget {
-  final int index;
+const pointListLength = 11;
 
-  const FieldCard({super.key, required this.index});
+class FieldCard extends StatefulWidget {
+  final Point point;
+  final Function() onTap;
+  final int delayMilliseconds;
+
+  const FieldCard(
+      {super.key,
+      required this.point,
+      required this.onTap,
+      required this.delayMilliseconds});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final controller = useAnimationController(
+  FieldCardState createState() => FieldCardState();
+}
+
+class FieldCardState extends State<FieldCard> with TickerProviderStateMixin {
+  late AnimationController _initialController;
+  late Animation<Offset> _initialOffsetAnimation;
+
+  late AnimationController _turnController;
+  late Animation<Offset> _turnOffsetAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _initialController = AnimationController(
       duration: const Duration(milliseconds: 200),
-    )..forward();
+      vsync: this,
+    );
+    _initialOffsetAnimation = Tween<Offset>(
+      begin: const Offset(0, 10),
+      end: const Offset(0, 0),
+    ).animate(CurvedAnimation(
+      parent: _initialController,
+      curve: Curves.easeInOut,
+    ));
 
-    final isFront = useState(true);
+    _turnController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+    _turnOffsetAnimation = Tween<Offset>(
+      begin: const Offset(0, 0),
+      end: const Offset(0, -0.5),
+    ).animate(CurvedAnimation(
+      parent: _turnController,
+      curve: Curves.easeInOut,
+    ));
 
-    void flipCard() {
-      if (isFront.value) {
-        controller.reverse();
-      } else {
-        controller.forward();
+    Future.delayed(Duration(milliseconds: widget.delayMilliseconds), () {
+      if (mounted) {
+        _initialController.forward();
       }
-      isFront.value = !isFront.value;
-    }
+    });
+  }
 
-    final random = Random();
-    final tilt = (random.nextDouble() - 0.5) * 0.2;
+  @override
+  void dispose() {
+    _initialController.dispose();
+    _turnController.dispose();
+    super.dispose();
+  }
 
-    return GestureDetector(
-      child: AnimatedBuilder(
-        animation: controller,
-        builder: (context, child) {
-          final angle = controller.value * pi;
-          final transform = Matrix4.rotationY(angle);
-          if (angle >= pi / 2) {
-            transform.rotateY(pi);
-          }
-          return Transform(
-            transform: transform,
-            alignment: Alignment.center,
-            child: Transform(
-              transform: Matrix4.rotationZ(tilt),
-              child: SlideTransition(
-                position: Tween<Offset>(
-                        begin: const Offset(0, 1), end: const Offset(0, 0))
-                    .animate(controller),
-                child: controller.value <= 0.5
-                    ? Card(
-                        color: Colors.blueAccent,
-                        child: Center(
-                          child: Text(
-                            'Card ${index + 1}',
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      )
-                    : const Card(
-                        color: Colors.redAccent,
-                        child: Center(
-                          child: Text(
-                            'Back',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ),
-              ),
+  @override
+  Widget build(BuildContext context) {
+    final card = GestureDetector(
+      child: SizedBox(
+        width: 100,
+        height: 130,
+        child: Card(
+          color: pointColors[widget.point],
+          child: Center(
+            child: Text(
+              pointFromPb(widget.point),
+              style: const TextStyle(color: Colors.black54, fontSize: 40),
             ),
-          );
-        },
+          ),
+        ),
       ),
+    );
+
+    return AnimatedBuilder(
+      animation: Listenable.merge([_initialController, _turnController]),
+      builder: (BuildContext context, Widget? child) {
+        final offset = _initialController.isCompleted
+            ? _turnOffsetAnimation
+            : _initialOffsetAnimation;
+        return SlideTransition(
+          position: offset,
+          child: card,
+        );
+      },
     );
   }
 }
