@@ -48,6 +48,7 @@ dependencies:
   url_launcher: ^6.3.0
   logger: ^2.3.0
   shared_preferences: ^2.2.3
+  sprintf: ^7.0.0
 
 dev_dependencies:
   flutter_test:

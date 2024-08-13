@@ -1,36 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:porker2fe/data/datasource/pb/porker/v2/domain.pb.dart';
 import 'package:porker2fe/domain/entity/point.dart';
-
-const List<Point> pointOrder = [
-  Point.POINT_COFFEE,
-  Point.POINT_0,
-  Point.POINT_0_5,
-  Point.POINT_1,
-  Point.POINT_2,
-  Point.POINT_3,
-  Point.POINT_5,
-  Point.POINT_8,
-  Point.POINT_13,
-  Point.POINT_21,
-  Point.POINT_QUESTION,
-];
-
-const pointListLength = 11;
-
-final Map<Point, Color> pointColors = {
-  Point.POINT_COFFEE: Colors.teal.shade100,
-  Point.POINT_0: Colors.grey.shade200,
-  Point.POINT_0_5: Colors.lightBlue.shade100,
-  Point.POINT_1: Colors.lightBlue.shade200,
-  Point.POINT_2: Colors.lightGreenAccent.shade100,
-  Point.POINT_3: Colors.lightGreenAccent.shade200,
-  Point.POINT_5: Colors.yellowAccent.shade100,
-  Point.POINT_8: Colors.orangeAccent.shade100,
-  Point.POINT_13: Colors.red.shade200,
-  Point.POINT_21: Colors.red.shade400,
-  Point.POINT_QUESTION: Colors.purple.shade100,
-};
+import 'package:porker2fe/presentation/widget/poker/base_card.dart';
 
 class HandCard extends StatefulWidget {
   final Point point;
@@ -110,23 +81,6 @@ class HandCardState extends State<HandCard> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final card = GestureDetector(
-      onTap: _handleTap,
-      child: SizedBox(
-        width: 100,
-        height: 130,
-        child: Card(
-          color: pointColors[widget.point],
-          child: Center(
-            child: Text(
-              pointFromPb(widget.point),
-              style: const TextStyle(color: Colors.black54, fontSize: 40),
-            ),
-          ),
-        ),
-      ),
-    );
-
     return AnimatedBuilder(
       animation: Listenable.merge([_initialController, _tapController]),
       builder: (BuildContext context, Widget? child) {
@@ -135,7 +89,10 @@ class HandCardState extends State<HandCard> with TickerProviderStateMixin {
             : _initialOffsetAnimation;
         return SlideTransition(
           position: offset,
-          child: card,
+          child: GestureDetector(
+            onTap: _handleTap,
+            child: BaseCard.Opened(widget.point),
+          ),
         );
       },
     );

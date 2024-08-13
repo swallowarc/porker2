@@ -1,5 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:porker2fe/data/datasource/pb/porker/v2/domain.pbenum.dart';
 import 'package:porker2fe/presentation/widget/poker/hand_card.dart';
+
+const List<Point> pointOrder = [
+  Point.POINT_COFFEE,
+  Point.POINT_0,
+  Point.POINT_0_5,
+  Point.POINT_1,
+  Point.POINT_2,
+  Point.POINT_3,
+  Point.POINT_5,
+  Point.POINT_8,
+  Point.POINT_13,
+  Point.POINT_21,
+  Point.POINT_QUESTION,
+];
+
+const _pointListLength = 11;
 
 class HandCards extends StatelessWidget {
   const HandCards({super.key});
@@ -12,9 +29,9 @@ class HandCards extends StatelessWidget {
         child: LayoutBuilder(
           builder: (context, constraints) {
             return Stack(
-              children: List.generate(pointOrder.length, (index) {
-                const indexCenter = pointListLength ~/ 2;
-                const indexLast = pointListLength - 1;
+              children: List.generate(_pointListLength, (index) {
+                const indexCenter = _pointListLength ~/ 2;
+                const indexLast = _pointListLength - 1;
 
                 final angle = (index - indexCenter) * 0.05;
 
