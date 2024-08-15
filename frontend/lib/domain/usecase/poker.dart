@@ -15,7 +15,10 @@ class Poker extends StateNotifier<RoomCondition> {
 
   Poker(this._svcRepo) : super(_defaultRoomCondition);
 
-  Future<String> createRoom(String roomName) => _svcRepo.createRoom();
+  Future<void> createAndJoinRoom() async {
+    final roomID = await _svcRepo.createRoom();
+    await joinRoom(roomID);
+  }
 
   Future<void> joinRoom(String roomId) async {
     _subscribing = true;
@@ -46,4 +49,15 @@ class Poker extends StateNotifier<RoomCondition> {
       );
 
   bool get inRoom => state.roomId.isNotEmpty;
+
+  List<Ballot> get ballots => state.ballots;
+
+  bool get opened => state.voteState == VoteState.VOTE_STATE_OPEN;
+
+  bool get openable =>
+      state.voteState == VoteState.VOTE_STATE_HIDE &&
+      state.ballots
+              .where((e) => ![Point.POINT_UNSPECIFIED].contains(e.point))
+              .length >
+          0;
 }

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/presentation/const.dart';
 import 'package:porker2fe/presentation/widget/app_bar.dart';
-import 'package:porker2fe/presentation/widget/bottom_bar.dart';
+import 'package:porker2fe/presentation/widget/poker/field_cards.dart';
+import 'package:porker2fe/presentation/widget/poker/hand_cards.dart';
+import 'package:porker2fe/presentation/widget/poker/vote_buttons.dart';
 
 class PokerPage extends HookConsumerWidget {
   const PokerPage({super.key});
@@ -13,7 +15,15 @@ class PokerPage extends HookConsumerWidget {
         MediaQuery.of(context).size.width < mediumScreenBoundary;
 
     final body = Center(
-      child: SingleChildScrollView(),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            FieldCards(),
+            VoteButtons(),
+            HandCards(),
+          ],
+        ),
+      ),
     );
 
     return Scaffold(

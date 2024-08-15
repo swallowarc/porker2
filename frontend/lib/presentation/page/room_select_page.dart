@@ -62,7 +62,7 @@ class _FormContent extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(userProvider);
+    final poker = ref.watch(pokerProvider);
     final TextEditingController roomIDController = TextEditingController();
     final bool isSmallScreen =
         MediaQuery.of(context).size.width < smallScreenBoundary;
@@ -118,8 +118,8 @@ class _FormContent extends HookConsumerWidget {
                 ),
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
-                    invoke(context, () => user.login(roomIDController.text),
-                        () => user.logout());
+                    invoke(context, () => poker.joinRoom(roomIDController.text),
+                        () => GoRouter.of(context).go('/poker'));
                   }
                 },
               ),
@@ -156,9 +156,8 @@ class _FormContent extends HookConsumerWidget {
                   ),
                 ),
                 onPressed: () {
-                  GoRouter.of(context).go('/poker');
-                  // invoke(context, () => user.login(roomIDController.text),
-                  //     () => GoRouter.of(context).go('/poker'));
+                  invoke(context, () => poker.createAndJoinRoom(),
+                      () => GoRouter.of(context).go('/poker'));
                 },
               ),
             ),

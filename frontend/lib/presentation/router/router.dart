@@ -6,14 +6,16 @@ import 'package:porker2fe/presentation/page/room_select_page.dart';
 
 part 'router.g.dart';
 
+const loginRoute = '/';
+
 final router = GoRouter(
   debugLogDiagnostics: true,
-  initialLocation: '/',
+  initialLocation: loginRoute,
   routes: $appRoutes,
 );
 
 @TypedGoRoute<LoginRoute>(
-  path: '/',
+  path: loginRoute,
 )
 class LoginRoute extends GoRouteData {
   LoginRoute({this.from = ""});
@@ -26,8 +28,10 @@ class LoginRoute extends GoRouteData {
   }
 }
 
+const roomSelectRoute = '/room';
+
 @TypedGoRoute<RoomSelectRoute>(
-  path: '/room',
+  path: roomSelectRoute,
 )
 class RoomSelectRoute extends GoRouteData {
   RoomSelectRoute();
@@ -38,8 +42,10 @@ class RoomSelectRoute extends GoRouteData {
   }
 }
 
+const pokerRoute = '/poker';
+
 @TypedGoRoute<PokerRoute>(
-  path: '/poker',
+  path: pokerRoute,
 )
 class PokerRoute extends GoRouteData {
   PokerRoute();
