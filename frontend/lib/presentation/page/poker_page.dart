@@ -1,16 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/presentation/const.dart';
+import 'package:porker2fe/presentation/provider/provider.dart';
 import 'package:porker2fe/presentation/widget/app_bar.dart';
 import 'package:porker2fe/presentation/widget/poker/field_cards.dart';
 import 'package:porker2fe/presentation/widget/poker/hand_cards.dart';
 import 'package:porker2fe/presentation/widget/poker/vote_buttons.dart';
 
 class PokerPage extends HookConsumerWidget {
-  const PokerPage({super.key});
+  const PokerPage(this.roomId, {super.key});
+
+  final String roomId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    useEffect(() {
+      final poker = ref.read(pokerProvider);
+      poker.joinRoom(roomId);
+
+      return null; // クリーンアップが不要な場合はnullを返す
+    }, []); // 空の依存配列を渡すことで、初回のみ実行
+
     final bool isMediumScreen =
         MediaQuery.of(context).size.width < mediumScreenBoundary;
 
@@ -20,22 +31,23 @@ class PokerPage extends HookConsumerWidget {
           children: [
             FieldCards(),
             VoteButtons(),
-            HandCards(),
+            const SizedBox(height: 30),
+            const HandCards(),
           ],
         ),
       ),
     );
 
     return Scaffold(
-      appBar: const Porker2AppBar(
-          title: "Room ID: 12345",
+      appBar: Porker2AppBar(
+          title: 'Room ID: $roomId',
           enableDrawer: true,
           enableLeaveRoom: true,
           enableLogout: true),
       body: Row(
         children: [
           isMediumScreen ? Container() : _Drawer(),
-          body,
+          Expanded(child: body),
         ],
       ),
       drawer: isMediumScreen ? _Drawer() : null,

@@ -4,28 +4,28 @@ import 'package:porker2fe/core/logger/logger.dart';
 
 typedef ErrorCallback = void Function(String errMessage);
 
-Future<void> invoke(
+Future<void> invoke<T>(
   BuildContext context,
-  Future<void> Function() call,
-  void Function() callback,
+  Future<T> Function() call,
+  void Function(T result) callback,
 ) async {
   const unexpectedMessage = "An unexpected error has occurred (＠_＠;)";
 
-  await call().then((_) {
-    callback();
+  await call().then((result) {
+    callback(result);
   }).catchError((e) {
     logger.e(e.toString());
     String message = unexpectedMessage;
 
     switch (e.runtimeType) {
       case FormatException _:
-        message = e.message;
+        message = (e as FormatException).message;
         break;
       case ArgumentError _:
-        message = e.message;
+        message = (e as ArgumentError).message;
         break;
       case ExpectedError _:
-        message = e.message;
+        message = (e as ExpectedError).message;
         break;
     }
 

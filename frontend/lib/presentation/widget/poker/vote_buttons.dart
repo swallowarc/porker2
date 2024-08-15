@@ -11,7 +11,7 @@ class VoteButtons extends HookConsumerWidget {
       child: Container(
         width: 400,
         alignment: Alignment.center,
-        padding: EdgeInsets.only(top: 30),
+        padding: const EdgeInsets.only(top: 30),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
@@ -19,7 +19,7 @@ class VoteButtons extends HookConsumerWidget {
               width: 150,
               height: 50,
               child: ElevatedButton.icon(
-                icon: Icon(Icons.group),
+                icon: const Icon(Icons.group),
                 label: const Text('Open'),
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
@@ -34,7 +34,7 @@ class VoteButtons extends HookConsumerWidget {
               width: 150,
               height: 50,
               child: ElevatedButton.icon(
-                icon: Icon(Icons.refresh),
+                icon: const Icon(Icons.refresh),
                 label: const Text('Reset'),
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.lightBlue,

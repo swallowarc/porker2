@@ -43,7 +43,7 @@ class Porker2AppBar extends HookConsumerWidget implements PreferredSizeWidget {
                   title: 'Leave Room',
                   message: 'Do you want to leave this poker?',
                   onYes: () => invoke(context, () => poker.leaveRoom(),
-                      () => GoRouter.of(context).go('/room')),
+                      (_) => GoRouter.of(context).go('/room')),
                 ),
               );
             },
@@ -65,7 +65,7 @@ class Porker2AppBar extends HookConsumerWidget implements PreferredSizeWidget {
                   title: 'Logout',
                   message: 'Do you want to log out?',
                   onYes: () => invoke(context, () => user.logout(),
-                      () => GoRouter.of(context).go('/')),
+                      (_) => GoRouter.of(context).go('/')),
                 ),
               );
             },

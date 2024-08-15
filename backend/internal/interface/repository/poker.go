@@ -134,7 +134,7 @@ func (r *pokerRepository) GetRoomCondition(ctx context.Context, roomID poker.Roo
 
 func (r *pokerRepository) SubscribeRoomCondition(ctx context.Context, roomID poker.RoomID, fn port.RoomSubscriber) error {
 	var (
-		messageID string
+		messageID = "0"
 		subscribe = true
 	)
 	for subscribe {
@@ -144,6 +144,9 @@ func (r *pokerRepository) SubscribeRoomCondition(ctx context.Context, roomID pok
 		default:
 			newMessageID, j, err := r.mem.ReadStream(ctx, roomConditionKey(roomID), keyRoomConditionMessage, messageID)
 			if err != nil {
+				if merror.IsNotFound(err) {
+					continue
+				}
 				return err
 			}
 			messageID = newMessageID

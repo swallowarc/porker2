@@ -119,7 +119,7 @@ class _FormContent extends HookConsumerWidget {
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
                     invoke(context, () => poker.joinRoom(roomIDController.text),
-                        () => GoRouter.of(context).go('/poker'));
+                        (_) => GoRouter.of(context).go('/poker'));
                   }
                 },
               ),
@@ -156,8 +156,8 @@ class _FormContent extends HookConsumerWidget {
                   ),
                 ),
                 onPressed: () {
-                  invoke(context, () => poker.createAndJoinRoom(),
-                      () => GoRouter.of(context).go('/poker'));
+                  invoke(context, () => poker.createRoom(),
+                      (roomID) => GoRouter.of(context).go('/poker?room-id=$roomID'));
                 },
               ),
             ),

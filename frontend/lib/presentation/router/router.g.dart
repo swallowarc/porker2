@@ -19,13 +19,13 @@ RouteBase get $loginRoute => GoRouteData.$route(
 
 extension $LoginRouteExtension on LoginRoute {
   static LoginRoute _fromState(GoRouterState state) => LoginRoute(
-        from: state.uri.queryParameters['from'] ?? "",
+        roomId: state.uri.queryParameters['room-id'] ?? "",
       );
 
   String get location => GoRouteData.$location(
         '/',
         queryParams: {
-          if (from != "") 'from': from,
+          if (roomId != "") 'room-id': roomId,
         },
       );
 
@@ -67,10 +67,15 @@ RouteBase get $pokerRoute => GoRouteData.$route(
     );
 
 extension $PokerRouteExtension on PokerRoute {
-  static PokerRoute _fromState(GoRouterState state) => PokerRoute();
+  static PokerRoute _fromState(GoRouterState state) => PokerRoute(
+        roomId: state.uri.queryParameters['room-id'] ?? "",
+      );
 
   String get location => GoRouteData.$location(
         '/poker',
+        queryParams: {
+          if (roomId != "") 'room-id': roomId,
+        },
       );
 
   void go(BuildContext context) => context.go(location);

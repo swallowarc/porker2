@@ -15,20 +15,19 @@ class Poker extends StateNotifier<RoomCondition> {
 
   Poker(this._svcRepo) : super(_defaultRoomCondition);
 
-  Future<void> createAndJoinRoom() async {
-    final roomID = await _svcRepo.createRoom();
-    await joinRoom(roomID);
+  Future<String> createRoom() async {
+    return _svcRepo.createRoom();
   }
 
   Future<void> joinRoom(String roomId) async {
     _subscribing = true;
 
-    _svcRepo.joinRoom(roomId, (RoomCondition rc) {
+    await _svcRepo.joinRoom(roomId, (RoomCondition rc) {
       if (!_subscribing) return;
       state = rc;
     });
 
-    _subscribing = false;
+    // _subscribing = false;
   }
 
   Future<void> leaveRoom() async {
@@ -57,7 +56,6 @@ class Poker extends StateNotifier<RoomCondition> {
   bool get openable =>
       state.voteState == VoteState.VOTE_STATE_HIDE &&
       state.ballots
-              .where((e) => ![Point.POINT_UNSPECIFIED].contains(e.point))
-              .length >
-          0;
+          .where((e) => ![Point.POINT_UNSPECIFIED].contains(e.point))
+          .isNotEmpty;
 }
