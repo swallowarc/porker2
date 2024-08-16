@@ -1,8 +1,6 @@
 package validator
 
 import (
-	"strconv"
-
 	govalidator "github.com/go-playground/validator/v10"
 
 	"github.com/swallowarc/porker2/backend/internal/domain/poker"
@@ -35,13 +33,7 @@ func roomID(fl govalidator.FieldLevel) bool {
 }
 
 func point(fl govalidator.FieldLevel) bool {
-	v := fl.Field().String()
-	n, err := strconv.Atoi(v)
-	if err != nil {
-		return false
-	}
-
-	return poker.Point(n).Valid()
+	return poker.Point(fl.Field().Int()).Valid()
 }
 
 func userName(fl govalidator.FieldLevel) bool {

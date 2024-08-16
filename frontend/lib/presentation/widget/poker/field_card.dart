@@ -94,8 +94,12 @@ class FieldCardState extends ConsumerState<FieldCard>
 
     // カードなしパターン (アニメーションなし
     if (!voted) {
-      return Card(
-        color: Colors.black.withOpacity(0.0),
+      return SizedBox(
+        width: 100,
+        height: 130,
+        child: Card(
+          color: Colors.black.withOpacity(0.0),
+        ),
       );
     }
 

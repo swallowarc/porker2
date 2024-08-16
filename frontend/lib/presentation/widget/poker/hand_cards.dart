@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/data/datasource/pb/porker/v2/domain.pbenum.dart';
+import 'package:porker2fe/presentation/provider/provider.dart';
 import 'package:porker2fe/presentation/widget/poker/hand_card.dart';
 
 const List<Point> pointOrder = [
@@ -16,11 +18,17 @@ const List<Point> pointOrder = [
 
 const _pointListLength = 9;
 
-class HandCards extends StatelessWidget {
+class HandCards extends HookConsumerWidget {
   const HandCards({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(userProvider);
+    final pokerNotifier = ref.read(pokerProvider.notifier);
+    final _ = ref.watch(pokerProvider);
+
+    final myPoint = pokerNotifier.myPoint(user.userID);
+
     return Center(
       child: Column(
         children: [
@@ -63,10 +71,13 @@ class HandCards extends StatelessWidget {
                         child: HandCard(
                           point: pointOrder[index],
                           onTap: () {
-                            print(
-                                'Card ${pointOrder[index].toString()} tapped');
+                            final notifier = ref.read(pokerProvider.notifier);
+                            if (notifier.votable) {
+                              notifier.castVote(pointOrder[index]);
+                            }
                           },
                           delayMilliseconds: index * 100,
+                          selected: myPoint == pointOrder[index],
                         ),
                       ),
                     );
@@ -81,19 +92,21 @@ class HandCards extends StatelessWidget {
               HandCard(
                 point: Point.POINT_COFFEE,
                 onTap: () {
-                  print(
-                      'Card coffee tapped');
+                  ref.read(pokerProvider.notifier).castVote(Point.POINT_COFFEE);
                 },
                 delayMilliseconds: 1000,
+                selected: myPoint == Point.POINT_COFFEE,
               ),
               const SizedBox(width: 20),
               HandCard(
                 point: Point.POINT_QUESTION,
                 onTap: () {
-                  print(
-                      'Card question tapped');
+                  ref
+                      .read(pokerProvider.notifier)
+                      .castVote(Point.POINT_QUESTION);
                 },
                 delayMilliseconds: 1100,
+                selected: myPoint == Point.POINT_QUESTION,
               ),
             ],
           ),

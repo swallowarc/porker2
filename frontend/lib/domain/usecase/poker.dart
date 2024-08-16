@@ -57,10 +57,6 @@ class Poker extends StateNotifier<PokerState> {
         targetUserID,
       );
 
-  bool get inRoom => state.roomID.isNotEmpty;
-
-  List<Ballot> get ballots => state.ballots;
-
   bool get opened => state.voteState == VoteState.VOTE_STATE_OPEN;
 
   bool get openable =>
@@ -68,4 +64,10 @@ class Poker extends StateNotifier<PokerState> {
       state.ballots
           .where((e) => ![Point.POINT_UNSPECIFIED].contains(e.point))
           .isNotEmpty;
+
+  bool get votable => state.voteState == VoteState.VOTE_STATE_HIDE;
+
+  Point myPoint(String userID) => state.ballots
+      .firstWhere((e) => e.userId == userID, orElse: () => Ballot())
+      .point;
 }
