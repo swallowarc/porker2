@@ -40,13 +40,15 @@ Provider<Porker2ServiceRepository> porker2ServiceRepositoryProvider =
 
 /// usecase
 
-Provider<User> userProvider = Provider<User>((ref) => User(
-      ref.read(porker2ServiceRepositoryProvider),
-      ref.read(localStorageRepositoryProvider),
-    ));
+StateNotifierProvider<User, UserState> userProvider =
+    StateNotifierProvider<User, UserState>((ref) => User(
+          ref.read(porker2ServiceRepositoryProvider),
+          ref.read(localStorageRepositoryProvider),
+        ));
 
-Provider<Poker> pokerProvider = Provider<Poker>((ref) => Poker(
-      ref.read(porker2ServiceRepositoryProvider),
-    ));
+StateNotifierProvider<Poker, PokerState> pokerProvider =
+    StateNotifierProvider<Poker, PokerState>((ref) => Poker(
+          ref.read(porker2ServiceRepositoryProvider),
+        ));
 
 /// presentation layer ---------------------------------------------------------

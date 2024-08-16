@@ -37,25 +37,25 @@ class Porker2ServiceRepositoryImpl extends Porker2ServiceRepository {
   @override
   Future<void> joinRoom(
       String roomID, Function(RoomCondition rc) callback) async {
-    bool subscribed = true;
+    bool subscribing = true;
 
-    while (subscribed) {
-      await _client
+    while (subscribing) {
+      await _client // await しないと無限ループ
           .joinRoom(JoinRoomRequest(roomId: roomID))
           .listen((res) {
             callback(res.condition);
           })
-          .asFuture()
+          .asFuture() // gRPC streamは try-catchでエラーハンドリングできないので注意
           .then((_) {
             logger.d('Stream completed');
-            subscribed = false;
+            subscribing = false;
           })
           .onError((e, stackTrace) {
             if (shouldRetry(e)) {
-              // server側のWriteTimeoutを超えた場合などを想定してリトライする
+              // server側のWriteTimeoutを超えた場合などを想定しリトライ
               logger.i('Stream retryable error', error: e);
             } else {
-              subscribed = false;
+              subscribing = false;
               logger.e('Stream error', error: e, stackTrace: stackTrace);
             }
           });

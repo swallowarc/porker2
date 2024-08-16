@@ -8,7 +8,7 @@ import 'package:porker2fe/presentation/widget/poker/field_card.dart';
 class FieldCards extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final poker = ref.watch(pokerProvider);
+    final poker = ref.watch(pokerProvider.notifier);
 
     final List<Widget> cards = poker.ballots
         .map(
@@ -33,7 +33,7 @@ class FieldCards extends HookConsumerWidget {
 
     return Container(
       alignment: Alignment.center,
-      padding: EdgeInsets.only(top: 30),
+      padding: const EdgeInsets.only(top: 30),
       child: Center(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,

@@ -5,7 +5,7 @@ import 'package:porker2fe/presentation/provider/provider.dart';
 class VoteButtons extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final poker = ref.watch(pokerProvider);
+    final poker = ref.watch(pokerProvider.notifier);
 
     return Center(
       child: Container(

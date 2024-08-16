@@ -61,8 +61,11 @@ class _FormContent extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(userProvider);
+    // restore last user name
     final TextEditingController userNameController = TextEditingController();
+    ref.read(userProvider.notifier).latestUserName().then((value) {
+      userNameController.text = value;
+    });
 
     return Container(
       constraints: const BoxConstraints(maxWidth: 300),
@@ -114,7 +117,11 @@ class _FormContent extends HookConsumerWidget {
                 ),
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
-                    invoke(context, () => user.login(userNameController.text),
+                    invoke(
+                        context,
+                        () => ref
+                            .read(userProvider.notifier)
+                            .login(userNameController.text),
                         (_) => GoRouter.of(context).go('/room'));
                   }
                 },

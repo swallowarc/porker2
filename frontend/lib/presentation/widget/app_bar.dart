@@ -23,8 +23,8 @@ class Porker2AppBar extends HookConsumerWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(userProvider);
-    final poker = ref.watch(pokerProvider);
+    final user = ref.watch(userProvider.notifier);
+    final poker = ref.watch(pokerProvider.notifier);
     final actions = <Widget>[];
 
     final bool isMediumScreen =

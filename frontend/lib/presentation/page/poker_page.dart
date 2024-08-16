@@ -16,11 +16,13 @@ class PokerPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     useEffect(() {
-      final poker = ref.read(pokerProvider);
+      final poker = ref.read(pokerProvider.notifier);
       poker.joinRoom(roomId);
 
       return null; // クリーンアップが不要な場合はnullを返す
     }, []); // 空の依存配列を渡すことで、初回のみ実行
+
+    final poker = ref.watch(pokerProvider);
 
     final bool isMediumScreen =
         MediaQuery.of(context).size.width < mediumScreenBoundary;
@@ -40,7 +42,7 @@ class PokerPage extends HookConsumerWidget {
 
     return Scaffold(
       appBar: Porker2AppBar(
-          title: 'Room ID: $roomId',
+          title: 'Room ID: ${poker.roomID}',
           enableDrawer: true,
           enableLeaveRoom: true,
           enableLogout: true),
