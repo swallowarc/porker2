@@ -47,7 +47,7 @@ class HandCardState extends State<HandCard> with TickerProviderStateMixin {
     );
     _tapOffsetAnimation = Tween<Offset>(
       begin: const Offset(0, 0),
-      end: const Offset(0, -0.5),
+      end: const Offset(0, -0.2),
     ).animate(CurvedAnimation(
       parent: _tapController,
       curve: Curves.easeInOut,

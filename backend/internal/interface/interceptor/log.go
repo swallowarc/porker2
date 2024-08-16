@@ -65,9 +65,10 @@ func (i *LogInterceptor) WrapStreamingHandler(next connect.StreamingHandlerFunc)
 		err := next(ctx, conn)
 		if err != nil {
 			logger.FromCtx(ctx).Error("failed to streaming", slog.Any("error", err))
-		} else {
-			logger.FromCtx(ctx).Info("success to disconnect streaming")
+			return err
 		}
+
+		logger.FromCtx(ctx).Info("success to disconnect streaming")
 
 		return err
 	}

@@ -2,11 +2,13 @@ package controller
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 
 	"connectrpc.com/connect"
 
 	"github.com/swallowarc/porker2/backend/internal/core/logger"
+	"github.com/swallowarc/porker2/backend/internal/core/merror"
 	"github.com/swallowarc/porker2/backend/internal/domain/poker"
 	"github.com/swallowarc/porker2/backend/internal/domain/user"
 	"github.com/swallowarc/porker2/backend/internal/domain/validator"
@@ -101,6 +103,10 @@ func (p *porker2) JoinRoom(ctx context.Context, r *connect.Request[pb.JoinRoomRe
 	}
 
 	if err := p.pokerItr.JoinRoom(ctx, p.session.UserIDFromCtx(ctx), roomIDFromProto(r.Msg.RoomId), fn); err != nil {
+		if errors.Is(err, context.Canceled) {
+			// when httpserver.WriteTimeout is exceeded
+			return merror.NewCanceled("connection closed(WriteTimeout)")
+		}
 		return err
 	}
 

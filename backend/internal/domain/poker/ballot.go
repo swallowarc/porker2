@@ -48,17 +48,17 @@ func (p Point) Valid() bool {
 
 type (
 	Ballot struct {
-		UserID  user.ID `validate:"user_id"`
-		UerName user.Name
-		Point   Point `validate:"point"`
+		UserID   user.ID   `validate:"user_id" json:"user_id"`
+		UserName user.Name `json:"user_name"`
+		Point    Point     `validate:"point" json:"point"`
 	}
 )
 
 func newBallot(userID user.ID, userName user.Name) *Ballot {
 	return &Ballot{
-		UserID:  userID,
-		UerName: userName,
-		Point:   PointUnspecified,
+		UserID:   userID,
+		UserName: userName,
+		Point:    PointUnspecified,
 	}
 }
 

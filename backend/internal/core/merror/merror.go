@@ -132,3 +132,11 @@ func IsAlreadyExists(err error) bool {
 func NewUnavailable(messageFormat string, args ...any) error {
 	return connect.NewError(connect.CodeUnavailable, fmt.Errorf(messageFormat, args...))
 }
+
+func IsCanceled(err error) bool {
+	return CodeFromError(err) == connect.CodeCanceled
+}
+
+func NewCanceled(messageFormat string, args ...any) error {
+	return connect.NewError(connect.CodeCanceled, fmt.Errorf(messageFormat, args...))
+}

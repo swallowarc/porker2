@@ -1,4 +1,6 @@
-import 'package:grpc/grpc.dart';
+import 'package:grpc/grpc_web.dart';
+import 'package:porker2fe/core/error/retry.dart';
+import 'package:porker2fe/core/logger/logger.dart';
 import 'package:porker2fe/data/datasource/pb/porker/v2/domain.pb.dart';
 import 'package:porker2fe/data/datasource/pb/porker/v2/service.pbgrpc.dart';
 import 'package:porker2fe/domain/entity/user.dart';
@@ -35,9 +37,29 @@ class Porker2ServiceRepositoryImpl extends Porker2ServiceRepository {
   @override
   Future<void> joinRoom(
       String roomID, Function(RoomCondition rc) callback) async {
-    _client.joinRoom(JoinRoomRequest()..roomId = roomID).listen((res) {
-      callback(res.condition);
-    });
+    bool subscribed = true;
+
+    while (subscribed) {
+      await _client
+          .joinRoom(JoinRoomRequest(roomId: roomID))
+          .listen((res) {
+            callback(res.condition);
+          })
+          .asFuture()
+          .then((_) {
+            logger.d('Stream completed');
+            subscribed = false;
+          })
+          .onError((e, stackTrace) {
+            if (shouldRetry(e)) {
+              // server側のWriteTimeoutを超えた場合などを想定してリトライする
+              logger.i('Stream retryable error', error: e);
+            } else {
+              subscribed = false;
+              logger.e('Stream error', error: e, stackTrace: stackTrace);
+            }
+          });
+    }
   }
 
   @override

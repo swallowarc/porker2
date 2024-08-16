@@ -16,10 +16,9 @@ import (
 )
 
 const (
-	roomSubscribeBlockDuration = 3 * time.Second
-	roomLockDuration           = 3 * time.Second
-	roomLockRetry              = 5
-	roomCreateRetry            = 10
+	roomLockDuration = 3 * time.Second
+	roomLockRetry    = 5
+	roomCreateRetry  = 10
 )
 
 type (
@@ -106,13 +105,14 @@ func (r *pokerRepository) publishRoomStream(ctx context.Context, condition *poke
 		return err
 	}
 
+	streamKey := roomConditionKey(condition.RoomID)
 	if err := r.mem.PublishStream(ctx, roomConditionKey(condition.RoomID), map[string]any{
 		keyRoomConditionMessage: j,
 	}); err != nil {
 		return err
 	}
 
-	return nil
+	return r.mem.Expire(ctx, streamKey, poker.RoomLifetime)
 }
 
 func (r *pokerRepository) GetRoomCondition(ctx context.Context, roomID poker.RoomID) (*poker.RoomCondition, error) {

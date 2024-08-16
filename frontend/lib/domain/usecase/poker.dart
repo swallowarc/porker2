@@ -11,7 +11,6 @@ RoomCondition _defaultRoomCondition = RoomCondition(
 
 class Poker extends StateNotifier<RoomCondition> {
   final Porker2ServiceRepository _svcRepo;
-  bool _subscribing = false;
 
   Poker(this._svcRepo) : super(_defaultRoomCondition);
 
@@ -20,19 +19,14 @@ class Poker extends StateNotifier<RoomCondition> {
   }
 
   Future<void> joinRoom(String roomId) async {
-    _subscribing = true;
-
     await _svcRepo.joinRoom(roomId, (RoomCondition rc) {
-      if (!_subscribing) return;
+      // TODO: この方法では通知されないので修正が必要
       state = rc;
     });
-
-    // _subscribing = false;
   }
 
   Future<void> leaveRoom() async {
     _svcRepo.leaveRoom(state.roomId);
-    _subscribing = false;
     state = _defaultRoomCondition;
   }
 
