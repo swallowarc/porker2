@@ -62,8 +62,8 @@ func (m *manager) VerifyToken(ctx context.Context, req authn.Request) (any, erro
 }
 
 func (m *manager) UserIDFromCtx(ctx context.Context) user.ID {
-	token := authn.GetInfo(ctx)
-	userID, ok := token.(user.ID)
+	id := authn.GetInfo(ctx)
+	userID, ok := id.(user.ID)
 	if !ok {
 		return ""
 	}

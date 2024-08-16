@@ -2,6 +2,7 @@ package interactor
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/swallowarc/porker2/backend/internal/core/logger"
 	"github.com/swallowarc/porker2/backend/internal/core/merror"
@@ -25,7 +26,14 @@ func NewPoker(userRepo port.UserRepository, pokerRepo port.PokerRepository) Poke
 }
 
 func (i *pokerInteractor) CreateRoom(ctx context.Context) (poker.RoomID, error) {
-	return i.pokerRepo.CreateRoom(ctx)
+	id, err := i.pokerRepo.CreateRoom(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	logger.FromCtx(ctx).Debug("room created", slog.String("room_id", id.String()))
+
+	return id, nil
 }
 
 func (i *pokerInteractor) JoinRoom(ctx context.Context, userID user.ID, roomID poker.RoomID, fn port.RoomSubscriber) error {
@@ -36,7 +44,10 @@ func (i *pokerInteractor) JoinRoom(ctx context.Context, userID user.ID, roomID p
 		}
 	} else {
 		if joinedRoomID != "" && joinedRoomID != roomID {
-			// Leave the room if the user is already in other room.
+			logger.FromCtx(ctx).Info("leave the room because the user is already in other room",
+				slog.String("user_id", userID.String()),
+				slog.String("room_id", joinedRoomID.String()),
+			)
 			if err := i.LeaveRoom(ctx, userID); err != nil {
 				return err
 			}
@@ -77,6 +88,9 @@ func (i *pokerInteractor) LeaveRoom(ctx context.Context, userID user.ID) error {
 	}
 
 	if err := i.pokerRepo.UpdateRoomWithLock(ctx, joinedRoomID, func(ctx context.Context, c *poker.RoomCondition) error {
+		if err := i.userRepo.UpdateRoomID(ctx, userID, joinedRoomID); err != nil {
+			return err
+		}
 		c.Leave(userID)
 		return nil
 	}); err != nil {

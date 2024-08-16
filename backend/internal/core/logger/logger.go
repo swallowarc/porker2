@@ -13,7 +13,7 @@ var (
 )
 
 func NewLogger(e environment.Type) *slog.Logger {
-	if e == environment.Local {
+	if e.IsLocal() {
 		handler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 			AddSource: true,
 			Level:     slog.LevelDebug,

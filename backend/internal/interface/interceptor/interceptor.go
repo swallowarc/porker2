@@ -23,12 +23,12 @@ func NewFactory(logger *slog.Logger, userRepo port.UserRepository) *Factory {
 	}
 }
 
-func (f *Factory) LogUnaryInterceptor() connect.UnaryInterceptorFunc {
-	return NewLogUnaryInterceptor(f.logger)
+func (f *Factory) LogInterceptor() connect.Interceptor {
+	return NewLogInterceptor(f.logger)
 }
 
-func getRPCName(req connect.AnyRequest) string {
-	path := strings.Split(req.Spec().Procedure, "/")
+func getRPCNameFromSpec(spec connect.Spec) string {
+	path := strings.Split(spec.Procedure, "/")
 	if len(path) == 0 {
 		return ""
 	}

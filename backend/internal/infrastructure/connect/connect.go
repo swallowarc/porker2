@@ -27,7 +27,7 @@ type (
 )
 
 func NewServer(logger *slog.Logger, conf Config, controller pbconn.Porker2ServiceHandler, session session.Manager, f *interceptor.Factory) *Server {
-	opt := connect.WithInterceptors(f.LogUnaryInterceptor())
+	opt := connect.WithInterceptors(f.LogInterceptor())
 
 	mux := http.NewServeMux()
 	mux.Handle(pbconn.NewPorker2ServiceHandler(controller, opt))
