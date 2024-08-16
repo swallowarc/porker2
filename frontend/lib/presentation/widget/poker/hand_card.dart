@@ -6,12 +6,15 @@ class HandCard extends StatefulWidget {
   final Point point;
   final Function() onTap;
   final int delayMilliseconds;
+  final selected;
 
-  const HandCard(
-      {super.key,
-      required this.point,
-      required this.onTap,
-      required this.delayMilliseconds});
+  const HandCard({
+    super.key,
+    required this.point,
+    required this.onTap,
+    required this.delayMilliseconds,
+    required this.selected,
+  });
 
   @override
   HandCardState createState() => HandCardState();
@@ -24,9 +27,13 @@ class HandCardState extends State<HandCard> with TickerProviderStateMixin {
   late AnimationController _tapController;
   late Animation<Offset> _tapOffsetAnimation;
 
+  late bool selected;
+
   @override
   void initState() {
     super.initState();
+
+    selected = widget.selected;
 
     _initialController = AnimationController(
       duration: const Duration(milliseconds: 200),
@@ -70,11 +77,21 @@ class HandCardState extends State<HandCard> with TickerProviderStateMixin {
     widget.onTap();
 
     setState(() {
-      if (_tapController.isCompleted) {
-        _tapController.reverse();
-      } else {
-        _tapController.forward();
+      if (selected == widget.selected) {
+        return;
       }
+
+      final isSelect = !selected && widget.selected;
+      if (isSelect) {
+        _initialController.forward();
+      }
+
+      final isUnselect = selected && !widget.selected;
+      if (isUnselect) {
+        _initialController.reverse();
+      }
+
+      selected = widget.selected;
     });
   }
 
