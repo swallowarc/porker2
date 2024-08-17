@@ -20,6 +20,8 @@ func pointToProto(p poker.Point) pb.Point {
 	switch p {
 	case poker.Point0:
 		return pb.Point_POINT_0
+	case poker.Point05:
+		return pb.Point_POINT_0_5
 	case poker.Point1:
 		return pb.Point_POINT_1
 	case poker.Point2:

@@ -24,7 +24,7 @@ String pointFromPb(Point point) {
     case Point.POINT_QUESTION:
       return "?";
     case Point.POINT_COFFEE:
-      return "☕";
+      return "休";
     default:
       throw UnexpectedError("Invalid Point: $point");
   }

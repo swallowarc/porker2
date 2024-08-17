@@ -97,7 +97,7 @@ class HandCardState extends State<HandCard> with TickerProviderStateMixin {
           position: offset,
           child: GestureDetector(
             onTap: _handleTap,
-            child: BaseCard.Opened(widget.point),
+            child: BaseCard.initOpen(widget.point),
           ),
         );
       },

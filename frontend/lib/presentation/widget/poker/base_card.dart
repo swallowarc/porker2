@@ -35,9 +35,9 @@ class BaseCard extends StatelessWidget {
   final int loginIDHash;
   final int loginNameHash;
 
-  const BaseCard(this.opened, this.point, this.loginIDHash, this.loginNameHash);
+  const BaseCard(this.opened, this.point, this.loginIDHash, this.loginNameHash, {super.key});
 
-  const BaseCard.Opened(this.point)
+  const BaseCard.initOpen(this.point, {super.key})
       : opened = true,
         loginIDHash = 0,
         loginNameHash = 0;
@@ -67,14 +67,14 @@ class BaseCard extends StatelessWidget {
       child: Card(
         color: _cardColors[loginNameHash % _cardColors.length],
         child: Container(
+          margin: const EdgeInsets.all(4.0),
           child: ClipRRect(
+            borderRadius: BorderRadius.circular(8.0),
             child: Image(
               fit: BoxFit.scaleDown,
               image: AssetImage(sprintf("images/card-%05d.png", [imageID])),
             ),
-            borderRadius: BorderRadius.circular(8.0),
           ),
-          margin: EdgeInsets.all(4.0),
         ),
       ),
     );

@@ -75,15 +75,9 @@ class FieldCardState extends ConsumerState<FieldCard>
   }
 
   @override
-  void dispose() {
-    _slideController.dispose();
-    _turnController.dispose();
-    super.dispose();
-  }
+  void didUpdateWidget(covariant FieldCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
 
-  @override
-  Widget build(BuildContext context) {
-    // check if voted, nowVoted, nowOpened
     final voted = widget.point != Point.POINT_UNSPECIFIED;
     final nowVoted = _point == Point.POINT_UNSPECIFIED && voted;
     final nowOpened = !_opened && widget.opened;
@@ -92,7 +86,25 @@ class FieldCardState extends ConsumerState<FieldCard>
     _point = widget.point;
     _opened = widget.opened;
 
-    // カードなしパターン (アニメーションなし
+    if (nowOpened) {
+      _turnController.forward(from: 0.0);
+    } else if (nowVoted) {
+      final random = Random();
+      _tilt = (random.nextDouble() - 0.5) * 0.2;
+      _slideController.forward(from: 0.0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _slideController.dispose();
+    _turnController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final voted = widget.point != Point.POINT_UNSPECIFIED;
     if (!voted) {
       return SizedBox(
         width: 100,
@@ -110,9 +122,7 @@ class FieldCardState extends ConsumerState<FieldCard>
       widget._loginNameHash,
     );
 
-    // 開票
-    if (nowOpened) {
-      _turnController.forward();
+    if (_turnController.isAnimating || _turnController.value > 0) {
       return AnimatedBuilder(
         animation: _turnController,
         builder: (context, child) {
@@ -131,13 +141,6 @@ class FieldCardState extends ConsumerState<FieldCard>
           );
         },
       );
-    }
-
-    // 投票
-    if (nowVoted) {
-      final random = Random();
-      _tilt = (random.nextDouble() - 0.5) * 0.2;
-      _slideController.forward();
     }
 
     return AnimatedBuilder(
