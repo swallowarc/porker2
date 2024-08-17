@@ -31,7 +31,7 @@ class PokerPage extends HookConsumerWidget {
       child: SingleChildScrollView(
         child: Column(
           children: [
-            FieldCards(),
+            const FieldCards(),
             VoteButtons(),
             const SizedBox(height: 30),
             const HandCards(),

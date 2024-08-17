@@ -29,10 +29,18 @@ class Porker2ServiceClient extends $grpc.Client {
       '/porker.v2.Porker2Service/Logout',
       ($0.LogoutRequest value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.LogoutResponse.fromBuffer(value));
+  static final _$verifyUser = $grpc.ClientMethod<$0.VerifyUserRequest, $0.VerifyUserResponse>(
+      '/porker.v2.Porker2Service/VerifyUser',
+      ($0.VerifyUserRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.VerifyUserResponse.fromBuffer(value));
   static final _$createRoom = $grpc.ClientMethod<$0.CreateRoomRequest, $0.CreateRoomResponse>(
       '/porker.v2.Porker2Service/CreateRoom',
       ($0.CreateRoomRequest value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.CreateRoomResponse.fromBuffer(value));
+  static final _$checkRoom = $grpc.ClientMethod<$0.CheckRoomRequest, $0.CheckRoomResponse>(
+      '/porker.v2.Porker2Service/CheckRoom',
+      ($0.CheckRoomRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.CheckRoomResponse.fromBuffer(value));
   static final _$joinRoom = $grpc.ClientMethod<$0.JoinRoomRequest, $0.JoinRoomResponse>(
       '/porker.v2.Porker2Service/JoinRoom',
       ($0.JoinRoomRequest value) => value.writeToBuffer(),
@@ -72,8 +80,16 @@ class Porker2ServiceClient extends $grpc.Client {
     return $createUnaryCall(_$logout, request, options: options);
   }
 
+  $grpc.ResponseFuture<$0.VerifyUserResponse> verifyUser($0.VerifyUserRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$verifyUser, request, options: options);
+  }
+
   $grpc.ResponseFuture<$0.CreateRoomResponse> createRoom($0.CreateRoomRequest request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$createRoom, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.CheckRoomResponse> checkRoom($0.CheckRoomRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$checkRoom, request, options: options);
   }
 
   $grpc.ResponseStream<$0.JoinRoomResponse> joinRoom($0.JoinRoomRequest request, {$grpc.CallOptions? options}) {
@@ -120,6 +136,13 @@ abstract class Porker2ServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.LogoutRequest.fromBuffer(value),
         ($0.LogoutResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.VerifyUserRequest, $0.VerifyUserResponse>(
+        'VerifyUser',
+        verifyUser_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.VerifyUserRequest.fromBuffer(value),
+        ($0.VerifyUserResponse value) => value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.CreateRoomRequest, $0.CreateRoomResponse>(
         'CreateRoom',
         createRoom_Pre,
@@ -127,6 +150,13 @@ abstract class Porker2ServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.CreateRoomRequest.fromBuffer(value),
         ($0.CreateRoomResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.CheckRoomRequest, $0.CheckRoomResponse>(
+        'CheckRoom',
+        checkRoom_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.CheckRoomRequest.fromBuffer(value),
+        ($0.CheckRoomResponse value) => value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.JoinRoomRequest, $0.JoinRoomResponse>(
         'JoinRoom',
         joinRoom_Pre,
@@ -179,8 +209,16 @@ abstract class Porker2ServiceBase extends $grpc.Service {
     return logout(call, await request);
   }
 
+  $async.Future<$0.VerifyUserResponse> verifyUser_Pre($grpc.ServiceCall call, $async.Future<$0.VerifyUserRequest> request) async {
+    return verifyUser(call, await request);
+  }
+
   $async.Future<$0.CreateRoomResponse> createRoom_Pre($grpc.ServiceCall call, $async.Future<$0.CreateRoomRequest> request) async {
     return createRoom(call, await request);
+  }
+
+  $async.Future<$0.CheckRoomResponse> checkRoom_Pre($grpc.ServiceCall call, $async.Future<$0.CheckRoomRequest> request) async {
+    return checkRoom(call, await request);
   }
 
   $async.Stream<$0.JoinRoomResponse> joinRoom_Pre($grpc.ServiceCall call, $async.Future<$0.JoinRoomRequest> request) async* {
@@ -209,7 +247,9 @@ abstract class Porker2ServiceBase extends $grpc.Service {
 
   $async.Future<$0.LoginResponse> login($grpc.ServiceCall call, $0.LoginRequest request);
   $async.Future<$0.LogoutResponse> logout($grpc.ServiceCall call, $0.LogoutRequest request);
+  $async.Future<$0.VerifyUserResponse> verifyUser($grpc.ServiceCall call, $0.VerifyUserRequest request);
   $async.Future<$0.CreateRoomResponse> createRoom($grpc.ServiceCall call, $0.CreateRoomRequest request);
+  $async.Future<$0.CheckRoomResponse> checkRoom($grpc.ServiceCall call, $0.CheckRoomRequest request);
   $async.Stream<$0.JoinRoomResponse> joinRoom($grpc.ServiceCall call, $0.JoinRoomRequest request);
   $async.Future<$0.LeaveRoomResponse> leaveRoom($grpc.ServiceCall call, $0.LeaveRoomRequest request);
   $async.Future<$0.CastVoteResponse> castVote($grpc.ServiceCall call, $0.CastVoteRequest request);

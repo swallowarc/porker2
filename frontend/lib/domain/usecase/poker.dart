@@ -25,6 +25,10 @@ class Poker extends StateNotifier<PokerState> {
     return _svcRepo.createRoom();
   }
 
+  Future<void> checkRoom(String roomId) async {
+    await _svcRepo.checkRoom(roomId);
+  }
+
   Future<void> joinRoom(String roomId) async {
     await _svcRepo.joinRoom(roomId, (RoomCondition rc) {
       state = state.copyWith(

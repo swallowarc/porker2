@@ -15,12 +15,16 @@ type (
 		Login(ctx context.Context, userName user.Name) (user.ID, string, error)
 		// Logout deletes the user session.
 		Logout(ctx context.Context, userID user.ID) error
+		// GetUser returns the user id and name.
+		GetUser(ctx context.Context, userID user.ID) (user.Name, error)
 	}
 
 	Poker interface {
 		// CreateRoom creates a new room and returns the room ID.
 		CreateRoom(ctx context.Context) (poker.RoomID, error)
-		// JoinRoom joins the room.
+		// CheckRoom checks the room.
+		CheckRoom(ctx context.Context, userID user.ID, roomID poker.RoomID) error
+		// JoinRoom Check if the room is ready.
 		JoinRoom(ctx context.Context, userID user.ID, roomID poker.RoomID, fn port.RoomSubscriber) error
 		// LeaveRoom leaves the room.
 		LeaveRoom(ctx context.Context, userID user.ID) error

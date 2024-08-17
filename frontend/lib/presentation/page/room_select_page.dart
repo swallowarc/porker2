@@ -116,12 +116,14 @@ class _FormContent extends HookConsumerWidget {
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
-                onPressed: () {
+                onPressed: () async {
                   if (_formKey.currentState?.validate() ?? false) {
+                    final roomId = roomIDController.text;
                     invoke(
                         context,
-                        () => pokerNotifier.joinRoom(roomIDController.text),
-                        (_) => GoRouter.of(context).go('/poker'));
+                        () => pokerNotifier.checkRoom(roomId),
+                        (_) =>
+                            GoRouter.of(context).go('/poker?room-id=$roomId'));
                   }
                 },
               ),

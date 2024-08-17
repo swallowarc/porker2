@@ -124,6 +124,108 @@ class LoginResponse extends $pb.GeneratedMessage {
   void clearUserId() => clearField(1);
 }
 
+///  VerifyUser ユーザの存在確認
+///  cookieの有効性を確認。
+///
+///  Errors:
+///  - Unauthenticated:
+///    - cookieのtokenがない、または無効
+class VerifyUserRequest extends $pb.GeneratedMessage {
+  factory VerifyUserRequest() => create();
+  VerifyUserRequest._() : super();
+  factory VerifyUserRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory VerifyUserRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'VerifyUserRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'porker.v2'), createEmptyInstance: create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  VerifyUserRequest clone() => VerifyUserRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  VerifyUserRequest copyWith(void Function(VerifyUserRequest) updates) => super.copyWith((message) => updates(message as VerifyUserRequest)) as VerifyUserRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static VerifyUserRequest create() => VerifyUserRequest._();
+  VerifyUserRequest createEmptyInstance() => create();
+  static $pb.PbList<VerifyUserRequest> createRepeated() => $pb.PbList<VerifyUserRequest>();
+  @$core.pragma('dart2js:noInline')
+  static VerifyUserRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<VerifyUserRequest>(create);
+  static VerifyUserRequest? _defaultInstance;
+}
+
+class VerifyUserResponse extends $pb.GeneratedMessage {
+  factory VerifyUserResponse({
+    $core.String? userId,
+    $core.String? userName,
+  }) {
+    final $result = create();
+    if (userId != null) {
+      $result.userId = userId;
+    }
+    if (userName != null) {
+      $result.userName = userName;
+    }
+    return $result;
+  }
+  VerifyUserResponse._() : super();
+  factory VerifyUserResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory VerifyUserResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'VerifyUserResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'porker.v2'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'userId')
+    ..aOS(2, _omitFieldNames ? '' : 'userName')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  VerifyUserResponse clone() => VerifyUserResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  VerifyUserResponse copyWith(void Function(VerifyUserResponse) updates) => super.copyWith((message) => updates(message as VerifyUserResponse)) as VerifyUserResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static VerifyUserResponse create() => VerifyUserResponse._();
+  VerifyUserResponse createEmptyInstance() => create();
+  static $pb.PbList<VerifyUserResponse> createRepeated() => $pb.PbList<VerifyUserResponse>();
+  @$core.pragma('dart2js:noInline')
+  static VerifyUserResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<VerifyUserResponse>(create);
+  static VerifyUserResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get userId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set userId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasUserId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearUserId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get userName => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set userName($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasUserName() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearUserName() => clearField(2);
+}
+
 ///  Logout ログアウト
 ///  ログアウトする。
 ///
@@ -279,6 +381,97 @@ class CreateRoomResponse extends $pb.GeneratedMessage {
   $core.bool hasRoomId() => $_has(0);
   @$pb.TagNumber(1)
   void clearRoomId() => clearField(1);
+}
+
+///  CheckRoom roomが入室可能か確認する。
+///
+///  Errors:
+///  - Unauthenticated:
+///    - cookieのtokenがない、または無効
+///  - NotFound:
+///    - roomが存在しない
+///  - FailedPrecondition:
+///    - roomが満員
+class CheckRoomRequest extends $pb.GeneratedMessage {
+  factory CheckRoomRequest({
+    $core.String? roomId,
+  }) {
+    final $result = create();
+    if (roomId != null) {
+      $result.roomId = roomId;
+    }
+    return $result;
+  }
+  CheckRoomRequest._() : super();
+  factory CheckRoomRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory CheckRoomRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'CheckRoomRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'porker.v2'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'roomId')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  CheckRoomRequest clone() => CheckRoomRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  CheckRoomRequest copyWith(void Function(CheckRoomRequest) updates) => super.copyWith((message) => updates(message as CheckRoomRequest)) as CheckRoomRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static CheckRoomRequest create() => CheckRoomRequest._();
+  CheckRoomRequest createEmptyInstance() => create();
+  static $pb.PbList<CheckRoomRequest> createRepeated() => $pb.PbList<CheckRoomRequest>();
+  @$core.pragma('dart2js:noInline')
+  static CheckRoomRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CheckRoomRequest>(create);
+  static CheckRoomRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get roomId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set roomId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasRoomId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearRoomId() => clearField(1);
+}
+
+class CheckRoomResponse extends $pb.GeneratedMessage {
+  factory CheckRoomResponse() => create();
+  CheckRoomResponse._() : super();
+  factory CheckRoomResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory CheckRoomResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'CheckRoomResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'porker.v2'), createEmptyInstance: create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  CheckRoomResponse clone() => CheckRoomResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  CheckRoomResponse copyWith(void Function(CheckRoomResponse) updates) => super.copyWith((message) => updates(message as CheckRoomResponse)) as CheckRoomResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static CheckRoomResponse create() => CheckRoomResponse._();
+  CheckRoomResponse createEmptyInstance() => create();
+  static $pb.PbList<CheckRoomResponse> createRepeated() => $pb.PbList<CheckRoomResponse>();
+  @$core.pragma('dart2js:noInline')
+  static CheckRoomResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CheckRoomResponse>(create);
+  static CheckRoomResponse? _defaultInstance;
 }
 
 ///  JoinRoom roomに参加する。

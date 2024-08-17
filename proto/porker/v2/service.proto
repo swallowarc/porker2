@@ -8,8 +8,10 @@ option go_package = "github.com/swallowarc/porker2/backend/internal/interface/pb
 service Porker2Service {
   rpc Login(LoginRequest) returns (LoginResponse);
   rpc Logout(LogoutRequest) returns (LogoutResponse);
+  rpc VerifyUser(VerifyUserRequest) returns (VerifyUserResponse);
 
   rpc CreateRoom(CreateRoomRequest) returns (CreateRoomResponse);
+  rpc CheckRoom(CheckRoomRequest) returns (CheckRoomResponse);
   rpc JoinRoom(JoinRoomRequest) returns (stream JoinRoomResponse);
   rpc LeaveRoom(LeaveRoomRequest) returns (LeaveRoomResponse);
   rpc CastVote(CastVoteRequest) returns (CastVoteResponse);
@@ -40,6 +42,20 @@ message LoginResponse {
   string user_id = 1;
 }
 
+/* VerifyUser ユーザの存在確認
+ * cookieの有効性を確認。
+ *
+ * Errors:
+ * - Unauthenticated:
+ *   - cookieのtokenがない、または無効
+ */
+message VerifyUserRequest {}
+
+message VerifyUserResponse {
+  string user_id = 1;
+  string user_name = 2;
+}
+
 /* Logout ログアウト
  * ログアウトする。
  *
@@ -62,6 +78,22 @@ message CreateRoomRequest {}
 message CreateRoomResponse {
   string room_id = 1;
 }
+
+/* CheckRoom roomが入室可能か確認する。
+ *
+ * Errors:
+ * - Unauthenticated:
+ *   - cookieのtokenがない、または無効
+ * - NotFound:
+ *   - roomが存在しない
+ * - FailedPrecondition:
+ *   - roomが満員
+ */
+message CheckRoomRequest {
+  string room_id = 1;
+}
+
+message CheckRoomResponse {}
 
 /* JoinRoom roomに参加する。
  *

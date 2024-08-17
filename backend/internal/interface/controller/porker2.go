@@ -75,6 +75,22 @@ func (p *porker2) Logout(ctx context.Context, _ *connect.Request[pb.LogoutReques
 	}, nil
 }
 
+func (p *porker2) VerifyUser(ctx context.Context, _ *connect.Request[pb.VerifyUserRequest]) (*connect.Response[pb.VerifyUserResponse], error) {
+	userID := p.session.UserIDFromCtx(ctx)
+
+	name, err := p.userItr.GetUser(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &connect.Response[pb.VerifyUserResponse]{
+		Msg: &pb.VerifyUserResponse{
+			UserId:   userID.String(),
+			UserName: name.String(),
+		},
+	}, nil
+}
+
 func (p *porker2) CreateRoom(ctx context.Context, _ *connect.Request[pb.CreateRoomRequest]) (*connect.Response[pb.CreateRoomResponse], error) {
 	roomID, err := p.pokerItr.CreateRoom(ctx)
 	if err != nil {
@@ -85,6 +101,16 @@ func (p *porker2) CreateRoom(ctx context.Context, _ *connect.Request[pb.CreateRo
 		Msg: &pb.CreateRoomResponse{
 			RoomId: roomID.String(),
 		},
+	}, nil
+}
+
+func (p *porker2) CheckRoom(ctx context.Context, r *connect.Request[pb.CheckRoomRequest]) (*connect.Response[pb.CheckRoomResponse], error) {
+	if err := p.pokerItr.CheckRoom(ctx, p.session.UserIDFromCtx(ctx), roomIDFromProto(r.Msg.RoomId)); err != nil {
+		return nil, err
+	}
+
+	return &connect.Response[pb.CheckRoomResponse]{
+		Msg: &pb.CheckRoomResponse{},
 	}, nil
 }
 

@@ -37,6 +37,29 @@ const LoginResponse$json = {
 final $typed_data.Uint8List loginResponseDescriptor = $convert.base64Decode(
     'Cg1Mb2dpblJlc3BvbnNlEhcKB3VzZXJfaWQYASABKAlSBnVzZXJJZA==');
 
+@$core.Deprecated('Use verifyUserRequestDescriptor instead')
+const VerifyUserRequest$json = {
+  '1': 'VerifyUserRequest',
+};
+
+/// Descriptor for `VerifyUserRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List verifyUserRequestDescriptor = $convert.base64Decode(
+    'ChFWZXJpZnlVc2VyUmVxdWVzdA==');
+
+@$core.Deprecated('Use verifyUserResponseDescriptor instead')
+const VerifyUserResponse$json = {
+  '1': 'VerifyUserResponse',
+  '2': [
+    {'1': 'user_id', '3': 1, '4': 1, '5': 9, '10': 'userId'},
+    {'1': 'user_name', '3': 2, '4': 1, '5': 9, '10': 'userName'},
+  ],
+};
+
+/// Descriptor for `VerifyUserResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List verifyUserResponseDescriptor = $convert.base64Decode(
+    'ChJWZXJpZnlVc2VyUmVzcG9uc2USFwoHdXNlcl9pZBgBIAEoCVIGdXNlcklkEhsKCXVzZXJfbm'
+    'FtZRgCIAEoCVIIdXNlck5hbWU=');
+
 @$core.Deprecated('Use logoutRequestDescriptor instead')
 const LogoutRequest$json = {
   '1': 'LogoutRequest',
@@ -75,6 +98,27 @@ const CreateRoomResponse$json = {
 /// Descriptor for `CreateRoomResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List createRoomResponseDescriptor = $convert.base64Decode(
     'ChJDcmVhdGVSb29tUmVzcG9uc2USFwoHcm9vbV9pZBgBIAEoCVIGcm9vbUlk');
+
+@$core.Deprecated('Use checkRoomRequestDescriptor instead')
+const CheckRoomRequest$json = {
+  '1': 'CheckRoomRequest',
+  '2': [
+    {'1': 'room_id', '3': 1, '4': 1, '5': 9, '10': 'roomId'},
+  ],
+};
+
+/// Descriptor for `CheckRoomRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List checkRoomRequestDescriptor = $convert.base64Decode(
+    'ChBDaGVja1Jvb21SZXF1ZXN0EhcKB3Jvb21faWQYASABKAlSBnJvb21JZA==');
+
+@$core.Deprecated('Use checkRoomResponseDescriptor instead')
+const CheckRoomResponse$json = {
+  '1': 'CheckRoomResponse',
+};
+
+/// Descriptor for `CheckRoomResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List checkRoomResponseDescriptor = $convert.base64Decode(
+    'ChFDaGVja1Jvb21SZXNwb25zZQ==');
 
 @$core.Deprecated('Use joinRoomRequestDescriptor instead')
 const JoinRoomRequest$json = {

@@ -1,4 +1,5 @@
 import 'package:porker2fe/data/datasource/pb/porker/v2/domain.pb.dart';
+import 'package:porker2fe/domain/entity/user.dart';
 
 class LoginResult {
   final String userID;
@@ -11,9 +12,11 @@ abstract class Porker2ServiceRepository {
 
   Future<void> logout();
 
-  Future<void> kickUser(String roomID, targetUserID);
+  Future<UserEntity> verifyUser();
 
   Future<String> createRoom();
+
+  Future<void> checkRoom(String roomID);
 
   Future<void> joinRoom(String roomID, Function(RoomCondition rc) callback);
 
@@ -24,6 +27,8 @@ abstract class Porker2ServiceRepository {
   Future<void> showVotes(String roomID);
 
   Future<void> resetVotes(String roomID);
+
+  Future<void> kickUser(String roomID, targetUserID);
 }
 
 abstract class LocalStorageRepository {

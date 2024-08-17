@@ -43,6 +43,14 @@ class User extends StateNotifier<UserState> {
     state = const UserState("", "");
   }
 
+  Future<void> verifyUser() async {
+    final user = await _svcRepo.verifyUser();
+    state = state.copyWith(
+      userID: user.userID,
+      userName: user.userName,
+    );
+  }
+
   bool get alreadyLogin => state.userID.isNotEmpty;
 
   Future<String> latestUserName() async {

@@ -36,6 +36,24 @@ func (i *pokerInteractor) CreateRoom(ctx context.Context) (poker.RoomID, error) 
 	return id, nil
 }
 
+func (i *pokerInteractor) CheckRoom(ctx context.Context, userID user.ID, roomID poker.RoomID) error {
+	rc, err := i.pokerRepo.GetRoomCondition(ctx, roomID)
+	if err != nil {
+		return err
+	}
+
+	// If the user is already in the room, do nothing.
+	if rc.IsUserIn(userID) {
+		return nil
+	}
+
+	if !rc.CanJoin() {
+		return poker.ErrRoomFull
+	}
+
+	return nil
+}
+
 func (i *pokerInteractor) JoinRoom(ctx context.Context, userID user.ID, roomID poker.RoomID, fn port.RoomSubscriber) error {
 	userName, _, joinedRoomID, err := i.userRepo.GetByID(ctx, userID)
 	if err != nil {

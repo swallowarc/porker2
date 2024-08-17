@@ -14,3 +14,15 @@ final alreadyLoginError = UnexpectedError(
 final alreadyUsedNameError = ExpectedError(
   "user name that is already in use has been specified",
 );
+
+class UserEntity {
+  final String userID;
+  final String userName;
+
+  UserEntity({
+    required this.userID,
+    required this.userName,
+  });
+
+  bool get valid => userID.isNotEmpty && userName.isNotEmpty;
+}

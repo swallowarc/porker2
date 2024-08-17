@@ -18,19 +18,18 @@ Future<void> invoke<T>(
     String message = unexpectedMessage;
 
     bool isExpectedError = false;
-    switch (e.runtimeType) {
-      case FormatException _:
-        message = (e as FormatException).message;
-        isExpectedError = true;
-        break;
-      case ArgumentError _:
-        message = (e as ArgumentError).message;
-        isExpectedError = true;
-        break;
-      case ExpectedError _:
-        message = (e as ExpectedError).message;
-        isExpectedError = true;
-        break;
+
+    if (e is ExpectedError) {
+      message = e.message;
+      isExpectedError = true;
+    }
+
+    if (e is FormatException) {
+      message = e.message;
+    }
+
+    if (e is ArgumentError) {
+      message = e.message;
     }
 
     Color snackBackgroundColor = Colors.red.shade200;
@@ -38,7 +37,9 @@ Future<void> invoke<T>(
       snackBackgroundColor = Colors.yellow.shade200;
     }
 
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message), backgroundColor: snackBackgroundColor,));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+      backgroundColor: snackBackgroundColor,
+    ));
   });
 }

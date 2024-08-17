@@ -3,10 +3,9 @@ import 'package:porker2fe/core/error/retry.dart';
 import 'package:porker2fe/core/logger/logger.dart';
 import 'package:porker2fe/data/datasource/pb/porker/v2/domain.pb.dart';
 import 'package:porker2fe/data/datasource/pb/porker/v2/service.pbgrpc.dart';
+import 'package:porker2fe/domain/entity/room.dart';
 import 'package:porker2fe/domain/entity/user.dart';
 import 'package:porker2fe/domain/port/repository.dart';
-
-// TODO: 全体的にエラーハンドリング実装する
 
 class Porker2ServiceRepositoryImpl extends Porker2ServiceRepository {
   final Porker2ServiceClient _client;
@@ -29,9 +28,26 @@ class Porker2ServiceRepositoryImpl extends Porker2ServiceRepository {
   }
 
   @override
+  Future<UserEntity> verifyUser() async {
+    final res = await _client.verifyUser(VerifyUserRequest());
+    return Future.value(UserEntity(userID: res.userId, userName: res.userName));
+  }
+
+  @override
   Future<String> createRoom() async {
     final res = await _client.createRoom(CreateRoomRequest());
     return res.roomId;
+  }
+
+  @override
+  Future<void> checkRoom(String roomID) async {
+    try {
+      await _client.checkRoom(CheckRoomRequest()..roomId = roomID);
+    } on GrpcError catch (e) {
+      if (e.code == StatusCode.notFound) {
+        throw roomNotFoundError;
+      }
+    }
   }
 
   @override
@@ -54,9 +70,19 @@ class Porker2ServiceRepositoryImpl extends Porker2ServiceRepository {
             if (shouldRetry(e)) {
               // server側のWriteTimeoutを超えた場合などを想定しリトライ
               logger.i('Stream retryable error', error: e);
-            } else {
-              subscribing = false;
-              logger.e('Stream error', error: e, stackTrace: stackTrace);
+              return;
+            }
+
+            subscribing = false;
+            logger.e('Stream error', error: e, stackTrace: stackTrace);
+
+            if (e is GrpcError) {
+              switch (e.code) {
+                case StatusCode.notFound:
+                  throw roomNotFoundError;
+                default:
+                  break;
+              }
             }
           });
     }

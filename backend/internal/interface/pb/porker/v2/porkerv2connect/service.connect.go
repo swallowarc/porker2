@@ -37,9 +37,15 @@ const (
 	Porker2ServiceLoginProcedure = "/porker.v2.Porker2Service/Login"
 	// Porker2ServiceLogoutProcedure is the fully-qualified name of the Porker2Service's Logout RPC.
 	Porker2ServiceLogoutProcedure = "/porker.v2.Porker2Service/Logout"
+	// Porker2ServiceVerifyUserProcedure is the fully-qualified name of the Porker2Service's VerifyUser
+	// RPC.
+	Porker2ServiceVerifyUserProcedure = "/porker.v2.Porker2Service/VerifyUser"
 	// Porker2ServiceCreateRoomProcedure is the fully-qualified name of the Porker2Service's CreateRoom
 	// RPC.
 	Porker2ServiceCreateRoomProcedure = "/porker.v2.Porker2Service/CreateRoom"
+	// Porker2ServiceCheckRoomProcedure is the fully-qualified name of the Porker2Service's CheckRoom
+	// RPC.
+	Porker2ServiceCheckRoomProcedure = "/porker.v2.Porker2Service/CheckRoom"
 	// Porker2ServiceJoinRoomProcedure is the fully-qualified name of the Porker2Service's JoinRoom RPC.
 	Porker2ServiceJoinRoomProcedure = "/porker.v2.Porker2Service/JoinRoom"
 	// Porker2ServiceLeaveRoomProcedure is the fully-qualified name of the Porker2Service's LeaveRoom
@@ -62,7 +68,9 @@ var (
 	porker2ServiceServiceDescriptor          = v2.File_porker_v2_service_proto.Services().ByName("Porker2Service")
 	porker2ServiceLoginMethodDescriptor      = porker2ServiceServiceDescriptor.Methods().ByName("Login")
 	porker2ServiceLogoutMethodDescriptor     = porker2ServiceServiceDescriptor.Methods().ByName("Logout")
+	porker2ServiceVerifyUserMethodDescriptor = porker2ServiceServiceDescriptor.Methods().ByName("VerifyUser")
 	porker2ServiceCreateRoomMethodDescriptor = porker2ServiceServiceDescriptor.Methods().ByName("CreateRoom")
+	porker2ServiceCheckRoomMethodDescriptor  = porker2ServiceServiceDescriptor.Methods().ByName("CheckRoom")
 	porker2ServiceJoinRoomMethodDescriptor   = porker2ServiceServiceDescriptor.Methods().ByName("JoinRoom")
 	porker2ServiceLeaveRoomMethodDescriptor  = porker2ServiceServiceDescriptor.Methods().ByName("LeaveRoom")
 	porker2ServiceCastVoteMethodDescriptor   = porker2ServiceServiceDescriptor.Methods().ByName("CastVote")
@@ -75,7 +83,9 @@ var (
 type Porker2ServiceClient interface {
 	Login(context.Context, *connect.Request[v2.LoginRequest]) (*connect.Response[v2.LoginResponse], error)
 	Logout(context.Context, *connect.Request[v2.LogoutRequest]) (*connect.Response[v2.LogoutResponse], error)
+	VerifyUser(context.Context, *connect.Request[v2.VerifyUserRequest]) (*connect.Response[v2.VerifyUserResponse], error)
 	CreateRoom(context.Context, *connect.Request[v2.CreateRoomRequest]) (*connect.Response[v2.CreateRoomResponse], error)
+	CheckRoom(context.Context, *connect.Request[v2.CheckRoomRequest]) (*connect.Response[v2.CheckRoomResponse], error)
 	JoinRoom(context.Context, *connect.Request[v2.JoinRoomRequest]) (*connect.ServerStreamForClient[v2.JoinRoomResponse], error)
 	LeaveRoom(context.Context, *connect.Request[v2.LeaveRoomRequest]) (*connect.Response[v2.LeaveRoomResponse], error)
 	CastVote(context.Context, *connect.Request[v2.CastVoteRequest]) (*connect.Response[v2.CastVoteResponse], error)
@@ -106,10 +116,22 @@ func NewPorker2ServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(porker2ServiceLogoutMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
+		verifyUser: connect.NewClient[v2.VerifyUserRequest, v2.VerifyUserResponse](
+			httpClient,
+			baseURL+Porker2ServiceVerifyUserProcedure,
+			connect.WithSchema(porker2ServiceVerifyUserMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
 		createRoom: connect.NewClient[v2.CreateRoomRequest, v2.CreateRoomResponse](
 			httpClient,
 			baseURL+Porker2ServiceCreateRoomProcedure,
 			connect.WithSchema(porker2ServiceCreateRoomMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
+		checkRoom: connect.NewClient[v2.CheckRoomRequest, v2.CheckRoomResponse](
+			httpClient,
+			baseURL+Porker2ServiceCheckRoomProcedure,
+			connect.WithSchema(porker2ServiceCheckRoomMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
 		joinRoom: connect.NewClient[v2.JoinRoomRequest, v2.JoinRoomResponse](
@@ -155,7 +177,9 @@ func NewPorker2ServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 type porker2ServiceClient struct {
 	login      *connect.Client[v2.LoginRequest, v2.LoginResponse]
 	logout     *connect.Client[v2.LogoutRequest, v2.LogoutResponse]
+	verifyUser *connect.Client[v2.VerifyUserRequest, v2.VerifyUserResponse]
 	createRoom *connect.Client[v2.CreateRoomRequest, v2.CreateRoomResponse]
+	checkRoom  *connect.Client[v2.CheckRoomRequest, v2.CheckRoomResponse]
 	joinRoom   *connect.Client[v2.JoinRoomRequest, v2.JoinRoomResponse]
 	leaveRoom  *connect.Client[v2.LeaveRoomRequest, v2.LeaveRoomResponse]
 	castVote   *connect.Client[v2.CastVoteRequest, v2.CastVoteResponse]
@@ -174,9 +198,19 @@ func (c *porker2ServiceClient) Logout(ctx context.Context, req *connect.Request[
 	return c.logout.CallUnary(ctx, req)
 }
 
+// VerifyUser calls porker.v2.Porker2Service.VerifyUser.
+func (c *porker2ServiceClient) VerifyUser(ctx context.Context, req *connect.Request[v2.VerifyUserRequest]) (*connect.Response[v2.VerifyUserResponse], error) {
+	return c.verifyUser.CallUnary(ctx, req)
+}
+
 // CreateRoom calls porker.v2.Porker2Service.CreateRoom.
 func (c *porker2ServiceClient) CreateRoom(ctx context.Context, req *connect.Request[v2.CreateRoomRequest]) (*connect.Response[v2.CreateRoomResponse], error) {
 	return c.createRoom.CallUnary(ctx, req)
+}
+
+// CheckRoom calls porker.v2.Porker2Service.CheckRoom.
+func (c *porker2ServiceClient) CheckRoom(ctx context.Context, req *connect.Request[v2.CheckRoomRequest]) (*connect.Response[v2.CheckRoomResponse], error) {
+	return c.checkRoom.CallUnary(ctx, req)
 }
 
 // JoinRoom calls porker.v2.Porker2Service.JoinRoom.
@@ -213,7 +247,9 @@ func (c *porker2ServiceClient) KickUser(ctx context.Context, req *connect.Reques
 type Porker2ServiceHandler interface {
 	Login(context.Context, *connect.Request[v2.LoginRequest]) (*connect.Response[v2.LoginResponse], error)
 	Logout(context.Context, *connect.Request[v2.LogoutRequest]) (*connect.Response[v2.LogoutResponse], error)
+	VerifyUser(context.Context, *connect.Request[v2.VerifyUserRequest]) (*connect.Response[v2.VerifyUserResponse], error)
 	CreateRoom(context.Context, *connect.Request[v2.CreateRoomRequest]) (*connect.Response[v2.CreateRoomResponse], error)
+	CheckRoom(context.Context, *connect.Request[v2.CheckRoomRequest]) (*connect.Response[v2.CheckRoomResponse], error)
 	JoinRoom(context.Context, *connect.Request[v2.JoinRoomRequest], *connect.ServerStream[v2.JoinRoomResponse]) error
 	LeaveRoom(context.Context, *connect.Request[v2.LeaveRoomRequest]) (*connect.Response[v2.LeaveRoomResponse], error)
 	CastVote(context.Context, *connect.Request[v2.CastVoteRequest]) (*connect.Response[v2.CastVoteResponse], error)
@@ -240,10 +276,22 @@ func NewPorker2ServiceHandler(svc Porker2ServiceHandler, opts ...connect.Handler
 		connect.WithSchema(porker2ServiceLogoutMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
+	porker2ServiceVerifyUserHandler := connect.NewUnaryHandler(
+		Porker2ServiceVerifyUserProcedure,
+		svc.VerifyUser,
+		connect.WithSchema(porker2ServiceVerifyUserMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
 	porker2ServiceCreateRoomHandler := connect.NewUnaryHandler(
 		Porker2ServiceCreateRoomProcedure,
 		svc.CreateRoom,
 		connect.WithSchema(porker2ServiceCreateRoomMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
+	porker2ServiceCheckRoomHandler := connect.NewUnaryHandler(
+		Porker2ServiceCheckRoomProcedure,
+		svc.CheckRoom,
+		connect.WithSchema(porker2ServiceCheckRoomMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
 	porker2ServiceJoinRoomHandler := connect.NewServerStreamHandler(
@@ -288,8 +336,12 @@ func NewPorker2ServiceHandler(svc Porker2ServiceHandler, opts ...connect.Handler
 			porker2ServiceLoginHandler.ServeHTTP(w, r)
 		case Porker2ServiceLogoutProcedure:
 			porker2ServiceLogoutHandler.ServeHTTP(w, r)
+		case Porker2ServiceVerifyUserProcedure:
+			porker2ServiceVerifyUserHandler.ServeHTTP(w, r)
 		case Porker2ServiceCreateRoomProcedure:
 			porker2ServiceCreateRoomHandler.ServeHTTP(w, r)
+		case Porker2ServiceCheckRoomProcedure:
+			porker2ServiceCheckRoomHandler.ServeHTTP(w, r)
 		case Porker2ServiceJoinRoomProcedure:
 			porker2ServiceJoinRoomHandler.ServeHTTP(w, r)
 		case Porker2ServiceLeaveRoomProcedure:
@@ -319,8 +371,16 @@ func (UnimplementedPorker2ServiceHandler) Logout(context.Context, *connect.Reque
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("porker.v2.Porker2Service.Logout is not implemented"))
 }
 
+func (UnimplementedPorker2ServiceHandler) VerifyUser(context.Context, *connect.Request[v2.VerifyUserRequest]) (*connect.Response[v2.VerifyUserResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("porker.v2.Porker2Service.VerifyUser is not implemented"))
+}
+
 func (UnimplementedPorker2ServiceHandler) CreateRoom(context.Context, *connect.Request[v2.CreateRoomRequest]) (*connect.Response[v2.CreateRoomResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("porker.v2.Porker2Service.CreateRoom is not implemented"))
+}
+
+func (UnimplementedPorker2ServiceHandler) CheckRoom(context.Context, *connect.Request[v2.CheckRoomRequest]) (*connect.Response[v2.CheckRoomResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("porker.v2.Porker2Service.CheckRoom is not implemented"))
 }
 
 func (UnimplementedPorker2ServiceHandler) JoinRoom(context.Context, *connect.Request[v2.JoinRoomRequest], *connect.ServerStream[v2.JoinRoomResponse]) error {

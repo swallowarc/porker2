@@ -64,3 +64,12 @@ func (i *userInteractor) Logout(ctx context.Context, userID user.ID) error {
 
 	return eg.Wait()
 }
+
+func (i *userInteractor) GetUser(ctx context.Context, userID user.ID) (user.Name, error) {
+	name, _, _, err := i.userRepo.GetByID(ctx, userID)
+	if err != nil {
+		return "", err
+	}
+
+	return name, nil
+}
