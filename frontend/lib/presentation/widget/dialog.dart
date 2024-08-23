@@ -20,17 +20,23 @@ class TwoChoiceDialog extends StatelessWidget {
       title: Text(title),
       content: Text(message),
       actions: <Widget>[
-        GestureDetector(
-          onTap: () {
-            onYes();
-            Navigator.pop(context);
-          },
-          child: const Text('Yes'),
+        MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            onTap: () {
+              onYes();
+              Navigator.pop(context);
+            },
+            child: const Text('Yes'),
+          ),
         ),
-        GestureDetector(
-          onTap: onNo ?? () => Navigator.pop(context),
-          child: const Text('No'),
-        )
+        MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            onTap: onNo ?? () => Navigator.pop(context),
+            child: const Text('No'),
+          ),
+        ),
       ],
     );
   }

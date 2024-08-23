@@ -61,12 +61,27 @@ class _Drawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      width: 150,
+      width: 200,
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          const DrawerHeader(
-            child: Text('Drawer Header'),
+          Container(
+            height: 60, // ヘッダーの高さを指定
+            child: const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              margin: EdgeInsets.zero,
+              padding: EdgeInsets.all(16),
+              child: Text('Settings'),
+            ),
+          ),
+          SwitchListTile(
+            title: Text('Auto open'),
+            value: true, // 初期値を設定
+            onChanged: (bool value) {
+              // スイッチの状態が変更されたときに呼ばれる
+            },
           ),
           ListTile(
             title: Text('Item 1'),

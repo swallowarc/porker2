@@ -4,7 +4,7 @@ final userNameCharRegExp = RegExp(r"[a-zA-Z0-9_-]");
 final userNameFormatRegExp = RegExp(r"^[a-zA-Z0-9_-]{1,10}$");
 
 const nameFormatError = FormatException(
-  "user name format exception",
+  "invalid username format",
 );
 
 final alreadyLoginError = UnexpectedError(
@@ -12,7 +12,7 @@ final alreadyLoginError = UnexpectedError(
 );
 
 final alreadyUsedNameError = ExpectedError(
-  "user name that is already in use has been specified",
+  "the name is already in use by another user",
 );
 
 class UserEntity {
