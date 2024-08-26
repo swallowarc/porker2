@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/data/datasource/pb/porker/v2/domain.pbenum.dart';
@@ -7,9 +6,9 @@ import 'package:porker2fe/presentation/widget/poker/base_card.dart';
 
 class FieldCard extends ConsumerStatefulWidget {
   final String loginID;
-  late final _loginIDHash;
+  late final int _loginIDHash;
   final String loginName;
-  late final _loginNameHash;
+  late final int _loginNameHash;
 
   final int delayMilliseconds;
 
@@ -41,7 +40,6 @@ class FieldCardState extends ConsumerState<FieldCard>
 
   Point _point = Point.POINT_UNSPECIFIED;
   bool _opened = false;
-  double _tilt = 0.1;
 
   @override
   void initState() {
@@ -89,8 +87,6 @@ class FieldCardState extends ConsumerState<FieldCard>
     if (nowOpened) {
       _turnController.forward(from: 0.0);
     } else if (nowVoted) {
-      final random = Random();
-      _tilt = (random.nextDouble() - 0.5) * 0.2;
       _slideController.forward(from: 0.0);
     }
   }
@@ -122,6 +118,10 @@ class FieldCardState extends ConsumerState<FieldCard>
       widget._loginNameHash,
     );
 
+    // 毎回ランダムな角度を生成
+    final random = Random();
+    final tilt = (random.nextDouble() - 0.5) * 0.2;
+
     if (_turnController.isAnimating || _turnController.value > 0) {
       return AnimatedBuilder(
         animation: _turnController,
@@ -135,7 +135,7 @@ class FieldCardState extends ConsumerState<FieldCard>
             transform: transform,
             alignment: Alignment.center,
             child: Transform(
-              transform: Matrix4.rotationZ(_tilt),
+              transform: Matrix4.rotationZ(tilt),
               child: card,
             ),
           );
@@ -149,7 +149,7 @@ class FieldCardState extends ConsumerState<FieldCard>
         return SlideTransition(
           position: _slideOffsetAnimation,
           child: Transform(
-            transform: Matrix4.rotationZ(_tilt),
+            transform: Matrix4.rotationZ(tilt),
             child: card,
           ),
         );

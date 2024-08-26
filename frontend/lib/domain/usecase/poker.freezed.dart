@@ -21,7 +21,9 @@ mixin _$PokerState {
   List<Ballot> get ballots => throw _privateConstructorUsedError;
   VoteState get voteState => throw _privateConstructorUsedError;
 
-  @JsonKey(ignore: true)
+  /// Create a copy of PokerState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $PokerStateCopyWith<PokerState> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -49,6 +51,8 @@ class _$PokerStateCopyWithImpl<$Res, $Val extends PokerState>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of PokerState
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -101,6 +105,8 @@ class __$$PokerStateImplCopyWithImpl<$Res>
       _$PokerStateImpl _value, $Res Function(_$PokerStateImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of PokerState
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -174,7 +180,9 @@ class _$PokerStateImpl implements _PokerState {
   int get hashCode => Object.hash(runtimeType, roomID, adminUserID,
       const DeepCollectionEquality().hash(_ballots), voteState);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of PokerState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$PokerStateImplCopyWith<_$PokerStateImpl> get copyWith =>
@@ -193,8 +201,11 @@ abstract class _PokerState implements PokerState {
   List<Ballot> get ballots;
   @override
   VoteState get voteState;
+
+  /// Create a copy of PokerState
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$PokerStateImplCopyWith<_$PokerStateImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

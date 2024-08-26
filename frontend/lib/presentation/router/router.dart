@@ -22,7 +22,7 @@ class LoginRoute extends GoRouteData {
 
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return const LoginPage();
+    return LoginPage(roomId);
   }
 }
 
@@ -30,11 +30,13 @@ class LoginRoute extends GoRouteData {
   path: '/room',
 )
 class RoomSelectRoute extends GoRouteData {
-  RoomSelectRoute();
+  RoomSelectRoute({this.roomId = ""});
+
+  final String roomId;
 
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return const RoomSelectPage();
+    return RoomSelectPage(roomId);
   }
 }
 

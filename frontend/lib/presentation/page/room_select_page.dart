@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/domain/entity/room.dart';
@@ -11,10 +12,22 @@ import 'package:porker2fe/presentation/widget/bottom_bar.dart';
 import 'package:porker2fe/presentation/widget/logo.dart';
 
 class RoomSelectPage extends HookConsumerWidget {
-  const RoomSelectPage({super.key});
+  const RoomSelectPage(this.roomId, {super.key});
+
+  final String roomId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    useEffect(() {
+      if (roomId.isNotEmpty) {
+        final poker = ref.read(pokerProvider.notifier);
+        invoke(context, () => poker.checkRoom(roomId),
+            (_) => GoRouter.of(context).go('/poker?room-id=$roomId'));
+      }
+
+      return null; // クリーンアップが不要な場合はnullを返す
+    }, []); // 空の依存配列を渡すことで、初回のみ実行
+
     final bool isSmallScreen =
         MediaQuery.of(context).size.width < smallScreenBoundary;
     const logo =

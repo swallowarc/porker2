@@ -11,7 +11,9 @@ import 'package:porker2fe/presentation/widget/bottom_bar.dart';
 import 'package:porker2fe/presentation/widget/logo.dart';
 
 class LoginPage extends HookConsumerWidget {
-  const LoginPage({super.key});
+  const LoginPage(this.roomId, {super.key});
+
+  final String roomId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -26,7 +28,7 @@ class LoginPage extends HookConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   logo,
-                  _FormContent(),
+                  _FormContent(roomId),
                 ],
               )
             : Container(
@@ -36,7 +38,7 @@ class LoginPage extends HookConsumerWidget {
                   children: [
                     const Expanded(child: logo),
                     Expanded(
-                      child: Center(child: _FormContent()),
+                      child: Center(child: _FormContent(roomId)),
                     ),
                   ],
                 ),
@@ -58,6 +60,10 @@ class LoginPage extends HookConsumerWidget {
 
 class _FormContent extends HookConsumerWidget {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  final String roomId;
+
+  _FormContent(this.roomId);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -117,12 +123,22 @@ class _FormContent extends HookConsumerWidget {
                 ),
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
-                    invoke(
-                        context,
-                        () => ref
-                            .read(userProvider.notifier)
-                            .login(userNameController.text),
-                        (_) => GoRouter.of(context).go('/room'));
+                    if (roomId.isNotEmpty) {
+                      invoke(
+                          context,
+                          () => ref
+                              .read(userProvider.notifier)
+                              .login(userNameController.text),
+                          (_) =>
+                              GoRouter.of(context).go('/room?room-id=$roomId'));
+                    } else {
+                      invoke(
+                          context,
+                          () => ref
+                              .read(userProvider.notifier)
+                              .login(userNameController.text),
+                          (_) => GoRouter.of(context).go('/room'));
+                    }
                   }
                 },
               ),
