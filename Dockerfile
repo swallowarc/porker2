@@ -10,7 +10,7 @@ FROM golang:1.22-alpine as build_backend
 
 WORKDIR /app
 COPY ./backend ./
-RUN go build -o server cmd/porker2/main.go
+RUN GOARCH=amd64 GOOS=linux go build -o server cmd/porker2/main.go
 
 # 最終ステージ: Nginxを使ってフロントエンドを提供し、Goサーバを同じコンテナで実行
 FROM nginx:alpine as final

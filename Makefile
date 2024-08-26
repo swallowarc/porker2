@@ -17,7 +17,6 @@ APP_NAME := swallowarc/porker2
 DOCKER_IMAGE := $(APP_NAME):latest
 DOCKERFILE := Dockerfile
 
-
 .PHONY: all setup/tools git/add_subtree protoc
 
 all: docker_build
@@ -31,8 +30,8 @@ build_backend:
 	cd backend && go build -o ../server cmd/porker2/main.go
 
 # Build the Docker image
-docker_build: build_frontend build_backend
-	docker build -t $(DOCKER_IMAGE) -f $(DOCKERFILE) .
+docker_build:
+	docker build --platform linux/amd64 -t $(DOCKER_IMAGE) -f $(DOCKERFILE) .
 
 # Clean up the build artifacts
 clean:
