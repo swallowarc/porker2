@@ -8,3 +8,5 @@ export CONNECT_CORS_ALLOW_ORIGINS=http://localhost:53676
 # session
 export SESSION_COOKIE_DOMAIN=localhost
 export SESSION_COOKIE_SECURE=false
+# for frontend build
+export BACKEND_URI=http://localhost:8080

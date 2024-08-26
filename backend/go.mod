@@ -1,8 +1,9 @@
-module github.com/swallowarc/porker2
+module github.com/swallowarc/porker2/backend
 
-go 1.22.0
+go 1.22.4
 
 require (
+	connectrpc.com/authn v0.1.0
 	connectrpc.com/connect v1.16.2
 	github.com/cenkalti/backoff/v4 v4.3.0
 	github.com/go-playground/validator/v10 v10.22.0
@@ -19,7 +20,6 @@ require (
 )
 
 require (
-	connectrpc.com/authn v0.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/gabriel-vasile/mimetype v1.4.4 // indirect

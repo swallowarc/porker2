@@ -12,7 +12,37 @@ MOCK_DIR=backend/internal/test/mock/
 FRONTEND_DIR=frontend/
 FRONTEND_DEBUG_PORT=53676
 
-.PHONY: setup/tools git/add_subtree protoc
+# for docker build
+APP_NAME := swallowarc/porker2
+DOCKER_IMAGE := $(APP_NAME):latest
+DOCKERFILE := Dockerfile
+
+
+.PHONY: all setup/tools git/add_subtree protoc
+
+all: docker_build
+
+# Build the frontend (Flutter web)
+build_frontend:
+	cd frontend && flutter build web --release
+
+# Build the backend (Go server)
+build_backend:
+	cd backend && go build -o ../server cmd/porker2/main.go
+
+# Build the Docker image
+docker_build: build_frontend build_backend
+	docker build -t $(DOCKER_IMAGE) -f $(DOCKERFILE) .
+
+# Clean up the build artifacts
+clean:
+	flutter clean
+	rm -rf build/
+	rm -f server
+
+# Push the Docker image to a registry (Optional)
+docker_push:
+	docker push $(DOCKER_IMAGE)
 
 setup/tools:
 	$(GOINSTALL) go.uber.org/mock/mockgen@v0.4.0

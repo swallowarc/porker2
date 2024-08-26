@@ -23,3 +23,4 @@
 .envrc
 
 docker/data/redis/dump.rdb
+/server
