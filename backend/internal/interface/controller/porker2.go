@@ -125,6 +125,7 @@ func (p *porker2) JoinRoom(ctx context.Context, r *connect.Request[pb.JoinRoomRe
 		}); err != nil {
 			return false, err
 		}
+		logger.FromCtx(ctx).Debug("room condition sent", slog.String("room_id", rc.RoomID.String()))
 		return true, nil
 	}
 

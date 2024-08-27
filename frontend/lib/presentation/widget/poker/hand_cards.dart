@@ -92,7 +92,9 @@ class HandCards extends HookConsumerWidget {
               HandCard(
                 point: Point.POINT_COFFEE,
                 onTap: () {
-                  ref.read(pokerProvider.notifier).castVote(Point.POINT_COFFEE);
+                  if (pokerNotifier.votable) {
+                    pokerNotifier.castVote(Point.POINT_COFFEE);
+                  }
                 },
                 delayMilliseconds: 1000,
                 selected: myPoint == Point.POINT_COFFEE,
@@ -101,9 +103,9 @@ class HandCards extends HookConsumerWidget {
               HandCard(
                 point: Point.POINT_QUESTION,
                 onTap: () {
-                  ref
-                      .read(pokerProvider.notifier)
-                      .castVote(Point.POINT_QUESTION);
+                  if (pokerNotifier.votable) {
+                    pokerNotifier.castVote(Point.POINT_QUESTION);
+                  }
                 },
                 delayMilliseconds: 1100,
                 selected: myPoint == Point.POINT_QUESTION,

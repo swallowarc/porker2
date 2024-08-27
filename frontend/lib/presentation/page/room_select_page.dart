@@ -60,10 +60,10 @@ class RoomSelectPage extends HookConsumerWidget {
 
     return Scaffold(
       appBar: const Porker2AppBar(
-          title: "How to join?",
-          enableDrawer: false,
-          enableLeaveRoom: false,
-          enableLogout: true),
+        title: "How to join?",
+        enableDrawer: false,
+        enableLogout: true,
+      ),
       body: body,
       bottomNavigationBar: const BottomBar(),
     );

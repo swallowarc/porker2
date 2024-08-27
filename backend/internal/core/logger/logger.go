@@ -21,7 +21,9 @@ func NewLogger(e environment.Type) *slog.Logger {
 		return slog.New(handler)
 	}
 
-	handler := slog.NewJSONHandler(os.Stdout, nil)
+	handler := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+	})
 	return slog.New(handler)
 }
 

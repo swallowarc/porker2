@@ -23,7 +23,7 @@ class VoteButtons extends HookConsumerWidget {
                 label: const Text('Open'),
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
-                  backgroundColor: Colors.orange,
+                  backgroundColor: Colors.lightBlue,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(4)),
                 ),
@@ -37,7 +37,7 @@ class VoteButtons extends HookConsumerWidget {
                 icon: const Icon(Icons.refresh),
                 label: const Text('Reset'),
                 style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.lightBlue,
+                  foregroundColor: Colors.white,
                   backgroundColor: Colors.orange,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(4)),

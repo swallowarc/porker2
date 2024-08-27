@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:porker2fe/core/logger/logger.dart';
 import 'package:porker2fe/data/datasource/pb/porker/v2/domain.pb.dart';
 import 'package:porker2fe/domain/port/repository.dart';
 
@@ -30,7 +31,9 @@ class Poker extends StateNotifier<PokerState> {
   }
 
   Future<void> joinRoom(String roomId) async {
-    await _svcRepo.joinRoom(roomId, (RoomCondition rc) {
+    _svcRepo.joinRoom(roomId, (RoomCondition rc) {
+      logger.d("subscribe room condition: $rc");
+
       state = state.copyWith(
         roomID: rc.roomId,
         adminUserID: rc.adminUserId,

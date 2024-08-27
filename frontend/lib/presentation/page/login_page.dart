@@ -48,10 +48,10 @@ class LoginPage extends HookConsumerWidget {
 
     return Scaffold(
       appBar: const Porker2AppBar(
-          title: "Welcome to Porker2",
-          enableDrawer: false,
-          enableLeaveRoom: false,
-          enableLogout: false),
+        title: "Welcome to Porker2",
+        enableDrawer: false,
+        enableLogout: false,
+      ),
       body: body,
       bottomNavigationBar: const BottomBar(),
     );

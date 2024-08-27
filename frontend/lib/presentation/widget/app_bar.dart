@@ -11,46 +11,21 @@ class Porker2AppBar extends HookConsumerWidget implements PreferredSizeWidget {
   final String title;
   final bool enableDrawer;
   final bool enableLogout;
-  final bool enableLeaveRoom;
 
-  const Porker2AppBar(
-      {super.key,
-      required this.title,
-      required this.enableDrawer,
-      required this.enableLogout,
-      required this.enableLeaveRoom})
-      : super();
+  const Porker2AppBar({
+    super.key,
+    required this.title,
+    required this.enableDrawer,
+    required this.enableLogout,
+  }) : super();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(userProvider.notifier);
-    final poker = ref.watch(pokerProvider.notifier);
+    final user = ref.read(userProvider.notifier);
     final actions = <Widget>[];
 
     final bool isMediumScreen =
         MediaQuery.of(context).size.width < mediumScreenBoundary;
-
-    if (enableLeaveRoom) {
-      actions.add(
-        Tooltip(
-          message: 'Leave Room',
-          child: IconButton(
-            icon: const Icon(Icons.door_back_door_outlined),
-            onPressed: () {
-              showDialog<void>(
-                context: context,
-                builder: (_) => TwoChoiceDialog(
-                  title: 'Leave Room',
-                  message: 'Do you want to leave this poker?',
-                  onYes: () => invoke(context, () => poker.leaveRoom(),
-                      (_) => GoRouter.of(context).go('/room')),
-                ),
-              );
-            },
-          ),
-        ),
-      );
-    }
 
     if (enableLogout) {
       actions.add(

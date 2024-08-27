@@ -92,7 +92,9 @@ func (c *RoomCondition) Vote(userID user.ID, point Point) {
 		if b.UserID == userID {
 			b.Point = point
 		}
-		memberCount--
+		if b.Point != PointUnspecified {
+			memberCount--
+		}
 	}
 
 	if memberCount == 0 {
