@@ -77,17 +77,21 @@ class FieldCardState extends ConsumerState<FieldCard>
     super.didUpdateWidget(oldWidget);
 
     final voted = widget.point != Point.POINT_UNSPECIFIED;
-    final nowVoted = _point == Point.POINT_UNSPECIFIED && voted;
-    final nowOpened = !_opened && widget.opened;
+    final nowVoted = oldWidget.point != widget.point && voted;
+    final nowOpened = !oldWidget.opened && widget.opened;
 
     // update point and opened
     _point = widget.point;
     _opened = widget.opened;
 
     if (nowOpened) {
-      _turnController.forward(from: 0.0);
+      _turnController.reset();
+      _slideController.reset();
+      _turnController.forward();
     } else if (nowVoted) {
-      _slideController.forward(from: 0.0);
+      _turnController.reset();
+      _slideController.reset();
+      _slideController.forward();
     }
   }
 

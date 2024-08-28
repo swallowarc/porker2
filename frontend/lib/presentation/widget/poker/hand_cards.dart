@@ -72,7 +72,8 @@ class HandCards extends HookConsumerWidget {
                           point: pointOrder[index],
                           onTap: () {
                             final notifier = ref.read(pokerProvider.notifier);
-                            if (notifier.votable) {
+                            if (notifier.votable &&
+                                myPoint != pointOrder[index]) {
                               notifier.castVote(pointOrder[index]);
                             }
                           },
@@ -92,7 +93,7 @@ class HandCards extends HookConsumerWidget {
               HandCard(
                 point: Point.POINT_COFFEE,
                 onTap: () {
-                  if (pokerNotifier.votable) {
+                  if (pokerNotifier.votable && myPoint != Point.POINT_COFFEE) {
                     pokerNotifier.castVote(Point.POINT_COFFEE);
                   }
                 },
@@ -103,7 +104,8 @@ class HandCards extends HookConsumerWidget {
               HandCard(
                 point: Point.POINT_QUESTION,
                 onTap: () {
-                  if (pokerNotifier.votable) {
+                  if (pokerNotifier.votable &&
+                      myPoint != Point.POINT_QUESTION) {
                     pokerNotifier.castVote(Point.POINT_QUESTION);
                   }
                 },

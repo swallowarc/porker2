@@ -89,8 +89,15 @@ class _Drawer extends HookConsumerWidget {
               child: Text('Control'),
             ),
           ),
+          SwitchListTile(
+            title: const Text('Auto open'),
+            value: true, // 初期値を設定
+            onChanged: (bool value) {
+              // スイッチの状態が変更されたときに呼ばれる
+            },
+          ),
           ListTile(
-            title: const Text('Leave Room'),
+            title: const Text('Leave room'),
             leading: const Icon(Icons.door_back_door_outlined),
             onTap: () {
               showDialog<void>(
@@ -102,13 +109,6 @@ class _Drawer extends HookConsumerWidget {
                       (_) => GoRouter.of(context).go('/room')),
                 ),
               );
-            },
-          ),
-          SwitchListTile(
-            title: const Text('Auto open'),
-            value: true, // 初期値を設定
-            onChanged: (bool value) {
-              // スイッチの状態が変更されたときに呼ばれる
             },
           ),
         ],
