@@ -38,15 +38,12 @@ class FieldCardState extends ConsumerState<FieldCard>
 
   late AnimationController _turnController;
 
-  Point _point = Point.POINT_UNSPECIFIED;
-  bool _opened = false;
+  Point lastPoint = Point.POINT_UNSPECIFIED;
+  double tilt = (Random().nextDouble() - 0.5) * 0.2;
 
   @override
   void initState() {
     super.initState();
-
-    _point = widget.point;
-    _opened = widget.opened;
 
     _slideController = AnimationController(
       duration: const Duration(milliseconds: 200),
@@ -80,10 +77,6 @@ class FieldCardState extends ConsumerState<FieldCard>
     final nowVoted = oldWidget.point != widget.point && voted;
     final nowOpened = !oldWidget.opened && widget.opened;
 
-    // update point and opened
-    _point = widget.point;
-    _opened = widget.opened;
-
     if (nowOpened) {
       _turnController.reset();
       _slideController.reset();
@@ -115,16 +108,17 @@ class FieldCardState extends ConsumerState<FieldCard>
       );
     }
 
+    if (lastPoint != widget.point) {
+      lastPoint = widget.point;
+      tilt = (Random().nextDouble() - 0.5) * 0.2;
+    }
+
     final card = BaseCard(
       widget.opened,
       widget.point,
       widget._loginIDHash,
       widget._loginNameHash,
     );
-
-    // 毎回ランダムな角度を生成
-    final random = Random();
-    final tilt = (random.nextDouble() - 0.5) * 0.2;
 
     if (_turnController.isAnimating || _turnController.value > 0) {
       return AnimatedBuilder(

@@ -35,7 +35,8 @@ class BaseCard extends StatelessWidget {
   final int loginIDHash;
   final int loginNameHash;
 
-  const BaseCard(this.opened, this.point, this.loginIDHash, this.loginNameHash, {super.key});
+  const BaseCard(this.opened, this.point, this.loginIDHash, this.loginNameHash,
+      {super.key});
 
   const BaseCard.initOpen(this.point, {super.key})
       : opened = true,
@@ -60,12 +61,12 @@ class BaseCard extends StatelessWidget {
       );
     }
 
-    final int imageID = loginIDHash % 33; // num of latest image no + 1.
+    final int imageID = loginNameHash % 33; // num of latest image no + 1.
     return SizedBox(
       width: 100,
       height: 130,
       child: Card(
-        color: _cardColors[loginNameHash % _cardColors.length],
+        color: _cardColors[loginIDHash % _cardColors.length],
         child: Container(
           margin: const EdgeInsets.all(4.0),
           child: ClipRRect(
