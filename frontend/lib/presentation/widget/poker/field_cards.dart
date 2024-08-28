@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/presentation/provider/provider.dart';
@@ -14,31 +12,29 @@ class FieldCards extends HookConsumerWidget {
 
     final List<Widget> cards = poker.ballots
         .map(
-          (e) => Expanded(
-            child: Column(
-              children: [
-                FieldCard(
-                  point: e.point,
-                  loginID: e.userId,
-                  loginName: e.userName,
-                  opened: ref.read(pokerProvider.notifier).opened,
-                ),
-                Text(e.userName),
-              ],
-            ),
+          (e) => Column(
+            children: [
+              FieldCard(
+                point: e.point,
+                loginID: e.userId,
+                loginName: e.userName,
+                opened: ref.read(pokerProvider.notifier).opened,
+              ),
+              const SizedBox(height: 4),
+              Text(e.userName),
+            ],
           ),
         )
         .toList();
 
     return Container(
-      height: 180,
       alignment: Alignment.center,
       padding: const EdgeInsets.only(top: 30),
-      child: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: cards,
-        ),
+      child: Wrap(
+        spacing: 20, // カード同士の間隔を設定
+        runSpacing: 30, // 複数行に渡る場合の行間
+        alignment: WrapAlignment.center,
+        children: cards,
       ),
     );
   }

@@ -7,7 +7,8 @@ class VoteButtons extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final poker = ref.watch(pokerProvider.notifier);
+    final _ = ref.watch(pokerProvider);
+    final pokerNotifier = ref.read(pokerProvider.notifier);
 
     return Center(
       child: Container(
@@ -29,7 +30,9 @@ class VoteButtons extends HookConsumerWidget {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(4)),
                 ),
-                onPressed: poker.openable ? () => poker.showVotes() : null,
+                onPressed: pokerNotifier.openable
+                    ? () => pokerNotifier.showVotes()
+                    : null,
               ),
             ),
             SizedBox(
@@ -45,7 +48,7 @@ class VoteButtons extends HookConsumerWidget {
                       borderRadius: BorderRadius.circular(4)),
                 ),
                 onPressed: () {
-                  poker.resetVotes();
+                  pokerNotifier.resetVotes();
                 },
               ),
             ),
