@@ -18,7 +18,6 @@ class FieldCards extends HookConsumerWidget {
             child: Column(
               children: [
                 FieldCard(
-                  delayMilliseconds: Random(this.hashCode).nextInt(500),
                   point: e.point,
                   loginID: e.userId,
                   loginName: e.userName,

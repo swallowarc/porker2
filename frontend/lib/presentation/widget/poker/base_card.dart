@@ -54,7 +54,7 @@ class BaseCard extends StatelessWidget {
           child: Center(
             child: Text(
               pointFromPb(point),
-              style: const TextStyle(color: Colors.black54, fontSize: 40),
+              style: const TextStyle(color: Colors.black54, fontSize: 32),
             ),
           ),
         ),

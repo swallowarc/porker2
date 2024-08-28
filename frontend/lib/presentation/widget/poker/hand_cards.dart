@@ -41,7 +41,7 @@ class HandCards extends HookConsumerWidget {
                   children: List.generate(_pointListLength, (index) {
                     const indexCenter = _pointListLength ~/ 2;
                     final angle = (index - indexCenter) * 0.05;
-                    final leftOffset = (index - indexCenter) * 78.0;
+                    final leftOffset = (index - indexCenter) * 70.0;
 
                     double topOffset = 8;
                     switch (index) {
@@ -71,10 +71,13 @@ class HandCards extends HookConsumerWidget {
                         child: HandCard(
                           point: pointOrder[index],
                           onTap: () {
-                            final notifier = ref.read(pokerProvider.notifier);
-                            if (notifier.votable &&
-                                myPoint != pointOrder[index]) {
-                              notifier.castVote(pointOrder[index]);
+                            if (!pokerNotifier.votable) {
+                              return;
+                            }
+                            if (myPoint != pointOrder[index]) {
+                              pokerNotifier.castVote(pointOrder[index]);
+                            } else if (myPoint == pointOrder[index]) {
+                              pokerNotifier.castVote(Point.POINT_UNSPECIFIED);
                             }
                           },
                           delayMilliseconds: index * 100,
@@ -93,8 +96,14 @@ class HandCards extends HookConsumerWidget {
               HandCard(
                 point: Point.POINT_COFFEE,
                 onTap: () {
-                  if (pokerNotifier.votable && myPoint != Point.POINT_COFFEE) {
+                  if (!pokerNotifier.votable) {
+                    return;
+                  }
+
+                  if (myPoint != Point.POINT_COFFEE) {
                     pokerNotifier.castVote(Point.POINT_COFFEE);
+                  } else if (myPoint == Point.POINT_COFFEE) {
+                    pokerNotifier.castVote(Point.POINT_UNSPECIFIED);
                   }
                 },
                 delayMilliseconds: 1000,
@@ -104,9 +113,14 @@ class HandCards extends HookConsumerWidget {
               HandCard(
                 point: Point.POINT_QUESTION,
                 onTap: () {
-                  if (pokerNotifier.votable &&
-                      myPoint != Point.POINT_QUESTION) {
+                  if (!pokerNotifier.votable) {
+                    return;
+                  }
+
+                  if (myPoint != Point.POINT_QUESTION) {
                     pokerNotifier.castVote(Point.POINT_QUESTION);
+                  } else if (myPoint == Point.POINT_QUESTION) {
+                    pokerNotifier.castVote(Point.POINT_UNSPECIFIED);
                   }
                 },
                 delayMilliseconds: 1100,

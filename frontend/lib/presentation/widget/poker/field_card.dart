@@ -10,14 +10,11 @@ class FieldCard extends ConsumerStatefulWidget {
   final String loginName;
   late final int _loginNameHash;
 
-  final int delayMilliseconds;
-
   final Point point;
   final bool opened;
 
   FieldCard({
     super.key,
-    required this.delayMilliseconds,
     required this.loginID,
     required this.loginName,
     required this.point,
@@ -62,11 +59,9 @@ class FieldCardState extends ConsumerState<FieldCard>
       vsync: this,
     );
 
-    Future.delayed(Duration(milliseconds: widget.delayMilliseconds), () {
-      if (mounted) {
-        _slideController.forward();
-      }
-    });
+    if (mounted) {
+      _slideController.forward();
+    }
   }
 
   @override
@@ -103,7 +98,7 @@ class FieldCardState extends ConsumerState<FieldCard>
         width: 100,
         height: 130,
         child: Card(
-          color: Colors.black.withOpacity(0.0),
+          color: Theme.of(context).scaffoldBackgroundColor,
         ),
       );
     }

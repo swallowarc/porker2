@@ -39,14 +39,14 @@ class PokerPage extends HookConsumerWidget {
     final bool isMediumScreen =
         MediaQuery.of(context).size.width < mediumScreenBoundary;
 
-    final body = Center(
+    const body = Center(
       child: SingleChildScrollView(
         child: Column(
           children: [
-            const FieldCards(),
+            FieldCards(),
             VoteButtons(),
-            const SizedBox(height: 30),
-            const HandCards(),
+            SizedBox(height: 30),
+            HandCards(),
           ],
         ),
       ),
@@ -61,7 +61,7 @@ class PokerPage extends HookConsumerWidget {
       body: Row(
         children: [
           isMediumScreen ? Container() : _Drawer(),
-          Expanded(child: body),
+          const Expanded(child: body),
         ],
       ),
       drawer: isMediumScreen ? _Drawer() : null,
