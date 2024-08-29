@@ -73,20 +73,21 @@ class _Drawer extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final poker = ref.read(pokerProvider.notifier);
+    final user = ref.read(userProvider);
     return Drawer(
       width: 200,
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          const SizedBox(
+          SizedBox(
             height: 60, // ヘッダーの高さを指定
             child: DrawerHeader(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: Colors.blue,
               ),
               margin: EdgeInsets.zero,
-              padding: EdgeInsets.all(16),
-              child: Text('Control'),
+              padding: const EdgeInsets.all(16),
+              child: Text(user.userName),
             ),
           ),
           SwitchListTile(

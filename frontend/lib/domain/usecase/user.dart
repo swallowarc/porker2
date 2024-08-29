@@ -1,5 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:grpc/grpc.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:porker2fe/core/logger/logger.dart';
 import 'package:porker2fe/domain/entity/user.dart';
 import 'package:porker2fe/domain/port/repository.dart';
 
@@ -43,12 +45,22 @@ class User extends StateNotifier<UserState> {
     state = const UserState("", "");
   }
 
-  Future<void> verifyUser() async {
-    final user = await _svcRepo.verifyUser();
-    state = state.copyWith(
-      userID: user.userID,
-      userName: user.userName,
-    );
+  Future<bool> verifyUser() async {
+    try {
+      final user = await _svcRepo.verifyUser();
+      state = state.copyWith(
+        userID: user.userID,
+        userName: user.userName,
+      );
+      return true;
+    } catch (e) {
+      if (e is GrpcError && e.code == StatusCode.unauthenticated) {
+        return false;
+      } else {
+        logger.e(e.toString());
+        return false;
+      }
+    }
   }
 
   bool get alreadyLogin => state.userID.isNotEmpty;

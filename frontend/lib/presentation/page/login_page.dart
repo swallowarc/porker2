@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:porker2fe/core/logger/logger.dart';
 import 'package:porker2fe/domain/entity/user.dart';
 import 'package:porker2fe/presentation/const.dart';
 import 'package:porker2fe/presentation/invoke.dart';
@@ -17,6 +19,23 @@ class LoginPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    useEffect(() {
+      final result = ref.read(userProvider.notifier).verifyUser();
+      result.then((verified) {
+        logger.d("User verified: $verified");
+
+        if (verified && context.mounted) {
+          if (roomId.isNotEmpty) {
+            GoRouter.of(context).go('/room?room-id=$roomId');
+          } else {
+            GoRouter.of(context).go('/room');
+          }
+        }
+      });
+
+      return null; // クリーンアップが不要な場合はnullを返す
+    }, []); // 空の依存配列を渡すことで、初回のみ実行
+
     const logo = Logo(type: LogoType.login, message: "Enter your name");
     final bool isSmallScreen =
         MediaQuery.of(context).size.width < smallScreenBoundary;

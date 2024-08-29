@@ -21,7 +21,22 @@ class FieldCards extends HookConsumerWidget {
                 opened: ref.read(pokerProvider.notifier).opened,
               ),
               const SizedBox(height: 4),
-              Text(e.userName),
+              e.userId == poker.adminUserID
+                  ? Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Tooltip(
+                          message: "Room admin",
+                          child: Icon(
+                            Icons.star,
+                            color: Theme.of(context).textTheme.bodyMedium!.color,
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        Text(e.userName),
+                      ],
+                    )
+                  : Text(e.userName),
             ],
           ),
         )

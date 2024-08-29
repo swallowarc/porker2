@@ -28,6 +28,11 @@ class RoomSelectPage extends HookConsumerWidget {
       return null; // クリーンアップが不要な場合はnullを返す
     }, []); // 空の依存配列を渡すことで、初回のみ実行
 
+    final user = ref.watch(userProvider);
+    if (user.userID.isEmpty) {
+      GoRouter.of(context).go('/');
+    }
+
     final bool isSmallScreen =
         MediaQuery.of(context).size.width < smallScreenBoundary;
     const logo =
@@ -59,8 +64,8 @@ class RoomSelectPage extends HookConsumerWidget {
     );
 
     return Scaffold(
-      appBar: const Porker2AppBar(
-        title: "How to join?",
+      appBar: Porker2AppBar(
+        title: 'Welcome, ${user.userName}',
         enableDrawer: false,
         enableLogout: true,
       ),
