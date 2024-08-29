@@ -54,7 +54,7 @@ class FieldCardState extends ConsumerState<FieldCard>
       curve: Curves.easeInOut,
     ));
 
-    final duration = Random().nextInt(300) + 200;
+    final duration = Random().nextInt(200) + 100;
     _turnController = AnimationController(
       duration: Duration(milliseconds: duration),
       vsync: this,
