@@ -71,5 +71,6 @@ func roomConditionToProto(rc *poker.RoomCondition) *pb.RoomCondition {
 		AdminUserId: rc.AdminUserID.String(),
 		VoteState:   pb.VoteState(rc.VoteState),
 		Ballots:     ballotsToProto(rc.Ballots),
+		AutoOpen:    rc.AutoOpen,
 	}
 }

@@ -29,6 +29,8 @@ abstract class Porker2ServiceRepository {
   Future<void> resetVotes(String roomID);
 
   Future<void> kickUser(String roomID, targetUserID);
+
+  Future<void> updateRoom(String roomID, bool autoOpen);
 }
 
 abstract class LocalStorageRepository {

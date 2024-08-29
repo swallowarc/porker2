@@ -72,8 +72,9 @@ class PokerPage extends HookConsumerWidget {
 class _Drawer extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final poker = ref.read(pokerProvider.notifier);
-    final user = ref.read(userProvider);
+    final pokerNotifier = ref.read(pokerProvider.notifier);
+    final poker = ref.watch(pokerProvider);
+    final user = ref.watch(userProvider);
     return Drawer(
       width: 200,
       child: ListView(
@@ -92,9 +93,9 @@ class _Drawer extends HookConsumerWidget {
           ),
           SwitchListTile(
             title: const Text('Auto open'),
-            value: true, // 初期値を設定
+            value: poker.autoOpen,
             onChanged: (bool value) {
-              // スイッチの状態が変更されたときに呼ばれる
+              invoke(context, () => pokerNotifier.updateRoom(value), (_) {});
             },
           ),
           ListTile(
@@ -106,7 +107,7 @@ class _Drawer extends HookConsumerWidget {
                 builder: (_) => TwoChoiceDialog(
                   title: 'Leave Room',
                   message: 'Do you want to leave this poker?',
-                  onYes: () => invoke(context, () => poker.leaveRoom(),
+                  onYes: () => invoke(context, () => pokerNotifier.leaveRoom(),
                       (_) => GoRouter.of(context).go('/room')),
                 ),
               );

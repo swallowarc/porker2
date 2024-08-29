@@ -89,6 +89,7 @@ const RoomCondition$json = {
     {'1': 'admin_user_id', '3': 2, '4': 1, '5': 9, '10': 'adminUserId'},
     {'1': 'vote_state', '3': 3, '4': 1, '5': 14, '6': '.porker.v2.VoteState', '10': 'voteState'},
     {'1': 'ballots', '3': 4, '4': 3, '5': 11, '6': '.porker.v2.Ballot', '10': 'ballots'},
+    {'1': 'auto_open', '3': 5, '4': 1, '5': 8, '10': 'autoOpen'},
   ],
 };
 
@@ -97,5 +98,5 @@ final $typed_data.Uint8List roomConditionDescriptor = $convert.base64Decode(
     'Cg1Sb29tQ29uZGl0aW9uEhcKB3Jvb21faWQYASABKAlSBnJvb21JZBIiCg1hZG1pbl91c2VyX2'
     'lkGAIgASgJUgthZG1pblVzZXJJZBIzCgp2b3RlX3N0YXRlGAMgASgOMhQucG9ya2VyLnYyLlZv'
     'dGVTdGF0ZVIJdm90ZVN0YXRlEisKB2JhbGxvdHMYBCADKAsyES5wb3JrZXIudjIuQmFsbG90Ug'
-    'diYWxsb3Rz');
+    'diYWxsb3RzEhsKCWF1dG9fb3BlbhgFIAEoCFIIYXV0b09wZW4=');
 

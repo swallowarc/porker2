@@ -61,6 +61,9 @@ const (
 	Porker2ServiceResetVotesProcedure = "/porker.v2.Porker2Service/ResetVotes"
 	// Porker2ServiceKickUserProcedure is the fully-qualified name of the Porker2Service's KickUser RPC.
 	Porker2ServiceKickUserProcedure = "/porker.v2.Porker2Service/KickUser"
+	// Porker2ServiceUpdateRoomProcedure is the fully-qualified name of the Porker2Service's UpdateRoom
+	// RPC.
+	Porker2ServiceUpdateRoomProcedure = "/porker.v2.Porker2Service/UpdateRoom"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
@@ -77,6 +80,7 @@ var (
 	porker2ServiceShowVotesMethodDescriptor  = porker2ServiceServiceDescriptor.Methods().ByName("ShowVotes")
 	porker2ServiceResetVotesMethodDescriptor = porker2ServiceServiceDescriptor.Methods().ByName("ResetVotes")
 	porker2ServiceKickUserMethodDescriptor   = porker2ServiceServiceDescriptor.Methods().ByName("KickUser")
+	porker2ServiceUpdateRoomMethodDescriptor = porker2ServiceServiceDescriptor.Methods().ByName("UpdateRoom")
 )
 
 // Porker2ServiceClient is a client for the porker.v2.Porker2Service service.
@@ -92,6 +96,7 @@ type Porker2ServiceClient interface {
 	ShowVotes(context.Context, *connect.Request[v2.ShowVotesRequest]) (*connect.Response[v2.ShowVotesResponse], error)
 	ResetVotes(context.Context, *connect.Request[v2.ResetVotesRequest]) (*connect.Response[v2.ResetVotesResponse], error)
 	KickUser(context.Context, *connect.Request[v2.KickUserRequest]) (*connect.Response[v2.KickUserResponse], error)
+	UpdateRoom(context.Context, *connect.Request[v2.UpdateRoomRequest]) (*connect.Response[v2.UpdateRoomResponse], error)
 }
 
 // NewPorker2ServiceClient constructs a client for the porker.v2.Porker2Service service. By default,
@@ -170,6 +175,12 @@ func NewPorker2ServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(porker2ServiceKickUserMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
+		updateRoom: connect.NewClient[v2.UpdateRoomRequest, v2.UpdateRoomResponse](
+			httpClient,
+			baseURL+Porker2ServiceUpdateRoomProcedure,
+			connect.WithSchema(porker2ServiceUpdateRoomMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -186,6 +197,7 @@ type porker2ServiceClient struct {
 	showVotes  *connect.Client[v2.ShowVotesRequest, v2.ShowVotesResponse]
 	resetVotes *connect.Client[v2.ResetVotesRequest, v2.ResetVotesResponse]
 	kickUser   *connect.Client[v2.KickUserRequest, v2.KickUserResponse]
+	updateRoom *connect.Client[v2.UpdateRoomRequest, v2.UpdateRoomResponse]
 }
 
 // Login calls porker.v2.Porker2Service.Login.
@@ -243,6 +255,11 @@ func (c *porker2ServiceClient) KickUser(ctx context.Context, req *connect.Reques
 	return c.kickUser.CallUnary(ctx, req)
 }
 
+// UpdateRoom calls porker.v2.Porker2Service.UpdateRoom.
+func (c *porker2ServiceClient) UpdateRoom(ctx context.Context, req *connect.Request[v2.UpdateRoomRequest]) (*connect.Response[v2.UpdateRoomResponse], error) {
+	return c.updateRoom.CallUnary(ctx, req)
+}
+
 // Porker2ServiceHandler is an implementation of the porker.v2.Porker2Service service.
 type Porker2ServiceHandler interface {
 	Login(context.Context, *connect.Request[v2.LoginRequest]) (*connect.Response[v2.LoginResponse], error)
@@ -256,6 +273,7 @@ type Porker2ServiceHandler interface {
 	ShowVotes(context.Context, *connect.Request[v2.ShowVotesRequest]) (*connect.Response[v2.ShowVotesResponse], error)
 	ResetVotes(context.Context, *connect.Request[v2.ResetVotesRequest]) (*connect.Response[v2.ResetVotesResponse], error)
 	KickUser(context.Context, *connect.Request[v2.KickUserRequest]) (*connect.Response[v2.KickUserResponse], error)
+	UpdateRoom(context.Context, *connect.Request[v2.UpdateRoomRequest]) (*connect.Response[v2.UpdateRoomResponse], error)
 }
 
 // NewPorker2ServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -330,6 +348,12 @@ func NewPorker2ServiceHandler(svc Porker2ServiceHandler, opts ...connect.Handler
 		connect.WithSchema(porker2ServiceKickUserMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
+	porker2ServiceUpdateRoomHandler := connect.NewUnaryHandler(
+		Porker2ServiceUpdateRoomProcedure,
+		svc.UpdateRoom,
+		connect.WithSchema(porker2ServiceUpdateRoomMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/porker.v2.Porker2Service/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case Porker2ServiceLoginProcedure:
@@ -354,6 +378,8 @@ func NewPorker2ServiceHandler(svc Porker2ServiceHandler, opts ...connect.Handler
 			porker2ServiceResetVotesHandler.ServeHTTP(w, r)
 		case Porker2ServiceKickUserProcedure:
 			porker2ServiceKickUserHandler.ServeHTTP(w, r)
+		case Porker2ServiceUpdateRoomProcedure:
+			porker2ServiceUpdateRoomHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -405,4 +431,8 @@ func (UnimplementedPorker2ServiceHandler) ResetVotes(context.Context, *connect.R
 
 func (UnimplementedPorker2ServiceHandler) KickUser(context.Context, *connect.Request[v2.KickUserRequest]) (*connect.Response[v2.KickUserResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("porker.v2.Porker2Service.KickUser is not implemented"))
+}
+
+func (UnimplementedPorker2ServiceHandler) UpdateRoom(context.Context, *connect.Request[v2.UpdateRoomRequest]) (*connect.Response[v2.UpdateRoomResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("porker.v2.Porker2Service.UpdateRoom is not implemented"))
 }

@@ -18,6 +18,7 @@ service Porker2Service {
   rpc ShowVotes(ShowVotesRequest) returns (ShowVotesResponse);
   rpc ResetVotes(ResetVotesRequest) returns (ResetVotesResponse);
   rpc KickUser(KickUserRequest) returns (KickUserResponse);
+  rpc UpdateRoom(UpdateRoomRequest) returns (UpdateRoomResponse);
 }
 
 /* セッションについて
@@ -193,3 +194,18 @@ message KickUserRequest {
 }
 
 message KickUserResponse {}
+
+/* UpdateRoom roomの設定を変更する。
+ *
+ * Errors:
+ * - Unauthenticated:
+ *   - cookieのtokenがない、または無効
+ * - NotFound:
+ *   - 指定されたroomに参加していない
+ */
+message UpdateRoomRequest {
+  string room_id = 1;
+  bool auto_open = 2;
+}
+
+message UpdateRoomResponse {}

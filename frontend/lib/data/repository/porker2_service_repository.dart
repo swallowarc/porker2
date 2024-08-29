@@ -116,4 +116,11 @@ class Porker2ServiceRepositoryImpl extends Porker2ServiceRepository {
       ..roomId = roomID
       ..targetUserId = targetUserID);
   }
+
+  @override
+  Future<void> updateRoom(String roomID, bool autoOpen) async {
+    _client.updateRoom(UpdateRoomRequest()
+      ..roomId = roomID
+      ..autoOpen = autoOpen);
+  }
 }

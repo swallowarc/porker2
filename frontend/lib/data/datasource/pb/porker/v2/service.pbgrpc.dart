@@ -65,6 +65,10 @@ class Porker2ServiceClient extends $grpc.Client {
       '/porker.v2.Porker2Service/KickUser',
       ($0.KickUserRequest value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.KickUserResponse.fromBuffer(value));
+  static final _$updateRoom = $grpc.ClientMethod<$0.UpdateRoomRequest, $0.UpdateRoomResponse>(
+      '/porker.v2.Porker2Service/UpdateRoom',
+      ($0.UpdateRoomRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.UpdateRoomResponse.fromBuffer(value));
 
   Porker2ServiceClient($grpc.ClientChannel channel,
       {$grpc.CallOptions? options,
@@ -114,6 +118,10 @@ class Porker2ServiceClient extends $grpc.Client {
 
   $grpc.ResponseFuture<$0.KickUserResponse> kickUser($0.KickUserRequest request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$kickUser, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.UpdateRoomResponse> updateRoom($0.UpdateRoomRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$updateRoom, request, options: options);
   }
 }
 
@@ -199,6 +207,13 @@ abstract class Porker2ServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.KickUserRequest.fromBuffer(value),
         ($0.KickUserResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.UpdateRoomRequest, $0.UpdateRoomResponse>(
+        'UpdateRoom',
+        updateRoom_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.UpdateRoomRequest.fromBuffer(value),
+        ($0.UpdateRoomResponse value) => value.writeToBuffer()));
   }
 
   $async.Future<$0.LoginResponse> login_Pre($grpc.ServiceCall call, $async.Future<$0.LoginRequest> request) async {
@@ -245,6 +260,10 @@ abstract class Porker2ServiceBase extends $grpc.Service {
     return kickUser(call, await request);
   }
 
+  $async.Future<$0.UpdateRoomResponse> updateRoom_Pre($grpc.ServiceCall call, $async.Future<$0.UpdateRoomRequest> request) async {
+    return updateRoom(call, await request);
+  }
+
   $async.Future<$0.LoginResponse> login($grpc.ServiceCall call, $0.LoginRequest request);
   $async.Future<$0.LogoutResponse> logout($grpc.ServiceCall call, $0.LogoutRequest request);
   $async.Future<$0.VerifyUserResponse> verifyUser($grpc.ServiceCall call, $0.VerifyUserRequest request);
@@ -256,4 +275,5 @@ abstract class Porker2ServiceBase extends $grpc.Service {
   $async.Future<$0.ShowVotesResponse> showVotes($grpc.ServiceCall call, $0.ShowVotesRequest request);
   $async.Future<$0.ResetVotesResponse> resetVotes($grpc.ServiceCall call, $0.ResetVotesRequest request);
   $async.Future<$0.KickUserResponse> kickUser($grpc.ServiceCall call, $0.KickUserRequest request);
+  $async.Future<$0.UpdateRoomResponse> updateRoom($grpc.ServiceCall call, $0.UpdateRoomRequest request);
 }

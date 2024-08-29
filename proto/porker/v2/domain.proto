@@ -40,4 +40,5 @@ message RoomCondition {
   string admin_user_id = 2;
   VoteState vote_state = 3;
   repeated Ballot ballots = 4;
+  bool auto_open = 5;
 }

@@ -20,6 +20,7 @@ mixin _$PokerState {
   String get adminUserID => throw _privateConstructorUsedError;
   List<Ballot> get ballots => throw _privateConstructorUsedError;
   VoteState get voteState => throw _privateConstructorUsedError;
+  bool get autoOpen => throw _privateConstructorUsedError;
 
   /// Create a copy of PokerState
   /// with the given fields replaced by the non-null parameter values.
@@ -38,7 +39,8 @@ abstract class $PokerStateCopyWith<$Res> {
       {String roomID,
       String adminUserID,
       List<Ballot> ballots,
-      VoteState voteState});
+      VoteState voteState,
+      bool autoOpen});
 }
 
 /// @nodoc
@@ -60,6 +62,7 @@ class _$PokerStateCopyWithImpl<$Res, $Val extends PokerState>
     Object? adminUserID = null,
     Object? ballots = null,
     Object? voteState = null,
+    Object? autoOpen = null,
   }) {
     return _then(_value.copyWith(
       roomID: null == roomID
@@ -78,6 +81,10 @@ class _$PokerStateCopyWithImpl<$Res, $Val extends PokerState>
           ? _value.voteState
           : voteState // ignore: cast_nullable_to_non_nullable
               as VoteState,
+      autoOpen: null == autoOpen
+          ? _value.autoOpen
+          : autoOpen // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 }
@@ -94,7 +101,8 @@ abstract class _$$PokerStateImplCopyWith<$Res>
       {String roomID,
       String adminUserID,
       List<Ballot> ballots,
-      VoteState voteState});
+      VoteState voteState,
+      bool autoOpen});
 }
 
 /// @nodoc
@@ -114,6 +122,7 @@ class __$$PokerStateImplCopyWithImpl<$Res>
     Object? adminUserID = null,
     Object? ballots = null,
     Object? voteState = null,
+    Object? autoOpen = null,
   }) {
     return _then(_$PokerStateImpl(
       null == roomID
@@ -132,6 +141,10 @@ class __$$PokerStateImplCopyWithImpl<$Res>
           ? _value.voteState
           : voteState // ignore: cast_nullable_to_non_nullable
               as VoteState,
+      null == autoOpen
+          ? _value.autoOpen
+          : autoOpen // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -139,8 +152,8 @@ class __$$PokerStateImplCopyWithImpl<$Res>
 /// @nodoc
 
 class _$PokerStateImpl implements _PokerState {
-  const _$PokerStateImpl(
-      this.roomID, this.adminUserID, final List<Ballot> ballots, this.voteState)
+  const _$PokerStateImpl(this.roomID, this.adminUserID,
+      final List<Ballot> ballots, this.voteState, this.autoOpen)
       : _ballots = ballots;
 
   @override
@@ -157,10 +170,12 @@ class _$PokerStateImpl implements _PokerState {
 
   @override
   final VoteState voteState;
+  @override
+  final bool autoOpen;
 
   @override
   String toString() {
-    return 'PokerState(roomID: $roomID, adminUserID: $adminUserID, ballots: $ballots, voteState: $voteState)';
+    return 'PokerState(roomID: $roomID, adminUserID: $adminUserID, ballots: $ballots, voteState: $voteState, autoOpen: $autoOpen)';
   }
 
   @override
@@ -173,12 +188,14 @@ class _$PokerStateImpl implements _PokerState {
                 other.adminUserID == adminUserID) &&
             const DeepCollectionEquality().equals(other._ballots, _ballots) &&
             (identical(other.voteState, voteState) ||
-                other.voteState == voteState));
+                other.voteState == voteState) &&
+            (identical(other.autoOpen, autoOpen) ||
+                other.autoOpen == autoOpen));
   }
 
   @override
   int get hashCode => Object.hash(runtimeType, roomID, adminUserID,
-      const DeepCollectionEquality().hash(_ballots), voteState);
+      const DeepCollectionEquality().hash(_ballots), voteState, autoOpen);
 
   /// Create a copy of PokerState
   /// with the given fields replaced by the non-null parameter values.
@@ -190,8 +207,12 @@ class _$PokerStateImpl implements _PokerState {
 }
 
 abstract class _PokerState implements PokerState {
-  const factory _PokerState(final String roomID, final String adminUserID,
-      final List<Ballot> ballots, final VoteState voteState) = _$PokerStateImpl;
+  const factory _PokerState(
+      final String roomID,
+      final String adminUserID,
+      final List<Ballot> ballots,
+      final VoteState voteState,
+      final bool autoOpen) = _$PokerStateImpl;
 
   @override
   String get roomID;
@@ -201,6 +222,8 @@ abstract class _PokerState implements PokerState {
   List<Ballot> get ballots;
   @override
   VoteState get voteState;
+  @override
+  bool get autoOpen;
 
   /// Create a copy of PokerState
   /// with the given fields replaced by the non-null parameter values.

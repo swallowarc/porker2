@@ -101,6 +101,7 @@ class RoomCondition extends $pb.GeneratedMessage {
     $core.String? adminUserId,
     VoteState? voteState,
     $core.Iterable<Ballot>? ballots,
+    $core.bool? autoOpen,
   }) {
     final $result = create();
     if (roomId != null) {
@@ -115,6 +116,9 @@ class RoomCondition extends $pb.GeneratedMessage {
     if (ballots != null) {
       $result.ballots.addAll(ballots);
     }
+    if (autoOpen != null) {
+      $result.autoOpen = autoOpen;
+    }
     return $result;
   }
   RoomCondition._() : super();
@@ -126,6 +130,7 @@ class RoomCondition extends $pb.GeneratedMessage {
     ..aOS(2, _omitFieldNames ? '' : 'adminUserId')
     ..e<VoteState>(3, _omitFieldNames ? '' : 'voteState', $pb.PbFieldType.OE, defaultOrMaker: VoteState.VOTE_STATE_UNSPECIFIED, valueOf: VoteState.valueOf, enumValues: VoteState.values)
     ..pc<Ballot>(4, _omitFieldNames ? '' : 'ballots', $pb.PbFieldType.PM, subBuilder: Ballot.create)
+    ..aOB(5, _omitFieldNames ? '' : 'autoOpen')
     ..hasRequiredFields = false
   ;
 
@@ -179,6 +184,15 @@ class RoomCondition extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(4)
   $core.List<Ballot> get ballots => $_getList(3);
+
+  @$pb.TagNumber(5)
+  $core.bool get autoOpen => $_getBF(4);
+  @$pb.TagNumber(5)
+  set autoOpen($core.bool v) { $_setBool(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasAutoOpen() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearAutoOpen() => clearField(5);
 }
 
 

@@ -13,6 +13,7 @@ class PokerState with _$PokerState {
     String adminUserID,
     List<Ballot> ballots,
     VoteState voteState,
+    bool autoOpen,
   ) = _PokerState;
 }
 
@@ -20,7 +21,7 @@ class Poker extends StateNotifier<PokerState> {
   final Porker2ServiceRepository _svcRepo;
 
   Poker(this._svcRepo)
-      : super(const PokerState("", "", [], VoteState.VOTE_STATE_HIDE));
+      : super(const PokerState("", "", [], VoteState.VOTE_STATE_HIDE, true));
 
   Future<String> createRoom() async {
     return _svcRepo.createRoom();
@@ -39,6 +40,7 @@ class Poker extends StateNotifier<PokerState> {
         adminUserID: rc.adminUserId,
         ballots: rc.ballots,
         voteState: rc.voteState,
+        autoOpen: rc.autoOpen,
       );
     });
   }
@@ -50,6 +52,7 @@ class Poker extends StateNotifier<PokerState> {
       adminUserID: "",
       ballots: [],
       voteState: VoteState.VOTE_STATE_HIDE,
+      autoOpen: true,
     );
   }
 
@@ -63,6 +66,10 @@ class Poker extends StateNotifier<PokerState> {
         state.roomID,
         targetUserID,
       );
+
+  Future<void> updateRoom(bool autoOpen) async {
+    await _svcRepo.updateRoom(state.roomID, autoOpen);
+  }
 
   bool get opened => state.voteState == VoteState.VOTE_STATE_OPEN;
 

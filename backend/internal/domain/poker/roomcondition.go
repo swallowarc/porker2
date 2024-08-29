@@ -25,6 +25,7 @@ type (
 		AdminUserID user.ID   `json:"admin_user_id"`
 		VoteState   VoteState `json:"vote_state"`
 		Ballots     []*Ballot `json:"ballots"`
+		AutoOpen    bool      `json:"auto_open"`
 	}
 )
 
@@ -34,6 +35,7 @@ func NewRoomCondition() *RoomCondition {
 		AdminUserID: "",
 		VoteState:   VoteStateHide,
 		Ballots:     []*Ballot{},
+		AutoOpen:    true,
 	}
 }
 
@@ -97,7 +99,7 @@ func (c *RoomCondition) Vote(userID user.ID, point Point) {
 		}
 	}
 
-	if memberCount == 0 {
+	if c.AutoOpen && memberCount == 0 {
 		c.VoteState = VoteStateOpen
 	}
 }
@@ -145,6 +147,25 @@ func (c *RoomCondition) Kick(userID, targetID user.ID) error {
 	}
 
 	return nil
+}
+
+func (c *RoomCondition) UpdateSetting(autoOpen bool) {
+	c.AutoOpen = autoOpen
+
+	if !c.AutoOpen {
+		return
+	}
+
+	memberCount := len(c.Ballots)
+	for _, b := range c.Ballots {
+		if b.Point != PointUnspecified {
+			memberCount--
+		}
+	}
+
+	if memberCount == 0 {
+		c.VoteState = VoteStateOpen
+	}
 }
 
 func (c *RoomCondition) ToJson() ([]byte, error) {

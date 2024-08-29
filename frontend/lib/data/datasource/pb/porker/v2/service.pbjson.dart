@@ -254,3 +254,26 @@ const KickUserResponse$json = {
 final $typed_data.Uint8List kickUserResponseDescriptor = $convert.base64Decode(
     'ChBLaWNrVXNlclJlc3BvbnNl');
 
+@$core.Deprecated('Use updateRoomRequestDescriptor instead')
+const UpdateRoomRequest$json = {
+  '1': 'UpdateRoomRequest',
+  '2': [
+    {'1': 'room_id', '3': 1, '4': 1, '5': 9, '10': 'roomId'},
+    {'1': 'auto_open', '3': 2, '4': 1, '5': 8, '10': 'autoOpen'},
+  ],
+};
+
+/// Descriptor for `UpdateRoomRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List updateRoomRequestDescriptor = $convert.base64Decode(
+    'ChFVcGRhdGVSb29tUmVxdWVzdBIXCgdyb29tX2lkGAEgASgJUgZyb29tSWQSGwoJYXV0b19vcG'
+    'VuGAIgASgIUghhdXRvT3Blbg==');
+
+@$core.Deprecated('Use updateRoomResponseDescriptor instead')
+const UpdateRoomResponse$json = {
+  '1': 'UpdateRoomResponse',
+};
+
+/// Descriptor for `UpdateRoomResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List updateRoomResponseDescriptor = $convert.base64Decode(
+    'ChJVcGRhdGVSb29tUmVzcG9uc2U=');
+
