@@ -68,6 +68,7 @@ class RoomSelectPage extends HookConsumerWidget {
         title: 'Welcome, ${user.userName}',
         enableDrawer: false,
         enableLogout: true,
+        enableCopyRoomURL: false,
       ),
       body: body,
       bottomNavigationBar: const BottomBar(),

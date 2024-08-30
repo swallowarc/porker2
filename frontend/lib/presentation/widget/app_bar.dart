@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/presentation/const.dart';
@@ -11,12 +12,14 @@ class Porker2AppBar extends HookConsumerWidget implements PreferredSizeWidget {
   final String title;
   final bool enableDrawer;
   final bool enableLogout;
+  final bool enableCopyRoomURL;
 
   const Porker2AppBar({
     super.key,
     required this.title,
     required this.enableDrawer,
     required this.enableLogout,
+    required this.enableCopyRoomURL,
   }) : super();
 
   @override
@@ -49,13 +52,35 @@ class Porker2AppBar extends HookConsumerWidget implements PreferredSizeWidget {
       );
     }
 
-    return AppBar(
-      title: RainbowText(
-        text: title,
-        style: const TextStyle(
-          fontSize: 30,
-        ),
+    final txt = RainbowText(
+      text: title,
+      style: const TextStyle(
+        fontSize: 30,
       ),
+    );
+
+    return AppBar(
+      title: enableCopyRoomURL
+          ? Tooltip(
+              message: "Copy room URL",
+              child: MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTap: () {
+                    final currentUrl = Uri.base.toString();
+                    Clipboard.setData(ClipboardData(text: currentUrl));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('URL copied to clipboard!'),
+                        backgroundColor: Colors.lightGreenAccent,
+                      ),
+                    );
+                  },
+                  child: txt,
+                ),
+              ),
+            )
+          : txt,
       actions: actions,
       automaticallyImplyLeading: false,
       leading: enableDrawer && isMediumScreen

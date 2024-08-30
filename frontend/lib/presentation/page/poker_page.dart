@@ -57,6 +57,7 @@ class PokerPage extends HookConsumerWidget {
         title: 'Room ID: ${poker.roomID}',
         enableDrawer: true,
         enableLogout: true,
+        enableCopyRoomURL: true,
       ),
       body: Row(
         children: [

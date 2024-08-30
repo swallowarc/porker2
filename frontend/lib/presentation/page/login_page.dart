@@ -70,6 +70,7 @@ class LoginPage extends HookConsumerWidget {
         title: "Welcome to Porker2",
         enableDrawer: false,
         enableLogout: false,
+        enableCopyRoomURL: false,
       ),
       body: body,
       bottomNavigationBar: const BottomBar(),
