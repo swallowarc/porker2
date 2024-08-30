@@ -63,7 +63,6 @@ class Porker2ServiceRepositoryImpl extends Porker2ServiceRepository {
           })
           .asFuture() // gRPC streamは try-catchでエラーハンドリングできないので注意
           .then((_) {
-            logger.d('Stream completed');
             subscribing = false;
           })
           .onError((e, stackTrace) {
@@ -86,6 +85,8 @@ class Porker2ServiceRepositoryImpl extends Porker2ServiceRepository {
             }
           });
     }
+
+    logger.d('Stream completed');
   }
 
   @override

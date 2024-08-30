@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:porker2fe/core/logger/logger.dart';
 import 'package:porker2fe/presentation/const.dart';
 import 'package:porker2fe/presentation/invoke.dart';
 import 'package:porker2fe/presentation/provider/provider.dart';
@@ -32,6 +33,13 @@ class PokerPage extends HookConsumerWidget {
     }, []); // 空の依存配列を渡すことで、初回のみ実行
 
     final poker = ref.watch(pokerProvider);
+    if (!ref.read(pokerProvider.notifier).subscribing) {
+      logger.d('not subscribing');
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        GoRouter.of(context).go('/room');
+      });
+    }
+
     if (poker.roomID.isEmpty) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
@@ -76,6 +84,7 @@ class _Drawer extends HookConsumerWidget {
     final pokerNotifier = ref.read(pokerProvider.notifier);
     final poker = ref.watch(pokerProvider);
     final user = ref.watch(userProvider);
+
     return Drawer(
       width: 200,
       child: ListView(
@@ -92,13 +101,6 @@ class _Drawer extends HookConsumerWidget {
               child: Text(user.userName),
             ),
           ),
-          SwitchListTile(
-            title: const Text('Auto open'),
-            value: poker.autoOpen,
-            onChanged: (bool value) {
-              invoke(context, () => pokerNotifier.updateRoom(value), (_) {});
-            },
-          ),
           ListTile(
             title: const Text('Leave room'),
             leading: const Icon(Icons.door_back_door_outlined),
@@ -112,6 +114,13 @@ class _Drawer extends HookConsumerWidget {
                       (_) => GoRouter.of(context).go('/room')),
                 ),
               );
+            },
+          ),
+          SwitchListTile(
+            title: const Text('Auto open'),
+            value: poker.autoOpen,
+            onChanged: (bool value) {
+              invoke(context, () => pokerNotifier.updateRoom(value), (_) {});
             },
           ),
         ],

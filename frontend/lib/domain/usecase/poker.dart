@@ -20,8 +20,20 @@ class PokerState with _$PokerState {
 class Poker extends StateNotifier<PokerState> {
   final Porker2ServiceRepository _svcRepo;
 
+  bool _subscribing = false;
+
   Poker(this._svcRepo)
       : super(const PokerState("", "", [], VoteState.VOTE_STATE_HIDE, true));
+
+  void _reset() {
+    state = state.copyWith(
+      roomID: "",
+      adminUserID: "",
+      ballots: [],
+      voteState: VoteState.VOTE_STATE_HIDE,
+      autoOpen: true,
+    );
+  }
 
   Future<String> createRoom() async {
     return _svcRepo.createRoom();
@@ -32,6 +44,12 @@ class Poker extends StateNotifier<PokerState> {
   }
 
   Future<void> joinRoom(String roomId) async {
+    if (_subscribing) {
+      logger.d("already subscribing");
+      return;
+    }
+    _subscribing = true;
+
     _svcRepo.joinRoom(roomId, (RoomCondition rc) {
       logger.d("subscribe room condition: $rc");
 
@@ -42,18 +60,21 @@ class Poker extends StateNotifier<PokerState> {
         voteState: rc.voteState,
         autoOpen: rc.autoOpen,
       );
+    }).then((_) {
+      logger.d("unsubscribe room condition");
+      _subscribing = false;
+      _reset();
+    }).onError((error, stackTrace) {
+      logger.e("subscribe room condition error: $error",
+          error: error, stackTrace: stackTrace);
+      _subscribing = false;
+      _reset();
     });
   }
 
   Future<void> leaveRoom() async {
     _svcRepo.leaveRoom(state.roomID);
-    state = state.copyWith(
-      roomID: "",
-      adminUserID: "",
-      ballots: [],
-      voteState: VoteState.VOTE_STATE_HIDE,
-      autoOpen: true,
-    );
+    _reset();
   }
 
   Future<void> castVote(Point point) => _svcRepo.castVote(state.roomID, point);
@@ -84,4 +105,6 @@ class Poker extends StateNotifier<PokerState> {
   Point myPoint(String userID) => state.ballots
       .firstWhere((e) => e.userId == userID, orElse: () => Ballot())
       .point;
+
+  bool get subscribing => _subscribing;
 }

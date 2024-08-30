@@ -88,20 +88,14 @@ func (c *RoomCondition) Vote(userID user.ID, point Point) {
 		return
 	}
 
-	memberCount := len(c.Ballots)
-
 	for _, b := range c.Ballots {
 		if b.UserID == userID {
 			b.Point = point
-		}
-		if b.Point != PointUnspecified {
-			memberCount--
+			break
 		}
 	}
 
-	if c.AutoOpen && memberCount == 0 {
-		c.VoteState = VoteStateOpen
-	}
+	c.tally()
 }
 
 func (c *RoomCondition) Leave(userID user.ID) {
@@ -118,6 +112,8 @@ func (c *RoomCondition) Leave(userID user.ID) {
 			c.AdminUserID = c.Ballots[0].UserID
 		}
 	}
+
+	c.tally()
 }
 
 func (c *RoomCondition) Open() {
@@ -143,15 +139,21 @@ func (c *RoomCondition) Kick(userID, targetID user.ID) error {
 	for i, b := range c.Ballots {
 		if b.UserID == targetID {
 			c.Ballots = append(c.Ballots[:i], c.Ballots[i+1:]...)
+			break
 		}
 	}
+
+	c.tally()
 
 	return nil
 }
 
 func (c *RoomCondition) UpdateSetting(autoOpen bool) {
 	c.AutoOpen = autoOpen
+	c.tally()
+}
 
+func (c *RoomCondition) tally() {
 	if !c.AutoOpen {
 		return
 	}
