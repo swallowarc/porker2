@@ -13,28 +13,19 @@ import 'package:porker2fe/presentation/widget/bottom_bar.dart';
 import 'package:porker2fe/presentation/widget/logo.dart';
 
 class LoginPage extends HookConsumerWidget {
-  const LoginPage(this.roomId, {super.key});
-
-  final String roomId;
+  const LoginPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     useEffect(() {
-      final result = ref.read(userProvider.notifier).verifyUser();
-      result.then((verified) {
+      ref.read(userProvider.notifier).verifyUser().then((verified) {
         logger.d("User verified: $verified");
-
         if (verified && context.mounted) {
-          if (roomId.isNotEmpty) {
-            GoRouter.of(context).go('/room?room-id=$roomId');
-          } else {
-            GoRouter.of(context).go('/room');
-          }
+          GoRouter.of(context).go('/room');
         }
       });
-
-      return null; // クリーンアップが不要な場合はnullを返す
-    }, []); // 空の依存配列を渡すことで、初回のみ実行
+      return null;
+    }, []);
 
     const logo = Logo(type: LogoType.login, message: "Enter your name");
     final bool isSmallScreen =
@@ -47,7 +38,7 @@ class LoginPage extends HookConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   logo,
-                  _FormContent(roomId),
+                  _FormContent(),
                 ],
               )
             : Container(
@@ -57,7 +48,7 @@ class LoginPage extends HookConsumerWidget {
                   children: [
                     const Expanded(child: logo),
                     Expanded(
-                      child: Center(child: _FormContent(roomId)),
+                      child: Center(child: _FormContent()),
                     ),
                   ],
                 ),
@@ -80,10 +71,6 @@ class LoginPage extends HookConsumerWidget {
 
 class _FormContent extends HookConsumerWidget {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-  final String roomId;
-
-  _FormContent(this.roomId);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -143,22 +130,12 @@ class _FormContent extends HookConsumerWidget {
                 ),
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
-                    if (roomId.isNotEmpty) {
-                      invoke(
-                          context,
-                          () => ref
-                              .read(userProvider.notifier)
-                              .login(userNameController.text),
-                          (_) =>
-                              GoRouter.of(context).go('/room?room-id=$roomId'));
-                    } else {
-                      invoke(
-                          context,
-                          () => ref
-                              .read(userProvider.notifier)
-                              .login(userNameController.text),
-                          (_) => GoRouter.of(context).go('/room'));
-                    }
+                    invoke(
+                        context,
+                        () => ref
+                            .read(userProvider.notifier)
+                            .login(userNameController.text),
+                        (_) => GoRouter.of(context).go('/room'));
                   }
                 },
               ),

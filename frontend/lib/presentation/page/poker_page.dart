@@ -11,6 +11,7 @@ import 'package:porker2fe/presentation/widget/dialog.dart';
 import 'package:porker2fe/presentation/widget/poker/field_cards.dart';
 import 'package:porker2fe/presentation/widget/poker/hand_cards.dart';
 import 'package:porker2fe/presentation/widget/poker/vote_buttons.dart';
+import 'package:porker2fe/presentation/widget/porker_progress_indicator.dart';
 
 class PokerPage extends HookConsumerWidget {
   const PokerPage(this.roomId, {super.key});
@@ -20,17 +21,23 @@ class PokerPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     useEffect(() {
-      final user = ref.read(userProvider.notifier);
-      if (!user.alreadyLogin) {
-        GoRouter.of(context).go('/?room-id=$roomId');
+      if (ref.read(userProvider).userID.isEmpty) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          ref.read(directRoomJoinProvider.notifier).setPresetRoomID(roomId);
+          GoRouter.of(context).go('/');
+        });
         return null;
       }
 
-      final poker = ref.read(pokerProvider.notifier);
-      poker.joinRoom(roomId);
+      ref.read(pokerProvider.notifier).joinRoom(roomId);
+      logger.d('join room: $roomId');
 
       return null; // クリーンアップが不要な場合はnullを返す
     }, []); // 空の依存配列を渡すことで、初回のみ実行
+
+    if (ref.read(directRoomJoinProvider.notifier).hasPresetRoomID) {
+      return const PorkerProgressIndicator();
+    }
 
     final poker = ref.watch(pokerProvider);
     if (!ref.read(pokerProvider.notifier).subscribing) {
@@ -38,10 +45,11 @@ class PokerPage extends HookConsumerWidget {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         GoRouter.of(context).go('/room');
       });
+      return const PorkerProgressIndicator();
     }
 
     if (poker.roomID.isEmpty) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const PorkerProgressIndicator();
     }
 
     final bool isMediumScreen =

@@ -154,7 +154,7 @@ func (c *RoomCondition) UpdateSetting(autoOpen bool) {
 }
 
 func (c *RoomCondition) tally() {
-	if !c.AutoOpen {
+	if !c.AutoOpen || c.VoteState == VoteStateOpen {
 		return
 	}
 

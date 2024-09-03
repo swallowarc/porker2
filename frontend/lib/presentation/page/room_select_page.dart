@@ -12,26 +12,25 @@ import 'package:porker2fe/presentation/widget/bottom_bar.dart';
 import 'package:porker2fe/presentation/widget/logo.dart';
 
 class RoomSelectPage extends HookConsumerWidget {
-  const RoomSelectPage(this.roomId, {super.key});
-
-  final String roomId;
+  const RoomSelectPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     useEffect(() {
-      if (roomId.isNotEmpty) {
-        final poker = ref.read(pokerProvider.notifier);
-        invoke(context, () => poker.checkRoom(roomId),
-            (_) => GoRouter.of(context).go('/poker?room-id=$roomId'));
-      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final directRoomJoinNotifier =
+            ref.read(directRoomJoinProvider.notifier);
+        final presetRoomID = directRoomJoinNotifier.popPresetRoomID();
+        if (presetRoomID.isNotEmpty) {
+          invoke(
+              context,
+              () => ref.read(pokerProvider.notifier).checkRoom(presetRoomID),
+              (_) => GoRouter.of(context).go('/poker?room-id=$presetRoomID'));
+        }
+      });
 
       return null; // クリーンアップが不要な場合はnullを返す
     }, []); // 空の依存配列を渡すことで、初回のみ実行
-
-    final user = ref.watch(userProvider);
-    if (user.userID.isEmpty) {
-      GoRouter.of(context).go('/');
-    }
 
     final bool isSmallScreen =
         MediaQuery.of(context).size.width < smallScreenBoundary;
@@ -65,7 +64,7 @@ class RoomSelectPage extends HookConsumerWidget {
 
     return Scaffold(
       appBar: Porker2AppBar(
-        title: 'Welcome, ${user.userName}',
+        title: 'Welcome, ${ref.watch(userProvider).userName}',
         enableDrawer: false,
         enableLogout: true,
         enableCopyRoomURL: false,
@@ -81,7 +80,6 @@ class _FormContent extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final pokerNotifier = ref.read(pokerProvider.notifier);
     final TextEditingController roomIDController = TextEditingController();
     final bool isSmallScreen =
         MediaQuery.of(context).size.width < smallScreenBoundary;
@@ -140,7 +138,8 @@ class _FormContent extends HookConsumerWidget {
                     final roomId = roomIDController.text;
                     invoke(
                         context,
-                        () => pokerNotifier.checkRoom(roomId),
+                        () =>
+                            ref.read(pokerProvider.notifier).checkRoom(roomId),
                         (_) =>
                             GoRouter.of(context).go('/poker?room-id=$roomId'));
                   }
@@ -181,7 +180,7 @@ class _FormContent extends HookConsumerWidget {
                 onPressed: () {
                   invoke(
                       context,
-                      () => pokerNotifier.createRoom(),
+                      () => ref.read(pokerProvider.notifier).createRoom(),
                       (roomID) =>
                           GoRouter.of(context).go('/poker?room-id=$roomID'));
                 },

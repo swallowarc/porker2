@@ -18,15 +18,10 @@ RouteBase get $loginRoute => GoRouteData.$route(
     );
 
 extension $LoginRouteExtension on LoginRoute {
-  static LoginRoute _fromState(GoRouterState state) => LoginRoute(
-        roomId: state.uri.queryParameters['room-id'] ?? "",
-      );
+  static LoginRoute _fromState(GoRouterState state) => LoginRoute();
 
   String get location => GoRouteData.$location(
         '/',
-        queryParams: {
-          if (roomId != "") 'room-id': roomId,
-        },
       );
 
   void go(BuildContext context) => context.go(location);
@@ -45,15 +40,10 @@ RouteBase get $roomSelectRoute => GoRouteData.$route(
     );
 
 extension $RoomSelectRouteExtension on RoomSelectRoute {
-  static RoomSelectRoute _fromState(GoRouterState state) => RoomSelectRoute(
-        roomId: state.uri.queryParameters['room-id'] ?? "",
-      );
+  static RoomSelectRoute _fromState(GoRouterState state) => RoomSelectRoute();
 
   String get location => GoRouteData.$location(
         '/room',
-        queryParams: {
-          if (roomId != "") 'room-id': roomId,
-        },
       );
 
   void go(BuildContext context) => context.go(location);

@@ -72,10 +72,7 @@ class Poker extends StateNotifier<PokerState> {
     });
   }
 
-  Future<void> leaveRoom() async {
-    _svcRepo.leaveRoom(state.roomID);
-    _reset();
-  }
+  Future<void> leaveRoom() async => _svcRepo.leaveRoom(state.roomID);
 
   Future<void> castVote(Point point) => _svcRepo.castVote(state.roomID, point);
 

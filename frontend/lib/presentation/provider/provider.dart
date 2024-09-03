@@ -5,9 +5,9 @@ import 'package:porker2fe/data/datasource/pb/porker/v2/service.pbgrpc.dart';
 import 'package:porker2fe/data/repository/local_storage_repository.dart';
 import 'package:porker2fe/data/repository/porker2_service_repository.dart';
 import 'package:porker2fe/domain/port/repository.dart';
+import 'package:porker2fe/domain/usecase/direct_room_join.dart';
 import 'package:porker2fe/domain/usecase/poker.dart';
 import 'package:porker2fe/domain/usecase/user.dart';
-import 'package:porker2fe/presentation/widget/app_bar.dart';
 
 /// core layer -----------------------------------------------------------------
 
@@ -51,4 +51,7 @@ StateNotifierProvider<Poker, PokerState> pokerProvider =
           ref.read(porker2ServiceRepositoryProvider),
         ));
 
-/// presentation layer ---------------------------------------------------------
+StateNotifierProvider<DirectRoomJoin, DirectRoomJoinState>
+    directRoomJoinProvider =
+    StateNotifierProvider<DirectRoomJoin, DirectRoomJoinState>(
+        (ref) => DirectRoomJoin());
