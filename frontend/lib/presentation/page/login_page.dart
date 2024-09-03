@@ -90,9 +90,6 @@ class _FormContent extends HookConsumerWidget {
           children: [
             TextFormField(
               controller: userNameController,
-              inputFormatters: <TextInputFormatter>[
-                FilteringTextInputFormatter.allow(userNameCharRegExp),
-              ],
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter some text  (´・ω・`)';
@@ -100,7 +97,7 @@ class _FormContent extends HookConsumerWidget {
 
                 return userNameFormatRegExp.hasMatch(value)
                     ? null
-                    : 'Please enter a valid name (alphabet or number)';
+                    : 'Please enter a valid name ([a-zA-Z0-9_-]{1,10})';
               },
               maxLength: 10,
               maxLines: 1,

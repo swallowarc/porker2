@@ -95,9 +95,6 @@ class _FormContent extends HookConsumerWidget {
             TextFormField(
               controller: roomIDController,
               keyboardType: TextInputType.number,
-              inputFormatters: <TextInputFormatter>[
-                FilteringTextInputFormatter.allow(roomIDCharRegExp),
-              ],
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter room ID  (；´Д｀)';
