@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/domain/entity/room.dart';
@@ -15,22 +14,6 @@ class RoomSelectPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    useEffect(() {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        final directRoomJoinNotifier =
-            ref.read(directRoomJoinProvider.notifier);
-        final presetRoomID = directRoomJoinNotifier.popPresetRoomID();
-        if (presetRoomID.isNotEmpty) {
-          invoke(
-              context,
-              () => ref.read(pokerProvider.notifier).checkRoom(presetRoomID),
-              (_) => GoRouter.of(context).go('/poker?room-id=$presetRoomID'));
-        }
-      });
-
-      return null; // クリーンアップが不要な場合はnullを返す
-    }, []); // 空の依存配列を渡すことで、初回のみ実行
-
     final bool isSmallScreen =
         MediaQuery.of(context).size.width < smallScreenBoundary;
     const logo =

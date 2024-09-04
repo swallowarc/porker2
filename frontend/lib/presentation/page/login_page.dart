@@ -20,7 +20,7 @@ class LoginPage extends HookConsumerWidget {
       ref.read(userProvider.notifier).verifyUser().then((verified) {
         logger.d("User verified: $verified");
         if (verified && context.mounted) {
-          GoRouter.of(context).go('/room');
+          _next(context, ref);
         }
       });
       return null;
@@ -126,12 +126,12 @@ class _FormContent extends HookConsumerWidget {
                 ),
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
+                    final userNotifier = ref.read(userProvider.notifier);
                     invoke(
-                        context,
-                        () => ref
-                            .read(userProvider.notifier)
-                            .login(userNameController.text),
-                        (_) => GoRouter.of(context).go('/room'));
+                      context,
+                      () => userNotifier.login(userNameController.text),
+                      (_) => _next(context, ref),
+                    );
                   }
                 },
               ),
@@ -143,4 +143,20 @@ class _FormContent extends HookConsumerWidget {
   }
 
   Widget _gap() => const SizedBox(height: 16);
+}
+
+void _next(BuildContext context, WidgetRef ref) {
+  final presetRoomID =
+      ref.read(directRoomJoinProvider.notifier).popPresetRoomID();
+
+  if (presetRoomID.isNotEmpty) {
+    invoke(
+      context,
+      () => ref.read(pokerProvider.notifier).checkRoom(presetRoomID),
+      (_) => GoRouter.of(context).go('/poker?room-id=$presetRoomID'),
+    );
+    return;
+  }
+
+  GoRouter.of(context).go('/room');
 }
