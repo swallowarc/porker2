@@ -2,11 +2,9 @@
 export ENV=local
 # redis
 export REDIS_HOST_PORT=localhost:6379
-export REDIS_DB=1
+export REDIS_DB=0
 # connect
 export CONNECT_CORS_ALLOW_ORIGINS=http://localhost:53676
 # session
 export SESSION_COOKIE_DOMAIN=localhost
 export SESSION_COOKIE_SECURE=false
-# for frontend build
-export BACKEND_URI=http://localhost:8080
