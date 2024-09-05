@@ -72,7 +72,7 @@ class Porker2AppBar extends HookConsumerWidget implements PreferredSizeWidget {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('URL copied to clipboard!'),
-                        backgroundColor: Colors.lightGreenAccent,
+                        backgroundColor: Colors.green,
                       ),
                     );
                   },
