@@ -3,15 +3,30 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/core/logger/logger.dart';
+import 'package:porker2fe/data/datasource/pb/porker/v2/domain.pb.dart';
+import 'package:porker2fe/domain/usecase/poker.dart';
 import 'package:porker2fe/presentation/const.dart';
 import 'package:porker2fe/presentation/invoke.dart';
 import 'package:porker2fe/presentation/provider/provider.dart';
 import 'package:porker2fe/presentation/widget/app_bar.dart';
 import 'package:porker2fe/presentation/widget/dialog.dart';
+import 'package:porker2fe/presentation/widget/fireworks.dart';
 import 'package:porker2fe/presentation/widget/poker/field_cards.dart';
 import 'package:porker2fe/presentation/widget/poker/hand_cards.dart';
 import 'package:porker2fe/presentation/widget/poker/vote_buttons.dart';
 import 'package:porker2fe/presentation/widget/porker_progress_indicator.dart';
+
+final List<Point> _fireworksTargetPoints = [
+  Point.POINT_0,
+  Point.POINT_0_5,
+  Point.POINT_1,
+  Point.POINT_2,
+  Point.POINT_3,
+  Point.POINT_5,
+  Point.POINT_8,
+  Point.POINT_13,
+  Point.POINT_21
+];
 
 class PokerPage extends HookConsumerWidget {
   const PokerPage(this.roomId, {super.key});
@@ -55,17 +70,22 @@ class PokerPage extends HookConsumerWidget {
     final bool isMediumScreen =
         MediaQuery.of(context).size.width < mediumScreenBoundary;
 
-    const body = Center(
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            FieldCards(),
-            VoteButtons(),
-            SizedBox(height: 30),
-            HandCards(),
-          ],
-        ),
-      ),
+    final body = Stack(
+      children: [
+        _isUnanimity(poker) ? const FireWorks() : Container(),
+        const Center(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                FieldCards(),
+                VoteButtons(),
+                SizedBox(height: 30),
+                HandCards(),
+              ],
+            ),
+          ),
+        )
+      ],
     );
 
     return Scaffold(
@@ -78,11 +98,34 @@ class PokerPage extends HookConsumerWidget {
       body: Row(
         children: [
           isMediumScreen ? Container() : _Drawer(),
-          const Expanded(child: body),
+          Expanded(child: body),
         ],
       ),
       drawer: isMediumScreen ? _Drawer() : null,
     );
+  }
+
+  bool _isUnanimity(PokerState state) {
+    if (state.ballots.length < 2) {
+      return false;
+    }
+
+    if (state.voteState != VoteState.VOTE_STATE_OPEN) {
+      return false;
+    }
+
+    final firstPoint = state.ballots.first.point;
+    if (!_fireworksTargetPoints.contains(firstPoint)) {
+      return false;
+    }
+
+    for (final ballot in state.ballots) {
+      if (ballot.point != firstPoint) {
+        return false;
+      }
+    }
+
+    return true;
   }
 }
 
