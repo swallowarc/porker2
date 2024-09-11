@@ -11,6 +11,7 @@ DOCKER_COMPOSE_CMD = docker compose
 MOCK_DIR=backend/internal/test/mock/
 FRONTEND_DIR=frontend/
 FRONTEND_DEBUG_PORT=53676
+BACKEND_DIR=backend/
 
 # for docker build
 APP_NAME := swallowarc/porker2
@@ -75,4 +76,7 @@ fe/build-runner:
 	cd $(FRONTEND_DIR) && flutter pub run build_runner build --delete-conflicting-outputs
 
 fe/run-for-debug:
-	cd $(FRONTEND_DIR) && flutter run -d chrome --web-port=$(FRONTEND_DEBUG_PORT)
+	cd $(FRONTEND_DIR) && flutter run -d chrome --web-port=$(FRONTEND_DEBUG_PORT) --dart-define-from-file=env_local.json
+
+be/run-for-debug:
+	cd $(BACKEND_DIR) && go run cmd/porker2/main.go
