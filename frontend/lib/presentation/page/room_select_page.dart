@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/domain/entity/room.dart';
@@ -45,6 +46,7 @@ class RoomSelectPage extends HookConsumerWidget {
     );
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: Porker2AppBar(
         title: 'Welcome, ${ref.watch(userProvider).userName}',
         enableDrawer: false,
@@ -58,23 +60,24 @@ class RoomSelectPage extends HookConsumerWidget {
 }
 
 class _FormContent extends HookConsumerWidget {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final TextEditingController roomIDController = TextEditingController();
+    final TextEditingController roomIDController = useTextEditingController();
     final bool isSmallScreen =
         MediaQuery.of(context).size.width < smallScreenBoundary;
+    final formKey = useMemoized(() => GlobalKey<FormState>());
+    final focusNode = useFocusNode();
 
     return Container(
       constraints: const BoxConstraints(maxWidth: 300),
       child: Form(
-        key: _formKey,
+        key: formKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextFormField(
+              focusNode: focusNode,
               controller: roomIDController,
               keyboardType: TextInputType.number,
               validator: (value) {
@@ -113,7 +116,7 @@ class _FormContent extends HookConsumerWidget {
                   ),
                 ),
                 onPressed: () async {
-                  if (_formKey.currentState?.validate() ?? false) {
+                  if (formKey.currentState?.validate() ?? false) {
                     final roomId = roomIDController.text;
                     invoke(
                         context,

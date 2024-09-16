@@ -56,6 +56,7 @@ class LoginPage extends HookConsumerWidget {
     );
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: const Porker2AppBar(
         title: "Welcome to Porker2",
         enableDrawer: false,
@@ -69,25 +70,30 @@ class LoginPage extends HookConsumerWidget {
 }
 
 class _FormContent extends HookConsumerWidget {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // restore last user name
-    final TextEditingController userNameController = TextEditingController();
-    ref.read(userProvider.notifier).latestUserName().then((value) {
-      userNameController.text = value;
-    });
+    final userNameController = useTextEditingController();
+    final focusNode = useFocusNode();
+    final formKey = useMemoized(() => GlobalKey<FormState>());
+
+    useEffect(() {
+      ref.read(userProvider.notifier).latestUserName().then((value) {
+        userNameController.text = value;
+      });
+      return null;
+    }, []);
 
     return Container(
       constraints: const BoxConstraints(maxWidth: 300),
       child: Form(
-        key: _formKey,
+        key: formKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextFormField(
+              focusNode: focusNode,
               controller: userNameController,
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -96,7 +102,7 @@ class _FormContent extends HookConsumerWidget {
 
                 return userNameFormatRegExp.hasMatch(value)
                     ? null
-                    : 'Please enter a valid name ([a-zA-Z0-9_-]{1,10})';
+                    : 'Please enter ([a-zA-Z0-9_-]{1,10})';
               },
               maxLength: 10,
               maxLines: 1,
@@ -125,7 +131,7 @@ class _FormContent extends HookConsumerWidget {
                   ),
                 ),
                 onPressed: () {
-                  if (_formKey.currentState?.validate() ?? false) {
+                  if (formKey.currentState?.validate() ?? false) {
                     final userNotifier = ref.read(userProvider.notifier);
                     invoke(
                       context,
