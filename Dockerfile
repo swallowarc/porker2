@@ -3,6 +3,8 @@ FROM swallowarc/flutter-builder as build_frontend
 
 WORKDIR /app
 COPY ./frontend ./
+RUN flutter clean
+RUN flutter pub get
 RUN flutter build web --release
 
 # バックエンド（Go gRPCサーバ）をビルドするステージ
