@@ -13,6 +13,7 @@ import 'package:porker2fe/presentation/widget/dialog.dart';
 import 'package:porker2fe/presentation/widget/fireworks.dart';
 import 'package:porker2fe/presentation/widget/poker/field_cards.dart';
 import 'package:porker2fe/presentation/widget/poker/hand_cards.dart';
+import 'package:porker2fe/presentation/widget/poker/summary.dart';
 import 'package:porker2fe/presentation/widget/poker/vote_buttons.dart';
 import 'package:porker2fe/presentation/widget/porker_progress_indicator.dart';
 
@@ -78,6 +79,7 @@ class PokerPage extends HookConsumerWidget {
             child: Column(
               children: [
                 FieldCards(),
+                Summary(),
                 VoteButtons(),
                 SizedBox(height: 30),
                 HandCards(),

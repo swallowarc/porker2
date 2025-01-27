@@ -161,7 +161,6 @@ void _next(BuildContext context, WidgetRef ref) {
       () => ref.read(pokerProvider.notifier).checkRoom(presetRoomID),
       (_) => GoRouter.of(context).go('/poker?room-id=$presetRoomID'),
     );
-    return;
   }
 
   GoRouter.of(context).go('/room');
