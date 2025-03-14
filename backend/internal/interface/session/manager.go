@@ -21,7 +21,7 @@ var (
 
 type (
 	Manager interface {
-		VerifyToken(ctx context.Context, req authn.Request) (any, error)
+		VerifyToken(ctx context.Context, req *http.Request) (any, error)
 		UserIDFromCtx(ctx context.Context) user.ID
 		CreateCookieString(token string) string
 	}
@@ -39,8 +39,8 @@ func NewManager(conf Config, repo port.UserRepository) Manager {
 	}
 }
 
-func (m *manager) VerifyToken(ctx context.Context, req authn.Request) (any, error) {
-	if noAuthProcedures[req.Procedure()] {
+func (m *manager) VerifyToken(ctx context.Context, req *http.Request) (any, error) {
+	if noAuthProcedures[req.URL.Path] {
 		return nil, nil
 	}
 

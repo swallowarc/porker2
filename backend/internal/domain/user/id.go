@@ -12,8 +12,6 @@ const (
 
 type ID string
 
-var contextKey struct{}
-
 func NewID() ID {
 	return ID(uuid.New().String())
 }
