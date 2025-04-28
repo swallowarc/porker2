@@ -5,21 +5,17 @@ import (
 	"strings"
 
 	"connectrpc.com/connect"
-
-	"github.com/swallowarc/porker2/backend/internal/usecase/port"
 )
 
 type (
 	Factory struct {
-		logger   *slog.Logger
-		userRepo port.UserRepository
+		logger *slog.Logger
 	}
 )
 
-func NewFactory(logger *slog.Logger, userRepo port.UserRepository) *Factory {
+func NewFactory(logger *slog.Logger) *Factory {
 	return &Factory{
-		logger:   logger,
-		userRepo: userRepo,
+		logger: logger,
 	}
 }
 

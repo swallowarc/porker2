@@ -28,7 +28,7 @@ func NewUserRepository(mem gateway.MemDBClient) port.UserRepository {
 func (r *userRepository) Create(ctx context.Context, userName user.Name) (user.ID, string, error) {
 	u := newUser(userName)
 
-	set, err := r.mem.SetNX(ctx, userNameKey(userName), u.ID.String(), user.SessionLifetime)
+	set, err := r.mem.SetNX(ctx, userNameKey(userName), u.ID.String(), user.SessionLifetimeDuration)
 	if err != nil {
 		return "", "", merror.WrapInternal(err, "failed to set user name")
 	} else if !set {
@@ -40,14 +40,14 @@ func (r *userRepository) Create(ctx context.Context, userName user.Name) (user.I
 		return "", "", merror.WrapInternal(err, "failed to marshal user")
 	}
 
-	set, err = r.mem.SetNX(ctx, userIDKey(u.ID), j, user.SessionLifetime)
+	set, err = r.mem.SetNX(ctx, userIDKey(u.ID), j, user.SessionLifetimeDuration)
 	if err != nil {
 		return "", "", merror.WrapInternal(err, "failed to set user id")
 	} else if !set {
 		return "", "", merror.NewAlreadyExists("user id already exists")
 	}
 
-	if _, err := r.mem.SetNX(ctx, userTokenKey(u.Token), u.ID.String(), user.SessionLifetime); err != nil {
+	if _, err := r.mem.SetNX(ctx, userTokenKey(u.Token), u.ID.String(), user.SessionLifetimeDuration); err != nil {
 		return "", "", merror.WrapInternal(err, "failed to set user token")
 	}
 
@@ -67,7 +67,7 @@ func (r *userRepository) UpdateRoomID(ctx context.Context, userID user.ID, roomI
 		return merror.WrapInternal(err, "failed to marshal user")
 	}
 
-	if err := r.mem.Set(ctx, userIDKey(userID), j, user.SessionLifetime); err != nil {
+	if err := r.mem.Set(ctx, userIDKey(userID), j, user.SessionLifetimeDuration); err != nil {
 		return err
 	}
 
@@ -124,15 +124,15 @@ func (r *userRepository) ResetLifetime(ctx context.Context, userID user.ID) erro
 	var eg errgroup.Group
 
 	eg.Go(func() error {
-		return r.mem.Expire(ctx, userIDKey(userID), user.SessionLifetime)
+		return r.mem.Expire(ctx, userIDKey(userID), user.SessionLifetimeDuration)
 	})
 
 	eg.Go(func() error {
-		return r.mem.Expire(ctx, userNameKey(u.Name), user.SessionLifetime)
+		return r.mem.Expire(ctx, userNameKey(u.Name), user.SessionLifetimeDuration)
 	})
 
 	eg.Go(func() error {
-		return r.mem.Expire(ctx, userTokenKey(u.Token), user.SessionLifetime)
+		return r.mem.Expire(ctx, userTokenKey(u.Token), user.SessionLifetimeDuration)
 	})
 
 	return eg.Wait()

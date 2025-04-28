@@ -10,8 +10,8 @@ import (
 
 const (
 	MaxMember = 15
-	// RoomLifetime 最後に部屋がアクセスされた時刻から部屋が削除されるまでの時間
-	RoomLifetime = 60 * time.Minute
+	// RoomLifetimeDuration 最後に部屋がアクセスされた時刻から部屋が削除されるまでの時間
+	RoomLifetimeDuration = 60 * time.Minute
 )
 
 var (

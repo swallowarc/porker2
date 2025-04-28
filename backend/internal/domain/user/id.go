@@ -7,7 +7,8 @@ import (
 )
 
 const (
-	SessionLifetime = 60 * time.Minute
+	SessionLifetimeMinutes  = 60
+	SessionLifetimeDuration = SessionLifetimeMinutes * time.Minute
 )
 
 type ID string

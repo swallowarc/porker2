@@ -60,7 +60,7 @@ func (p *porker2) Login(ctx context.Context, r *connect.Request[pb.LoginRequest]
 		},
 	}
 
-	res.Header().Add("Set-Cookie", p.session.CreateCookieString(token))
+	p.session.SetCookie(res, token)
 
 	return res, nil
 }
@@ -83,12 +83,15 @@ func (p *porker2) VerifyUser(ctx context.Context, _ *connect.Request[pb.VerifyUs
 		return nil, err
 	}
 
-	return &connect.Response[pb.VerifyUserResponse]{
+	res := &connect.Response[pb.VerifyUserResponse]{
 		Msg: &pb.VerifyUserResponse{
 			UserId:   userID.String(),
 			UserName: name.String(),
 		},
-	}, nil
+	}
+	p.session.RefreshCookie(ctx, res)
+
+	return res, nil
 }
 
 func (p *porker2) CreateRoom(ctx context.Context, _ *connect.Request[pb.CreateRoomRequest]) (*connect.Response[pb.CreateRoomResponse], error) {
@@ -97,11 +100,14 @@ func (p *porker2) CreateRoom(ctx context.Context, _ *connect.Request[pb.CreateRo
 		return nil, err
 	}
 
-	return &connect.Response[pb.CreateRoomResponse]{
+	res := &connect.Response[pb.CreateRoomResponse]{
 		Msg: &pb.CreateRoomResponse{
 			RoomId: roomID.String(),
 		},
-	}, nil
+	}
+	p.session.RefreshCookie(ctx, res)
+
+	return res, nil
 }
 
 func (p *porker2) CheckRoom(ctx context.Context, r *connect.Request[pb.CheckRoomRequest]) (*connect.Response[pb.CheckRoomResponse], error) {
@@ -109,9 +115,10 @@ func (p *porker2) CheckRoom(ctx context.Context, r *connect.Request[pb.CheckRoom
 		return nil, err
 	}
 
-	return &connect.Response[pb.CheckRoomResponse]{
-		Msg: &pb.CheckRoomResponse{},
-	}, nil
+	res := &connect.Response[pb.CheckRoomResponse]{}
+	p.session.RefreshCookie(ctx, res)
+
+	return res, nil
 }
 
 func (p *porker2) JoinRoom(ctx context.Context, r *connect.Request[pb.JoinRoomRequest], stream *connect.ServerStream[pb.JoinRoomResponse]) error {
@@ -149,9 +156,10 @@ func (p *porker2) LeaveRoom(ctx context.Context, r *connect.Request[pb.LeaveRoom
 		return nil, err
 	}
 
-	return &connect.Response[pb.LeaveRoomResponse]{
-		Msg: &pb.LeaveRoomResponse{},
-	}, nil
+	res := &connect.Response[pb.LeaveRoomResponse]{}
+	p.session.RefreshCookie(ctx, res)
+
+	return res, nil
 }
 
 func (p *porker2) CastVote(ctx context.Context, r *connect.Request[pb.CastVoteRequest]) (*connect.Response[pb.CastVoteResponse], error) {
@@ -173,9 +181,10 @@ func (p *porker2) CastVote(ctx context.Context, r *connect.Request[pb.CastVoteRe
 		return nil, err
 	}
 
-	return &connect.Response[pb.CastVoteResponse]{
-		Msg: &pb.CastVoteResponse{},
-	}, nil
+	res := &connect.Response[pb.CastVoteResponse]{}
+	p.session.RefreshCookie(ctx, res)
+
+	return res, nil
 }
 
 func (p *porker2) ShowVotes(ctx context.Context, r *connect.Request[pb.ShowVotesRequest]) (*connect.Response[pb.ShowVotesResponse], error) {
@@ -187,7 +196,10 @@ func (p *porker2) ShowVotes(ctx context.Context, r *connect.Request[pb.ShowVotes
 		return nil, err
 	}
 
-	return &connect.Response[pb.ShowVotesResponse]{}, nil
+	res := &connect.Response[pb.ShowVotesResponse]{}
+	p.session.RefreshCookie(ctx, res)
+
+	return res, nil
 }
 
 func (p *porker2) ResetVotes(ctx context.Context, r *connect.Request[pb.ResetVotesRequest]) (*connect.Response[pb.ResetVotesResponse], error) {
@@ -199,7 +211,10 @@ func (p *porker2) ResetVotes(ctx context.Context, r *connect.Request[pb.ResetVot
 		return nil, err
 	}
 
-	return &connect.Response[pb.ResetVotesResponse]{}, nil
+	res := &connect.Response[pb.ResetVotesResponse]{}
+	p.session.RefreshCookie(ctx, res)
+
+	return res, nil
 }
 
 func (p *porker2) KickUser(ctx context.Context, r *connect.Request[pb.KickUserRequest]) (*connect.Response[pb.KickUserResponse], error) {
@@ -221,9 +236,10 @@ func (p *porker2) KickUser(ctx context.Context, r *connect.Request[pb.KickUserRe
 		return nil, err
 	}
 
-	return &connect.Response[pb.KickUserResponse]{
-		Msg: &pb.KickUserResponse{},
-	}, nil
+	res := &connect.Response[pb.KickUserResponse]{}
+	p.session.RefreshCookie(ctx, res)
+
+	return res, nil
 }
 
 func (p *porker2) UpdateRoom(ctx context.Context, r *connect.Request[pb.UpdateRoomRequest]) (*connect.Response[pb.UpdateRoomResponse], error) {
@@ -231,5 +247,8 @@ func (p *porker2) UpdateRoom(ctx context.Context, r *connect.Request[pb.UpdateRo
 		return nil, err
 	}
 
-	return &connect.Response[pb.UpdateRoomResponse]{}, nil
+	res := &connect.Response[pb.UpdateRoomResponse]{}
+	p.session.RefreshCookie(ctx, res)
+
+	return res, nil
 }

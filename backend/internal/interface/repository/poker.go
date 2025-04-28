@@ -112,7 +112,7 @@ func (r *pokerRepository) publishRoomStream(ctx context.Context, condition *poke
 		return err
 	}
 
-	return r.mem.Expire(ctx, streamKey, poker.RoomLifetime)
+	return r.mem.Expire(ctx, streamKey, poker.RoomLifetimeDuration)
 }
 
 func (r *pokerRepository) GetRoomCondition(ctx context.Context, roomID poker.RoomID) (*poker.RoomCondition, error) {
