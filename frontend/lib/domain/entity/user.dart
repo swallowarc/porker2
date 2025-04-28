@@ -6,10 +6,6 @@ const nameFormatError = FormatException(
   "invalid username format",
 );
 
-final alreadyLoginError = UnexpectedError(
-  "tried to login with login information",
-);
-
 final alreadyUsedNameError = ExpectedError(
   "the name is already in use by another user",
 );

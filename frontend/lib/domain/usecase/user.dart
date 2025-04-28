@@ -26,10 +26,6 @@ class User extends StateNotifier<UserState> {
       throw nameFormatError;
     }
 
-    if (state.userID.isNotEmpty) {
-      throw alreadyLoginError;
-    }
-
     final result = await _svcRepo.login(userName);
 
     state = state.copyWith(

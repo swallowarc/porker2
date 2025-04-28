@@ -15,7 +15,8 @@ class Porker2ServiceRepositoryImpl extends Porker2ServiceRepository {
   @override
   Future<LoginResult> login(String userName) async {
     try {
-      final res = await _client.login(LoginRequest()..userName = userName);
+      final res = await _client.login(LoginRequest()
+        ..userName = userName);
       return LoginResult(userID: res.userId); // tokenはcookieに保存される
     } on GrpcError catch (e) {
       throw (e.code == StatusCode.alreadyExists) ? alreadyUsedNameError : e;
@@ -42,48 +43,52 @@ class Porker2ServiceRepositoryImpl extends Porker2ServiceRepository {
   @override
   Future<void> checkRoom(String roomID) async {
     try {
-      await _client.checkRoom(CheckRoomRequest()..roomId = roomID);
-    } on GrpcError catch (e) {
-      if (e.code == StatusCode.notFound) {
-        throw roomNotFoundError;
+      await _client.checkRoom(CheckRoomRequest()
+        ..roomId = roomID);
+    } catch (e) {
+      if (e is GrpcError) {
+        if (e.code == StatusCode.notFound) {
+          throw roomNotFoundError;
+        }
       }
+      rethrow;
     }
   }
 
   @override
-  Future<void> joinRoom(
-      String roomID, Function(RoomCondition rc) callback) async {
+  Future<void> joinRoom(String roomID,
+      Function(RoomCondition rc) callback) async {
     bool subscribing = true;
 
     while (subscribing) {
       await _client // await しないと無限ループ
           .joinRoom(JoinRoomRequest(roomId: roomID))
           .listen((res) {
-            callback(res.condition);
-          })
+        callback(res.condition);
+      })
           .asFuture() // gRPC streamは try-catchでエラーハンドリングできないので注意
           .then((_) {
-            subscribing = false;
-          })
+        subscribing = false;
+      })
           .onError((e, stackTrace) {
-            if (shouldRetry(e)) {
-              // server側のWriteTimeoutを超えた場合などを想定しリトライ
-              logger.i('Stream retryable error', error: e);
-              return;
-            }
+        if (shouldRetry(e)) {
+          // server側のWriteTimeoutを超えた場合などを想定しリトライ
+          logger.i('Stream retryable error', error: e);
+          return;
+        }
 
-            subscribing = false;
-            logger.e('Stream error', error: e, stackTrace: stackTrace);
+        subscribing = false;
+        logger.e('Stream error', error: e, stackTrace: stackTrace);
 
-            if (e is GrpcError) {
-              switch (e.code) {
-                case StatusCode.notFound:
-                  throw roomNotFoundError;
-                default:
-                  break;
-              }
-            }
-          });
+        if (e is GrpcError) {
+          switch (e.code) {
+            case StatusCode.notFound:
+              throw roomNotFoundError;
+            default:
+              break;
+          }
+        }
+      });
     }
 
     logger.d('Stream completed');
@@ -91,7 +96,8 @@ class Porker2ServiceRepositoryImpl extends Porker2ServiceRepository {
 
   @override
   Future<void> leaveRoom(String roomID) async {
-    _client.leaveRoom(LeaveRoomRequest()..roomId = roomID);
+    _client.leaveRoom(LeaveRoomRequest()
+      ..roomId = roomID);
   }
 
   @override
@@ -103,12 +109,14 @@ class Porker2ServiceRepositoryImpl extends Porker2ServiceRepository {
 
   @override
   Future<void> resetVotes(String roomID) async {
-    _client.resetVotes(ResetVotesRequest()..roomId = roomID);
+    _client.resetVotes(ResetVotesRequest()
+      ..roomId = roomID);
   }
 
   @override
   Future<void> showVotes(String roomID) async {
-    _client.showVotes(ShowVotesRequest()..roomId = roomID);
+    _client.showVotes(ShowVotesRequest()
+      ..roomId = roomID);
   }
 
   @override

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:grpc/grpc.dart';
 import 'package:porker2fe/core/error/error.dart';
 import 'package:porker2fe/core/logger/logger.dart';
 
 typedef ErrorCallback = void Function(String errMessage);
 
-Future<void> invoke<T>(
-  BuildContext context,
-  Future<T> Function() call,
-  void Function(T result) callback,
-) async {
+Future<void> invoke<T>(BuildContext context,
+    Future<T> Function() call,
+    void Function(T result) callback,) async {
   const unexpectedMessage = "An unexpected error has occurred (＠_＠;)";
 
   await call().then((result) {
@@ -30,6 +30,17 @@ Future<void> invoke<T>(
 
     if (e is ArgumentError) {
       message = e.message;
+    }
+
+    if (e is GrpcError) {
+      switch (e.code) {
+        case StatusCode.unauthenticated:
+          logger.e(e.toString());
+          GoRouter.of(context).go('/');
+          return;
+        default:
+          break;
+      }
     }
 
     Color snackBackgroundColor = Colors.red.shade200;
