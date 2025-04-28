@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	SessionLifetimeMinutes  = 60
+	SessionLifetimeMinutes  = 180
 	SessionLifetimeDuration = SessionLifetimeMinutes * time.Minute
 )
 

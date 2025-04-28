@@ -88,7 +88,7 @@ func (m *manager) SetCookie(res connect.AnyResponse, token string) {
 		Value:    token,
 		Path:     "/",
 		Domain:   m.conf.CookieDomain,
-		MaxAge:   user.SessionLifetimeMinutes * 60, // 1 hour
+		MaxAge:   user.SessionLifetimeMinutes * 60,
 		Secure:   m.conf.CookieSecure,
 		HttpOnly: false,
 		SameSite: http.SameSiteLaxMode,
