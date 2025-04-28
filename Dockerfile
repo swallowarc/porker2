@@ -1,5 +1,5 @@
 # build frontend
-FROM swallowarc/flutter-builder as build_frontend
+FROM swallowarc/flutter-builder AS build_frontend
 
 WORKDIR /app
 COPY ./frontend ./
@@ -8,14 +8,14 @@ RUN flutter pub get
 RUN flutter build web --release
 
 # バックエンド（Go gRPCサーバ）をビルドするステージ
-FROM golang:1.22-alpine as build_backend
+FROM golang:1.24-alpine AS build_backend
 
 WORKDIR /app
 COPY ./backend ./
 RUN GOARCH=amd64 GOOS=linux go build -o server cmd/porker2/main.go
 
 # 最終ステージ: Nginxを使ってフロントエンドを提供し、Goサーバを同じコンテナで実行
-FROM nginx:alpine as final
+FROM nginx:alpine AS final
 
 WORKDIR /app
 
