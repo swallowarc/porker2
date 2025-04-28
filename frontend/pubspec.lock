@@ -352,14 +352,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  forge2d:
-    dependency: transitive
-    description:
-      name: forge2d
-      sha256: "6aac85f1cb9f7e3720bff5d6884ff2e1bcb74402e6fe271599b7b1f65574f5e2"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.13.1"
   freezed:
     dependency: "direct dev"
     description:
@@ -596,10 +588,10 @@ packages:
     dependency: "direct main"
     description:
       name: newton_particles
-      sha256: "0f30be6a316b01434c665dc839aca6e0c774ea0a677d852ebc1564efa7b39579"
+      sha256: eebe44bc4e4518fe136de1429a3ddfe114c0f31da843571eee7997bc5f5213e5
       url: "https://pub.dev"
     source: hosted
-    version: "0.2.2"
+    version: "0.1.8"
   package_config:
     dependency: transitive
     description:
