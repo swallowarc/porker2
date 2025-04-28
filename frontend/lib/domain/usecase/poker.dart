@@ -8,19 +8,17 @@ part 'poker.freezed.dart';
 
 @freezed
 class PokerState with _$PokerState {
-  const factory PokerState(
-    String roomID,
-    String adminUserID,
-    List<Ballot> ballots,
-    VoteState voteState,
-    bool autoOpen,
-  ) = _PokerState;
+  const factory PokerState(String roomID,
+      String adminUserID,
+      List<Ballot> ballots,
+      VoteState voteState,
+      bool autoOpen,) = _PokerState;
 }
 
 class Poker extends StateNotifier<PokerState> {
   final Porker2ServiceRepository _svcRepo;
 
-  bool _subscribing = false;
+  String _subscribingRoomID = "";
 
   Poker(this._svcRepo)
       : super(const PokerState("", "", [], VoteState.VOTE_STATE_HIDE, true));
@@ -44,11 +42,11 @@ class Poker extends StateNotifier<PokerState> {
   }
 
   Future<void> joinRoom(String roomId) async {
-    if (_subscribing) {
-      logger.d("already subscribing");
+    if (_subscribingRoomID == roomId) {
+      logger.d("already subscribing: $roomId");
       return;
     }
-    _subscribing = true;
+    _subscribingRoomID = roomId;
 
     _svcRepo.joinRoom(roomId, (RoomCondition rc) {
       logger.d("subscribe room condition: $rc");
@@ -62,12 +60,12 @@ class Poker extends StateNotifier<PokerState> {
       );
     }).then((_) {
       logger.d("unsubscribe room condition");
-      _subscribing = false;
+      _subscribingRoomID = "";
       _reset();
     }).onError((error, stackTrace) {
       logger.e("subscribe room condition error: $error",
           error: error, stackTrace: stackTrace);
-      _subscribing = false;
+      _subscribingRoomID = "";
       _reset();
     });
   }
@@ -80,7 +78,8 @@ class Poker extends StateNotifier<PokerState> {
 
   Future<void> resetVotes() => _svcRepo.resetVotes(state.roomID);
 
-  Future<void> kickUser(String targetUserID) => _svcRepo.kickUser(
+  Future<void> kickUser(String targetUserID) =>
+      _svcRepo.kickUser(
         state.roomID,
         targetUserID,
       );
@@ -93,15 +92,16 @@ class Poker extends StateNotifier<PokerState> {
 
   bool get openable =>
       state.voteState == VoteState.VOTE_STATE_HIDE &&
-      state.ballots
-          .where((e) => ![Point.POINT_UNSPECIFIED].contains(e.point))
-          .isNotEmpty;
+          state.ballots
+              .where((e) => ![Point.POINT_UNSPECIFIED].contains(e.point))
+              .isNotEmpty;
 
   bool get votable => state.voteState == VoteState.VOTE_STATE_HIDE;
 
-  Point myPoint(String userID) => state.ballots
-      .firstWhere((e) => e.userId == userID, orElse: () => Ballot())
-      .point;
+  Point myPoint(String userID) =>
+      state.ballots
+          .firstWhere((e) => e.userId == userID, orElse: () => Ballot())
+          .point;
 
-  bool get subscribing => _subscribing;
+  bool get subscribing => _subscribingRoomID.isNotEmpty;
 }

@@ -129,16 +129,27 @@ func (c *redisClient) PublishStream(ctx context.Context, streamKey string, messa
 }
 
 func (c *redisClient) ReadStream(ctx context.Context, streamKey, messageKey, previousID string) (id, message string, err error) {
-	const subscribeDuration = 3 * time.Second
+	// Streamの存在確認
+	exists, err := c.cli.Exists(ctx, streamKey).Result()
+	if err != nil {
+		return "", "", merror.WrapInternal(err, "failed to redis Exists")
+	}
+	if exists == 0 { // 保存期間超過などでキーが存在しない
+		return "", "", merror.NewNotFound(fmt.Sprintf("stream key does not exist: %s", streamKey))
+	}
 
+	// 最新のメッセージを取得する
+	const subscribeDuration = 3 * time.Second
 	cmd := c.cli.XRead(ctx, &redis.XReadArgs{
 		Streams: []string{streamKey, previousID},
 		Block:   subscribeDuration,
 	})
+	
 	streams, err := cmd.Result()
 	if err != nil {
+		// Streamに更新がない場合はNilが返却される
 		if errors.Is(err, redis.Nil) {
-			return "", "", merror.NewNotFound("response nil from stream")
+			return previousID, "", nil
 		}
 		return "", "", merror.WrapInternal(err, "failed to redis XRead")
 	}

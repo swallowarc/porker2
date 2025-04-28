@@ -142,14 +142,15 @@ func (r *pokerRepository) SubscribeRoomCondition(ctx context.Context, roomID pok
 		case <-ctx.Done():
 			return ctx.Err()
 		default:
-			newMessageID, j, err := r.mem.ReadStream(ctx, roomConditionKey(roomID), keyRoomConditionMessage, messageID)
+			latestMessageID, j, err := r.mem.ReadStream(ctx, roomConditionKey(roomID), keyRoomConditionMessage, messageID)
 			if err != nil {
-				if merror.IsNotFound(err) {
-					continue
-				}
 				return err
 			}
-			messageID = newMessageID
+			if messageID == latestMessageID {
+				continue
+			}
+
+			messageID = latestMessageID
 
 			rc, err := poker.FromJson(j)
 			if err != nil {
