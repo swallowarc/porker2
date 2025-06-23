@@ -8,7 +8,7 @@ import 'package:porker2fe/domain/port/repository.dart';
 part 'user.freezed.dart';
 
 @freezed
-class UserState with _$UserState {
+abstract class UserState with _$UserState {
   const factory UserState(
     String userID,
     String userName,

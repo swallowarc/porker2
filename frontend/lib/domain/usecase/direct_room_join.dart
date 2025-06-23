@@ -4,7 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 part 'direct_room_join.freezed.dart';
 
 @freezed
-class DirectRoomJoinState with _$DirectRoomJoinState {
+abstract class DirectRoomJoinState with _$DirectRoomJoinState {
   const factory DirectRoomJoinState(
     String presetRoomID,
   ) = _DirectRoomJoinState;

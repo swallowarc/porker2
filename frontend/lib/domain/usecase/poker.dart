@@ -7,7 +7,7 @@ import 'package:porker2fe/domain/port/repository.dart';
 part 'poker.freezed.dart';
 
 @freezed
-class PokerState with _$PokerState {
+abstract class PokerState with _$PokerState {
   const factory PokerState(String roomID,
       String adminUserID,
       List<Ballot> ballots,

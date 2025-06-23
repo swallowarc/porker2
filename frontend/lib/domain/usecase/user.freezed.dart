@@ -1,3 +1,4 @@
+// dart format width=80
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
@@ -9,122 +10,26 @@ part of 'user.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 /// @nodoc
 mixin _$UserState {
-  String get userID => throw _privateConstructorUsedError;
-  String get userName => throw _privateConstructorUsedError;
+  String get userID;
+  String get userName;
 
   /// Create a copy of UserState
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
   $UserStateCopyWith<UserState> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class $UserStateCopyWith<$Res> {
-  factory $UserStateCopyWith(UserState value, $Res Function(UserState) then) =
-      _$UserStateCopyWithImpl<$Res, UserState>;
-  @useResult
-  $Res call({String userID, String userName});
-}
-
-/// @nodoc
-class _$UserStateCopyWithImpl<$Res, $Val extends UserState>
-    implements $UserStateCopyWith<$Res> {
-  _$UserStateCopyWithImpl(this._value, this._then);
-
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
-
-  /// Create a copy of UserState
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? userID = null,
-    Object? userName = null,
-  }) {
-    return _then(_value.copyWith(
-      userID: null == userID
-          ? _value.userID
-          : userID // ignore: cast_nullable_to_non_nullable
-              as String,
-      userName: null == userName
-          ? _value.userName
-          : userName // ignore: cast_nullable_to_non_nullable
-              as String,
-    ) as $Val);
-  }
-}
-
-/// @nodoc
-abstract class _$$UserStateImplCopyWith<$Res>
-    implements $UserStateCopyWith<$Res> {
-  factory _$$UserStateImplCopyWith(
-          _$UserStateImpl value, $Res Function(_$UserStateImpl) then) =
-      __$$UserStateImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({String userID, String userName});
-}
-
-/// @nodoc
-class __$$UserStateImplCopyWithImpl<$Res>
-    extends _$UserStateCopyWithImpl<$Res, _$UserStateImpl>
-    implements _$$UserStateImplCopyWith<$Res> {
-  __$$UserStateImplCopyWithImpl(
-      _$UserStateImpl _value, $Res Function(_$UserStateImpl) _then)
-      : super(_value, _then);
-
-  /// Create a copy of UserState
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? userID = null,
-    Object? userName = null,
-  }) {
-    return _then(_$UserStateImpl(
-      null == userID
-          ? _value.userID
-          : userID // ignore: cast_nullable_to_non_nullable
-              as String,
-      null == userName
-          ? _value.userName
-          : userName // ignore: cast_nullable_to_non_nullable
-              as String,
-    ));
-  }
-}
-
-/// @nodoc
-
-class _$UserStateImpl implements _UserState {
-  const _$UserStateImpl(this.userID, this.userName);
-
-  @override
-  final String userID;
-  @override
-  final String userName;
-
-  @override
-  String toString() {
-    return 'UserState(userID: $userID, userName: $userName)';
-  }
+      _$UserStateCopyWithImpl<UserState>(this as UserState, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$UserStateImpl &&
+            other is UserState &&
             (identical(other.userID, userID) || other.userID == userID) &&
             (identical(other.userName, userName) ||
                 other.userName == userName));
@@ -133,28 +38,122 @@ class _$UserStateImpl implements _UserState {
   @override
   int get hashCode => Object.hash(runtimeType, userID, userName);
 
+  @override
+  String toString() {
+    return 'UserState(userID: $userID, userName: $userName)';
+  }
+}
+
+/// @nodoc
+abstract mixin class $UserStateCopyWith<$Res> {
+  factory $UserStateCopyWith(UserState value, $Res Function(UserState) _then) =
+      _$UserStateCopyWithImpl;
+  @useResult
+  $Res call({String userID, String userName});
+}
+
+/// @nodoc
+class _$UserStateCopyWithImpl<$Res> implements $UserStateCopyWith<$Res> {
+  _$UserStateCopyWithImpl(this._self, this._then);
+
+  final UserState _self;
+  final $Res Function(UserState) _then;
+
   /// Create a copy of UserState
   /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? userID = null,
+    Object? userName = null,
+  }) {
+    return _then(_self.copyWith(
+      userID: null == userID
+          ? _self.userID
+          : userID // ignore: cast_nullable_to_non_nullable
+              as String,
+      userName: null == userName
+          ? _self.userName
+          : userName // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _UserState implements UserState {
+  const _UserState(this.userID, this.userName);
+
+  @override
+  final String userID;
+  @override
+  final String userName;
+
+  /// Create a copy of UserState
+  /// with the given fields replaced by the non-null parameter values.
+  @override
   @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  _$UserStateCopyWith<_UserState> get copyWith =>
+      __$UserStateCopyWithImpl<_UserState>(this, _$identity);
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _UserState &&
+            (identical(other.userID, userID) || other.userID == userID) &&
+            (identical(other.userName, userName) ||
+                other.userName == userName));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, userID, userName);
+
+  @override
+  String toString() {
+    return 'UserState(userID: $userID, userName: $userName)';
+  }
+}
+
+/// @nodoc
+abstract mixin class _$UserStateCopyWith<$Res>
+    implements $UserStateCopyWith<$Res> {
+  factory _$UserStateCopyWith(
+          _UserState value, $Res Function(_UserState) _then) =
+      __$UserStateCopyWithImpl;
+  @override
+  @useResult
+  $Res call({String userID, String userName});
+}
+
+/// @nodoc
+class __$UserStateCopyWithImpl<$Res> implements _$UserStateCopyWith<$Res> {
+  __$UserStateCopyWithImpl(this._self, this._then);
+
+  final _UserState _self;
+  final $Res Function(_UserState) _then;
+
+  /// Create a copy of UserState
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  _$$UserStateImplCopyWith<_$UserStateImpl> get copyWith =>
-      __$$UserStateImplCopyWithImpl<_$UserStateImpl>(this, _$identity);
+  $Res call({
+    Object? userID = null,
+    Object? userName = null,
+  }) {
+    return _then(_UserState(
+      null == userID
+          ? _self.userID
+          : userID // ignore: cast_nullable_to_non_nullable
+              as String,
+      null == userName
+          ? _self.userName
+          : userName // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
+  }
 }
 
-abstract class _UserState implements UserState {
-  const factory _UserState(final String userID, final String userName) =
-      _$UserStateImpl;
-
-  @override
-  String get userID;
-  @override
-  String get userName;
-
-  /// Create a copy of UserState
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$UserStateImplCopyWith<_$UserStateImpl> get copyWith =>
-      throw _privateConstructorUsedError;
-}
+// dart format on

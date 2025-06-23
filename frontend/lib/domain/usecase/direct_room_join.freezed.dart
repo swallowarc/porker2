@@ -1,3 +1,4 @@
+// dart format width=80
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
@@ -9,75 +10,55 @@ part of 'direct_room_join.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 /// @nodoc
 mixin _$DirectRoomJoinState {
-  String get presetRoomID => throw _privateConstructorUsedError;
+  String get presetRoomID;
 
   /// Create a copy of DirectRoomJoinState
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $DirectRoomJoinStateCopyWith<DirectRoomJoinState> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class $DirectRoomJoinStateCopyWith<$Res> {
-  factory $DirectRoomJoinStateCopyWith(
-          DirectRoomJoinState value, $Res Function(DirectRoomJoinState) then) =
-      _$DirectRoomJoinStateCopyWithImpl<$Res, DirectRoomJoinState>;
-  @useResult
-  $Res call({String presetRoomID});
-}
-
-/// @nodoc
-class _$DirectRoomJoinStateCopyWithImpl<$Res, $Val extends DirectRoomJoinState>
-    implements $DirectRoomJoinStateCopyWith<$Res> {
-  _$DirectRoomJoinStateCopyWithImpl(this._value, this._then);
-
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
-
-  /// Create a copy of DirectRoomJoinState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
+  $DirectRoomJoinStateCopyWith<DirectRoomJoinState> get copyWith =>
+      _$DirectRoomJoinStateCopyWithImpl<DirectRoomJoinState>(
+          this as DirectRoomJoinState, _$identity);
+
   @override
-  $Res call({
-    Object? presetRoomID = null,
-  }) {
-    return _then(_value.copyWith(
-      presetRoomID: null == presetRoomID
-          ? _value.presetRoomID
-          : presetRoomID // ignore: cast_nullable_to_non_nullable
-              as String,
-    ) as $Val);
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is DirectRoomJoinState &&
+            (identical(other.presetRoomID, presetRoomID) ||
+                other.presetRoomID == presetRoomID));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, presetRoomID);
+
+  @override
+  String toString() {
+    return 'DirectRoomJoinState(presetRoomID: $presetRoomID)';
   }
 }
 
 /// @nodoc
-abstract class _$$DirectRoomJoinStateImplCopyWith<$Res>
-    implements $DirectRoomJoinStateCopyWith<$Res> {
-  factory _$$DirectRoomJoinStateImplCopyWith(_$DirectRoomJoinStateImpl value,
-          $Res Function(_$DirectRoomJoinStateImpl) then) =
-      __$$DirectRoomJoinStateImplCopyWithImpl<$Res>;
-  @override
+abstract mixin class $DirectRoomJoinStateCopyWith<$Res> {
+  factory $DirectRoomJoinStateCopyWith(
+          DirectRoomJoinState value, $Res Function(DirectRoomJoinState) _then) =
+      _$DirectRoomJoinStateCopyWithImpl;
   @useResult
   $Res call({String presetRoomID});
 }
 
 /// @nodoc
-class __$$DirectRoomJoinStateImplCopyWithImpl<$Res>
-    extends _$DirectRoomJoinStateCopyWithImpl<$Res, _$DirectRoomJoinStateImpl>
-    implements _$$DirectRoomJoinStateImplCopyWith<$Res> {
-  __$$DirectRoomJoinStateImplCopyWithImpl(_$DirectRoomJoinStateImpl _value,
-      $Res Function(_$DirectRoomJoinStateImpl) _then)
-      : super(_value, _then);
+class _$DirectRoomJoinStateCopyWithImpl<$Res>
+    implements $DirectRoomJoinStateCopyWith<$Res> {
+  _$DirectRoomJoinStateCopyWithImpl(this._self, this._then);
+
+  final DirectRoomJoinState _self;
+  final $Res Function(DirectRoomJoinState) _then;
 
   /// Create a copy of DirectRoomJoinState
   /// with the given fields replaced by the non-null parameter values.
@@ -86,9 +67,9 @@ class __$$DirectRoomJoinStateImplCopyWithImpl<$Res>
   $Res call({
     Object? presetRoomID = null,
   }) {
-    return _then(_$DirectRoomJoinStateImpl(
-      null == presetRoomID
-          ? _value.presetRoomID
+    return _then(_self.copyWith(
+      presetRoomID: null == presetRoomID
+          ? _self.presetRoomID
           : presetRoomID // ignore: cast_nullable_to_non_nullable
               as String,
     ));
@@ -97,22 +78,26 @@ class __$$DirectRoomJoinStateImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$DirectRoomJoinStateImpl implements _DirectRoomJoinState {
-  const _$DirectRoomJoinStateImpl(this.presetRoomID);
+class _DirectRoomJoinState implements DirectRoomJoinState {
+  const _DirectRoomJoinState(this.presetRoomID);
 
   @override
   final String presetRoomID;
 
+  /// Create a copy of DirectRoomJoinState
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  String toString() {
-    return 'DirectRoomJoinState(presetRoomID: $presetRoomID)';
-  }
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  _$DirectRoomJoinStateCopyWith<_DirectRoomJoinState> get copyWith =>
+      __$DirectRoomJoinStateCopyWithImpl<_DirectRoomJoinState>(
+          this, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$DirectRoomJoinStateImpl &&
+            other is _DirectRoomJoinState &&
             (identical(other.presetRoomID, presetRoomID) ||
                 other.presetRoomID == presetRoomID));
   }
@@ -120,27 +105,45 @@ class _$DirectRoomJoinStateImpl implements _DirectRoomJoinState {
   @override
   int get hashCode => Object.hash(runtimeType, presetRoomID);
 
+  @override
+  String toString() {
+    return 'DirectRoomJoinState(presetRoomID: $presetRoomID)';
+  }
+}
+
+/// @nodoc
+abstract mixin class _$DirectRoomJoinStateCopyWith<$Res>
+    implements $DirectRoomJoinStateCopyWith<$Res> {
+  factory _$DirectRoomJoinStateCopyWith(_DirectRoomJoinState value,
+          $Res Function(_DirectRoomJoinState) _then) =
+      __$DirectRoomJoinStateCopyWithImpl;
+  @override
+  @useResult
+  $Res call({String presetRoomID});
+}
+
+/// @nodoc
+class __$DirectRoomJoinStateCopyWithImpl<$Res>
+    implements _$DirectRoomJoinStateCopyWith<$Res> {
+  __$DirectRoomJoinStateCopyWithImpl(this._self, this._then);
+
+  final _DirectRoomJoinState _self;
+  final $Res Function(_DirectRoomJoinState) _then;
+
   /// Create a copy of DirectRoomJoinState
   /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$DirectRoomJoinStateImplCopyWith<_$DirectRoomJoinStateImpl> get copyWith =>
-      __$$DirectRoomJoinStateImplCopyWithImpl<_$DirectRoomJoinStateImpl>(
-          this, _$identity);
+  $Res call({
+    Object? presetRoomID = null,
+  }) {
+    return _then(_DirectRoomJoinState(
+      null == presetRoomID
+          ? _self.presetRoomID
+          : presetRoomID // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
+  }
 }
 
-abstract class _DirectRoomJoinState implements DirectRoomJoinState {
-  const factory _DirectRoomJoinState(final String presetRoomID) =
-      _$DirectRoomJoinStateImpl;
-
-  @override
-  String get presetRoomID;
-
-  /// Create a copy of DirectRoomJoinState
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$DirectRoomJoinStateImplCopyWith<_$DirectRoomJoinStateImpl> get copyWith =>
-      throw _privateConstructorUsedError;
-}
+// dart format on

@@ -1,3 +1,4 @@
+// dart format width=80
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
@@ -9,93 +10,54 @@ part of 'poker.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 /// @nodoc
 mixin _$PokerState {
-  String get roomID => throw _privateConstructorUsedError;
-  String get adminUserID => throw _privateConstructorUsedError;
-  List<Ballot> get ballots => throw _privateConstructorUsedError;
-  VoteState get voteState => throw _privateConstructorUsedError;
-  bool get autoOpen => throw _privateConstructorUsedError;
+  String get roomID;
+  String get adminUserID;
+  List<Ballot> get ballots;
+  VoteState get voteState;
+  bool get autoOpen;
 
   /// Create a copy of PokerState
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $PokerStateCopyWith<PokerState> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class $PokerStateCopyWith<$Res> {
-  factory $PokerStateCopyWith(
-          PokerState value, $Res Function(PokerState) then) =
-      _$PokerStateCopyWithImpl<$Res, PokerState>;
-  @useResult
-  $Res call(
-      {String roomID,
-      String adminUserID,
-      List<Ballot> ballots,
-      VoteState voteState,
-      bool autoOpen});
-}
-
-/// @nodoc
-class _$PokerStateCopyWithImpl<$Res, $Val extends PokerState>
-    implements $PokerStateCopyWith<$Res> {
-  _$PokerStateCopyWithImpl(this._value, this._then);
-
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
-
-  /// Create a copy of PokerState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
+  $PokerStateCopyWith<PokerState> get copyWith =>
+      _$PokerStateCopyWithImpl<PokerState>(this as PokerState, _$identity);
+
   @override
-  $Res call({
-    Object? roomID = null,
-    Object? adminUserID = null,
-    Object? ballots = null,
-    Object? voteState = null,
-    Object? autoOpen = null,
-  }) {
-    return _then(_value.copyWith(
-      roomID: null == roomID
-          ? _value.roomID
-          : roomID // ignore: cast_nullable_to_non_nullable
-              as String,
-      adminUserID: null == adminUserID
-          ? _value.adminUserID
-          : adminUserID // ignore: cast_nullable_to_non_nullable
-              as String,
-      ballots: null == ballots
-          ? _value.ballots
-          : ballots // ignore: cast_nullable_to_non_nullable
-              as List<Ballot>,
-      voteState: null == voteState
-          ? _value.voteState
-          : voteState // ignore: cast_nullable_to_non_nullable
-              as VoteState,
-      autoOpen: null == autoOpen
-          ? _value.autoOpen
-          : autoOpen // ignore: cast_nullable_to_non_nullable
-              as bool,
-    ) as $Val);
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is PokerState &&
+            (identical(other.roomID, roomID) || other.roomID == roomID) &&
+            (identical(other.adminUserID, adminUserID) ||
+                other.adminUserID == adminUserID) &&
+            const DeepCollectionEquality().equals(other.ballots, ballots) &&
+            (identical(other.voteState, voteState) ||
+                other.voteState == voteState) &&
+            (identical(other.autoOpen, autoOpen) ||
+                other.autoOpen == autoOpen));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, roomID, adminUserID,
+      const DeepCollectionEquality().hash(ballots), voteState, autoOpen);
+
+  @override
+  String toString() {
+    return 'PokerState(roomID: $roomID, adminUserID: $adminUserID, ballots: $ballots, voteState: $voteState, autoOpen: $autoOpen)';
   }
 }
 
 /// @nodoc
-abstract class _$$PokerStateImplCopyWith<$Res>
-    implements $PokerStateCopyWith<$Res> {
-  factory _$$PokerStateImplCopyWith(
-          _$PokerStateImpl value, $Res Function(_$PokerStateImpl) then) =
-      __$$PokerStateImplCopyWithImpl<$Res>;
-  @override
+abstract mixin class $PokerStateCopyWith<$Res> {
+  factory $PokerStateCopyWith(
+          PokerState value, $Res Function(PokerState) _then) =
+      _$PokerStateCopyWithImpl;
   @useResult
   $Res call(
       {String roomID,
@@ -106,12 +68,11 @@ abstract class _$$PokerStateImplCopyWith<$Res>
 }
 
 /// @nodoc
-class __$$PokerStateImplCopyWithImpl<$Res>
-    extends _$PokerStateCopyWithImpl<$Res, _$PokerStateImpl>
-    implements _$$PokerStateImplCopyWith<$Res> {
-  __$$PokerStateImplCopyWithImpl(
-      _$PokerStateImpl _value, $Res Function(_$PokerStateImpl) _then)
-      : super(_value, _then);
+class _$PokerStateCopyWithImpl<$Res> implements $PokerStateCopyWith<$Res> {
+  _$PokerStateCopyWithImpl(this._self, this._then);
+
+  final PokerState _self;
+  final $Res Function(PokerState) _then;
 
   /// Create a copy of PokerState
   /// with the given fields replaced by the non-null parameter values.
@@ -124,25 +85,25 @@ class __$$PokerStateImplCopyWithImpl<$Res>
     Object? voteState = null,
     Object? autoOpen = null,
   }) {
-    return _then(_$PokerStateImpl(
-      null == roomID
-          ? _value.roomID
+    return _then(_self.copyWith(
+      roomID: null == roomID
+          ? _self.roomID
           : roomID // ignore: cast_nullable_to_non_nullable
               as String,
-      null == adminUserID
-          ? _value.adminUserID
+      adminUserID: null == adminUserID
+          ? _self.adminUserID
           : adminUserID // ignore: cast_nullable_to_non_nullable
               as String,
-      null == ballots
-          ? _value._ballots
+      ballots: null == ballots
+          ? _self.ballots
           : ballots // ignore: cast_nullable_to_non_nullable
               as List<Ballot>,
-      null == voteState
-          ? _value.voteState
+      voteState: null == voteState
+          ? _self.voteState
           : voteState // ignore: cast_nullable_to_non_nullable
               as VoteState,
-      null == autoOpen
-          ? _value.autoOpen
+      autoOpen: null == autoOpen
+          ? _self.autoOpen
           : autoOpen // ignore: cast_nullable_to_non_nullable
               as bool,
     ));
@@ -151,9 +112,9 @@ class __$$PokerStateImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$PokerStateImpl implements _PokerState {
-  const _$PokerStateImpl(this.roomID, this.adminUserID,
-      final List<Ballot> ballots, this.voteState, this.autoOpen)
+class _PokerState implements PokerState {
+  const _PokerState(this.roomID, this.adminUserID, final List<Ballot> ballots,
+      this.voteState, this.autoOpen)
       : _ballots = ballots;
 
   @override
@@ -173,16 +134,19 @@ class _$PokerStateImpl implements _PokerState {
   @override
   final bool autoOpen;
 
+  /// Create a copy of PokerState
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  String toString() {
-    return 'PokerState(roomID: $roomID, adminUserID: $adminUserID, ballots: $ballots, voteState: $voteState, autoOpen: $autoOpen)';
-  }
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  _$PokerStateCopyWith<_PokerState> get copyWith =>
+      __$PokerStateCopyWithImpl<_PokerState>(this, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$PokerStateImpl &&
+            other is _PokerState &&
             (identical(other.roomID, roomID) || other.roomID == roomID) &&
             (identical(other.adminUserID, adminUserID) ||
                 other.adminUserID == adminUserID) &&
@@ -197,38 +161,69 @@ class _$PokerStateImpl implements _PokerState {
   int get hashCode => Object.hash(runtimeType, roomID, adminUserID,
       const DeepCollectionEquality().hash(_ballots), voteState, autoOpen);
 
+  @override
+  String toString() {
+    return 'PokerState(roomID: $roomID, adminUserID: $adminUserID, ballots: $ballots, voteState: $voteState, autoOpen: $autoOpen)';
+  }
+}
+
+/// @nodoc
+abstract mixin class _$PokerStateCopyWith<$Res>
+    implements $PokerStateCopyWith<$Res> {
+  factory _$PokerStateCopyWith(
+          _PokerState value, $Res Function(_PokerState) _then) =
+      __$PokerStateCopyWithImpl;
+  @override
+  @useResult
+  $Res call(
+      {String roomID,
+      String adminUserID,
+      List<Ballot> ballots,
+      VoteState voteState,
+      bool autoOpen});
+}
+
+/// @nodoc
+class __$PokerStateCopyWithImpl<$Res> implements _$PokerStateCopyWith<$Res> {
+  __$PokerStateCopyWithImpl(this._self, this._then);
+
+  final _PokerState _self;
+  final $Res Function(_PokerState) _then;
+
   /// Create a copy of PokerState
   /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$PokerStateImplCopyWith<_$PokerStateImpl> get copyWith =>
-      __$$PokerStateImplCopyWithImpl<_$PokerStateImpl>(this, _$identity);
+  $Res call({
+    Object? roomID = null,
+    Object? adminUserID = null,
+    Object? ballots = null,
+    Object? voteState = null,
+    Object? autoOpen = null,
+  }) {
+    return _then(_PokerState(
+      null == roomID
+          ? _self.roomID
+          : roomID // ignore: cast_nullable_to_non_nullable
+              as String,
+      null == adminUserID
+          ? _self.adminUserID
+          : adminUserID // ignore: cast_nullable_to_non_nullable
+              as String,
+      null == ballots
+          ? _self._ballots
+          : ballots // ignore: cast_nullable_to_non_nullable
+              as List<Ballot>,
+      null == voteState
+          ? _self.voteState
+          : voteState // ignore: cast_nullable_to_non_nullable
+              as VoteState,
+      null == autoOpen
+          ? _self.autoOpen
+          : autoOpen // ignore: cast_nullable_to_non_nullable
+              as bool,
+    ));
+  }
 }
 
-abstract class _PokerState implements PokerState {
-  const factory _PokerState(
-      final String roomID,
-      final String adminUserID,
-      final List<Ballot> ballots,
-      final VoteState voteState,
-      final bool autoOpen) = _$PokerStateImpl;
-
-  @override
-  String get roomID;
-  @override
-  String get adminUserID;
-  @override
-  List<Ballot> get ballots;
-  @override
-  VoteState get voteState;
-  @override
-  bool get autoOpen;
-
-  /// Create a copy of PokerState
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$PokerStateImplCopyWith<_$PokerStateImpl> get copyWith =>
-      throw _privateConstructorUsedError;
-}
+// dart format on
