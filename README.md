@@ -53,7 +53,7 @@ $ make be/run-for-debug
 $ make fe/run-for-debug
 ```
 
-http://localhost:53676/ にアクセスするとアプリが起動します。
+http://localhost:8081/ にアクセスするとアプリが起動します。
 
 ## Development
 
