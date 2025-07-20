@@ -10,7 +10,7 @@ DOCKER_COMPOSE_CMD = docker compose
 
 MOCK_DIR=backend/internal/test/mock/
 FRONTEND_DIR=frontend/
-FRONTEND_DEBUG_PORT=8081
+FRONTEND_DEBUG_PORT=53676
 BACKEND_DIR=backend/
 
 # for docker build
