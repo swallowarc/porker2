@@ -73,10 +73,14 @@ func (i *pokerInteractor) JoinRoom(ctx context.Context, userID user.ID, roomID p
 	}
 
 	if err := i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.RoomCondition) error {
-		if err := i.userRepo.UpdateRoomID(ctx, userID, roomID); err != nil {
+		if err := c.Join(userID, userName); err != nil {
 			return err
 		}
-		return c.Join(userID, userName)
+		if err := i.userRepo.UpdateRoomID(ctx, userID, roomID); err != nil {
+			c.Leave(userID)
+			return err
+		}
+		return nil
 	}); err != nil {
 		return err
 	}
@@ -106,7 +110,7 @@ func (i *pokerInteractor) LeaveRoom(ctx context.Context, userID user.ID) error {
 	}
 
 	if err := i.pokerRepo.UpdateRoomWithLock(ctx, joinedRoomID, func(ctx context.Context, c *poker.RoomCondition) error {
-		if err := i.userRepo.UpdateRoomID(ctx, userID, joinedRoomID); err != nil {
+		if err := i.userRepo.UpdateRoomID(ctx, userID, poker.RoomID("")); err != nil {
 			return err
 		}
 		c.Leave(userID)
