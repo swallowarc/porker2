@@ -23,6 +23,7 @@ import (
 type MockUserRepository struct {
 	ctrl     *gomock.Controller
 	recorder *MockUserRepositoryMockRecorder
+	isgomock struct{}
 }
 
 // MockUserRepositoryMockRecorder is the mock recorder for MockUserRepository.
@@ -151,6 +152,7 @@ func (mr *MockUserRepositoryMockRecorder) UpdateRoomID(ctx, userID, roomID any) 
 type MockPokerRepository struct {
 	ctrl     *gomock.Controller
 	recorder *MockPokerRepositoryMockRecorder
+	isgomock struct{}
 }
 
 // MockPokerRepositoryMockRecorder is the mock recorder for MockPokerRepository.

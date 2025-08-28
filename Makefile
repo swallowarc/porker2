@@ -45,11 +45,11 @@ docker_push:
 	docker push $(DOCKER_IMAGE)
 
 setup/tools:
-	$(GOINSTALL) go.uber.org/mock/mockgen@v0.4.0
-	$(GOINSTALL) github.com/bufbuild/buf/cmd/buf@v1.32.2
-	$(GOINSTALL) google.golang.org/protobuf/cmd/protoc-gen-go@v1.33.0
-	$(GOINSTALL) google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
-	$(GOINSTALL) connectrpc.com/connect/cmd/protoc-gen-connect-go@v1.16.2
+	$(GOINSTALL) go.uber.org/mock/mockgen@v0.6.0
+	$(GOINSTALL) github.com/bufbuild/buf/cmd/buf@v1.57.0
+	$(GOINSTALL) google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.8
+	$(GOINSTALL) google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1
+	$(GOINSTALL) connectrpc.com/connect/cmd/protoc-gen-connect-go@v1.18.1
 	$(FLUTTER_CMD) pub global activate protoc_plugin
 
 setup/redis:
@@ -65,9 +65,9 @@ protoc:
 mock/clean:
 	rm -Rf ./$(MOCK_DIR)
 mock/gen: mock/clean
-	$(GOGENERATE) ./backend/internal/interface/gateway/...
-	$(GOGENERATE) ./backend/internal/usecase/interactor/...
-	$(GOGENERATE) ./backend/internal/usecase/port/...
+	cd $(BACKEND_DIR) && $(GOGENERATE) ./internal/interface/gateway/...
+	cd $(BACKEND_DIR) && $(GOGENERATE) ./internal/usecase/interactor/...
+	cd $(BACKEND_DIR) && $(GOGENERATE) ./internal/usecase/port/...
 
 fe/lint:
 	cd $(FRONTEND_DIR) && dart run custom_lint

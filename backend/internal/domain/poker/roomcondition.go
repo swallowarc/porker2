@@ -21,11 +21,12 @@ var (
 
 type (
 	RoomCondition struct {
-		RoomID      RoomID    `json:"room_id"`
-		AdminUserID user.ID   `json:"admin_user_id"`
-		VoteState   VoteState `json:"vote_state"`
-		Ballots     []*Ballot `json:"ballots"`
-		AutoOpen    bool      `json:"auto_open"`
+		RoomID      RoomID      `json:"room_id"`
+		AdminUserID user.ID     `json:"admin_user_id"`
+		VoteState   VoteState   `json:"vote_state"`
+		Ballots     []*Ballot   `json:"ballots"`
+		AutoOpen    bool        `json:"auto_open"`
+		DisplayMode DisplayMode `json:"display_mode"`
 	}
 )
 
@@ -36,6 +37,7 @@ func NewRoomCondition() *RoomCondition {
 		VoteState:   VoteStateHide,
 		Ballots:     []*Ballot{},
 		AutoOpen:    true,
+		DisplayMode: DisplayModePoint,
 	}
 }
 
@@ -148,8 +150,9 @@ func (c *RoomCondition) Kick(userID, targetID user.ID) error {
 	return nil
 }
 
-func (c *RoomCondition) UpdateSetting(autoOpen bool) {
+func (c *RoomCondition) UpdateSetting(autoOpen bool, displayMode DisplayMode) {
 	c.AutoOpen = autoOpen
+	c.DisplayMode = displayMode
 	c.tally()
 }
 

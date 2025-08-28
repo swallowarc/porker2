@@ -1078,6 +1078,7 @@ class UpdateRoomRequest extends $pb.GeneratedMessage {
   factory UpdateRoomRequest({
     $core.String? roomId,
     $core.bool? autoOpen,
+    $1.DisplayMode? displayMode,
   }) {
     final $result = create();
     if (roomId != null) {
@@ -1085,6 +1086,9 @@ class UpdateRoomRequest extends $pb.GeneratedMessage {
     }
     if (autoOpen != null) {
       $result.autoOpen = autoOpen;
+    }
+    if (displayMode != null) {
+      $result.displayMode = displayMode;
     }
     return $result;
   }
@@ -1095,6 +1099,7 @@ class UpdateRoomRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'UpdateRoomRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'porker.v2'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'roomId')
     ..aOB(2, _omitFieldNames ? '' : 'autoOpen')
+    ..e<$1.DisplayMode>(3, _omitFieldNames ? '' : 'displayMode', $pb.PbFieldType.OE, defaultOrMaker: $1.DisplayMode.DISPLAY_MODE_UNSPECIFIED, valueOf: $1.DisplayMode.valueOf, enumValues: $1.DisplayMode.values)
     ..hasRequiredFields = false
   ;
 
@@ -1136,6 +1141,15 @@ class UpdateRoomRequest extends $pb.GeneratedMessage {
   $core.bool hasAutoOpen() => $_has(1);
   @$pb.TagNumber(2)
   void clearAutoOpen() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $1.DisplayMode get displayMode => $_getN(2);
+  @$pb.TagNumber(3)
+  set displayMode($1.DisplayMode v) { setField(3, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasDisplayMode() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearDisplayMode() => clearField(3);
 }
 
 class UpdateRoomResponse extends $pb.GeneratedMessage {

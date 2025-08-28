@@ -43,6 +43,23 @@ class VoteState extends $pb.ProtobufEnum {
   const VoteState._($core.int v, $core.String n) : super(v, n);
 }
 
+class DisplayMode extends $pb.ProtobufEnum {
+  static const DisplayMode DISPLAY_MODE_UNSPECIFIED = DisplayMode._(0, _omitEnumNames ? '' : 'DISPLAY_MODE_UNSPECIFIED');
+  static const DisplayMode DISPLAY_MODE_POINT = DisplayMode._(1, _omitEnumNames ? '' : 'DISPLAY_MODE_POINT');
+  static const DisplayMode DISPLAY_MODE_TSHIRT = DisplayMode._(2, _omitEnumNames ? '' : 'DISPLAY_MODE_TSHIRT');
+
+  static const $core.List<DisplayMode> values = <DisplayMode> [
+    DISPLAY_MODE_UNSPECIFIED,
+    DISPLAY_MODE_POINT,
+    DISPLAY_MODE_TSHIRT,
+  ];
+
+  static final $core.Map<$core.int, DisplayMode> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static DisplayMode? valueOf($core.int value) => _byValue[value];
+
+  const DisplayMode._($core.int v, $core.String n) : super(v, n);
+}
+
 class Point extends $pb.ProtobufEnum {
   static const Point POINT_UNSPECIFIED = Point._(0, _omitEnumNames ? '' : 'POINT_UNSPECIFIED');
   static const Point POINT_0 = Point._(1, _omitEnumNames ? '' : 'POINT_0');

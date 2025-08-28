@@ -13,6 +13,12 @@ enum VoteState {
   VOTE_STATE_OPEN = 2;
 }
 
+enum DisplayMode {
+  DISPLAY_MODE_UNSPECIFIED = 0;
+  DISPLAY_MODE_POINT = 1;
+  DISPLAY_MODE_TSHIRT = 2;
+}
+
 enum Point {
   POINT_UNSPECIFIED = 0;
   POINT_0 = 1;
@@ -41,4 +47,5 @@ message RoomCondition {
   VoteState vote_state = 3;
   repeated Ballot ballots = 4;
   bool auto_open = 5;
+  DisplayMode display_mode = 6;
 }

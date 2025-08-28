@@ -102,6 +102,7 @@ class RoomCondition extends $pb.GeneratedMessage {
     VoteState? voteState,
     $core.Iterable<Ballot>? ballots,
     $core.bool? autoOpen,
+    DisplayMode? displayMode,
   }) {
     final $result = create();
     if (roomId != null) {
@@ -119,6 +120,9 @@ class RoomCondition extends $pb.GeneratedMessage {
     if (autoOpen != null) {
       $result.autoOpen = autoOpen;
     }
+    if (displayMode != null) {
+      $result.displayMode = displayMode;
+    }
     return $result;
   }
   RoomCondition._() : super();
@@ -131,6 +135,7 @@ class RoomCondition extends $pb.GeneratedMessage {
     ..e<VoteState>(3, _omitFieldNames ? '' : 'voteState', $pb.PbFieldType.OE, defaultOrMaker: VoteState.VOTE_STATE_UNSPECIFIED, valueOf: VoteState.valueOf, enumValues: VoteState.values)
     ..pc<Ballot>(4, _omitFieldNames ? '' : 'ballots', $pb.PbFieldType.PM, subBuilder: Ballot.create)
     ..aOB(5, _omitFieldNames ? '' : 'autoOpen')
+    ..e<DisplayMode>(6, _omitFieldNames ? '' : 'displayMode', $pb.PbFieldType.OE, defaultOrMaker: DisplayMode.DISPLAY_MODE_UNSPECIFIED, valueOf: DisplayMode.valueOf, enumValues: DisplayMode.values)
     ..hasRequiredFields = false
   ;
 
@@ -193,6 +198,15 @@ class RoomCondition extends $pb.GeneratedMessage {
   $core.bool hasAutoOpen() => $_has(4);
   @$pb.TagNumber(5)
   void clearAutoOpen() => clearField(5);
+
+  @$pb.TagNumber(6)
+  DisplayMode get displayMode => $_getN(5);
+  @$pb.TagNumber(6)
+  set displayMode(DisplayMode v) { setField(6, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasDisplayMode() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearDisplayMode() => clearField(6);
 }
 
 

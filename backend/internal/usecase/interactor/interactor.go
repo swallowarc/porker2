@@ -37,6 +37,6 @@ type (
 		// Kick kicks the target login session.
 		Kick(ctx context.Context, userID, targetUserID user.ID, roomID poker.RoomID) error
 		// Update updates the room.
-		Update(ctx context.Context, userID user.ID, roomID poker.RoomID, autoOpen bool) error
+		Update(ctx context.Context, userID user.ID, roomID poker.RoomID, autoOpen bool, displayMode poker.DisplayMode) error
 	}
 )

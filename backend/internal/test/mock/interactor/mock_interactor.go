@@ -23,6 +23,7 @@ import (
 type MockUser struct {
 	ctrl     *gomock.Controller
 	recorder *MockUserMockRecorder
+	isgomock struct{}
 }
 
 // MockUserMockRecorder is the mock recorder for MockUser.
@@ -40,6 +41,21 @@ func NewMockUser(ctrl *gomock.Controller) *MockUser {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockUser) EXPECT() *MockUserMockRecorder {
 	return m.recorder
+}
+
+// GetUser mocks base method.
+func (m *MockUser) GetUser(ctx context.Context, userID user.ID) (user.Name, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUser", ctx, userID)
+	ret0, _ := ret[0].(user.Name)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUser indicates an expected call of GetUser.
+func (mr *MockUserMockRecorder) GetUser(ctx, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUser", reflect.TypeOf((*MockUser)(nil).GetUser), ctx, userID)
 }
 
 // Login mocks base method.
@@ -76,6 +92,7 @@ func (mr *MockUserMockRecorder) Logout(ctx, userID any) *gomock.Call {
 type MockPoker struct {
 	ctrl     *gomock.Controller
 	recorder *MockPokerMockRecorder
+	isgomock struct{}
 }
 
 // MockPokerMockRecorder is the mock recorder for MockPoker.
@@ -107,6 +124,20 @@ func (m *MockPoker) CastVote(ctx context.Context, userID user.ID, roomID poker.R
 func (mr *MockPokerMockRecorder) CastVote(ctx, userID, roomID, point any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CastVote", reflect.TypeOf((*MockPoker)(nil).CastVote), ctx, userID, roomID, point)
+}
+
+// CheckRoom mocks base method.
+func (m *MockPoker) CheckRoom(ctx context.Context, userID user.ID, roomID poker.RoomID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckRoom", ctx, userID, roomID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CheckRoom indicates an expected call of CheckRoom.
+func (mr *MockPokerMockRecorder) CheckRoom(ctx, userID, roomID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckRoom", reflect.TypeOf((*MockPoker)(nil).CheckRoom), ctx, userID, roomID)
 }
 
 // CreateRoom mocks base method.
@@ -192,4 +223,18 @@ func (m *MockPoker) ShowVotes(ctx context.Context, userID user.ID, roomID poker.
 func (mr *MockPokerMockRecorder) ShowVotes(ctx, userID, roomID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowVotes", reflect.TypeOf((*MockPoker)(nil).ShowVotes), ctx, userID, roomID)
+}
+
+// Update mocks base method.
+func (m *MockPoker) Update(ctx context.Context, userID user.ID, roomID poker.RoomID, autoOpen bool, displayMode poker.DisplayMode) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Update", ctx, userID, roomID, autoOpen, displayMode)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Update indicates an expected call of Update.
+func (mr *MockPokerMockRecorder) Update(ctx, userID, roomID, autoOpen, displayMode any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockPoker)(nil).Update), ctx, userID, roomID, autoOpen, displayMode)
 }

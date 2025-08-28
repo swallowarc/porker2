@@ -40,6 +40,21 @@ final $typed_data.Uint8List voteStateDescriptor = $convert.base64Decode(
     'CglWb3RlU3RhdGUSGgoWVk9URV9TVEFURV9VTlNQRUNJRklFRBAAEhMKD1ZPVEVfU1RBVEVfSE'
     'lERRABEhMKD1ZPVEVfU1RBVEVfT1BFThAC');
 
+@$core.Deprecated('Use displayModeDescriptor instead')
+const DisplayMode$json = {
+  '1': 'DisplayMode',
+  '2': [
+    {'1': 'DISPLAY_MODE_UNSPECIFIED', '2': 0},
+    {'1': 'DISPLAY_MODE_POINT', '2': 1},
+    {'1': 'DISPLAY_MODE_TSHIRT', '2': 2},
+  ],
+};
+
+/// Descriptor for `DisplayMode`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List displayModeDescriptor = $convert.base64Decode(
+    'CgtEaXNwbGF5TW9kZRIcChhESVNQTEFZX01PREVfVU5TUEVDSUZJRUQQABIWChJESVNQTEFZX0'
+    '1PREVfUE9JTlQQARIXChNESVNQTEFZX01PREVfVFNISVJUEAI=');
+
 @$core.Deprecated('Use pointDescriptor instead')
 const Point$json = {
   '1': 'Point',
@@ -90,6 +105,7 @@ const RoomCondition$json = {
     {'1': 'vote_state', '3': 3, '4': 1, '5': 14, '6': '.porker.v2.VoteState', '10': 'voteState'},
     {'1': 'ballots', '3': 4, '4': 3, '5': 11, '6': '.porker.v2.Ballot', '10': 'ballots'},
     {'1': 'auto_open', '3': 5, '4': 1, '5': 8, '10': 'autoOpen'},
+    {'1': 'display_mode', '3': 6, '4': 1, '5': 14, '6': '.porker.v2.DisplayMode', '10': 'displayMode'},
   ],
 };
 
@@ -98,5 +114,6 @@ final $typed_data.Uint8List roomConditionDescriptor = $convert.base64Decode(
     'Cg1Sb29tQ29uZGl0aW9uEhcKB3Jvb21faWQYASABKAlSBnJvb21JZBIiCg1hZG1pbl91c2VyX2'
     'lkGAIgASgJUgthZG1pblVzZXJJZBIzCgp2b3RlX3N0YXRlGAMgASgOMhQucG9ya2VyLnYyLlZv'
     'dGVTdGF0ZVIJdm90ZVN0YXRlEisKB2JhbGxvdHMYBCADKAsyES5wb3JrZXIudjIuQmFsbG90Ug'
-    'diYWxsb3RzEhsKCWF1dG9fb3BlbhgFIAEoCFIIYXV0b09wZW4=');
+    'diYWxsb3RzEhsKCWF1dG9fb3BlbhgFIAEoCFIIYXV0b09wZW4SOQoMZGlzcGxheV9tb2RlGAYg'
+    'ASgOMhYucG9ya2VyLnYyLkRpc3BsYXlNb2RlUgtkaXNwbGF5TW9kZQ==');
 

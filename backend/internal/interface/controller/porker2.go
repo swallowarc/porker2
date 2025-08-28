@@ -243,7 +243,8 @@ func (p *porker2) KickUser(ctx context.Context, r *connect.Request[pb.KickUserRe
 }
 
 func (p *porker2) UpdateRoom(ctx context.Context, r *connect.Request[pb.UpdateRoomRequest]) (*connect.Response[pb.UpdateRoomResponse], error) {
-	if err := p.pokerItr.Update(ctx, p.session.UserIDFromCtx(ctx), roomIDFromProto(r.Msg.RoomId), r.Msg.AutoOpen); err != nil {
+	displayMode := poker.DisplayMode(r.Msg.DisplayMode)
+	if err := p.pokerItr.Update(ctx, p.session.UserIDFromCtx(ctx), roomIDFromProto(r.Msg.RoomId), r.Msg.AutoOpen, displayMode); err != nil {
 		return nil, err
 	}
 

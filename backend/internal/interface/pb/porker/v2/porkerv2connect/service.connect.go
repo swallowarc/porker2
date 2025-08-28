@@ -66,23 +66,6 @@ const (
 	Porker2ServiceUpdateRoomProcedure = "/porker.v2.Porker2Service/UpdateRoom"
 )
 
-// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
-var (
-	porker2ServiceServiceDescriptor          = v2.File_porker_v2_service_proto.Services().ByName("Porker2Service")
-	porker2ServiceLoginMethodDescriptor      = porker2ServiceServiceDescriptor.Methods().ByName("Login")
-	porker2ServiceLogoutMethodDescriptor     = porker2ServiceServiceDescriptor.Methods().ByName("Logout")
-	porker2ServiceVerifyUserMethodDescriptor = porker2ServiceServiceDescriptor.Methods().ByName("VerifyUser")
-	porker2ServiceCreateRoomMethodDescriptor = porker2ServiceServiceDescriptor.Methods().ByName("CreateRoom")
-	porker2ServiceCheckRoomMethodDescriptor  = porker2ServiceServiceDescriptor.Methods().ByName("CheckRoom")
-	porker2ServiceJoinRoomMethodDescriptor   = porker2ServiceServiceDescriptor.Methods().ByName("JoinRoom")
-	porker2ServiceLeaveRoomMethodDescriptor  = porker2ServiceServiceDescriptor.Methods().ByName("LeaveRoom")
-	porker2ServiceCastVoteMethodDescriptor   = porker2ServiceServiceDescriptor.Methods().ByName("CastVote")
-	porker2ServiceShowVotesMethodDescriptor  = porker2ServiceServiceDescriptor.Methods().ByName("ShowVotes")
-	porker2ServiceResetVotesMethodDescriptor = porker2ServiceServiceDescriptor.Methods().ByName("ResetVotes")
-	porker2ServiceKickUserMethodDescriptor   = porker2ServiceServiceDescriptor.Methods().ByName("KickUser")
-	porker2ServiceUpdateRoomMethodDescriptor = porker2ServiceServiceDescriptor.Methods().ByName("UpdateRoom")
-)
-
 // Porker2ServiceClient is a client for the porker.v2.Porker2Service service.
 type Porker2ServiceClient interface {
 	Login(context.Context, *connect.Request[v2.LoginRequest]) (*connect.Response[v2.LoginResponse], error)
@@ -108,77 +91,78 @@ type Porker2ServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewPorker2ServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) Porker2ServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
+	porker2ServiceMethods := v2.File_porker_v2_service_proto.Services().ByName("Porker2Service").Methods()
 	return &porker2ServiceClient{
 		login: connect.NewClient[v2.LoginRequest, v2.LoginResponse](
 			httpClient,
 			baseURL+Porker2ServiceLoginProcedure,
-			connect.WithSchema(porker2ServiceLoginMethodDescriptor),
+			connect.WithSchema(porker2ServiceMethods.ByName("Login")),
 			connect.WithClientOptions(opts...),
 		),
 		logout: connect.NewClient[v2.LogoutRequest, v2.LogoutResponse](
 			httpClient,
 			baseURL+Porker2ServiceLogoutProcedure,
-			connect.WithSchema(porker2ServiceLogoutMethodDescriptor),
+			connect.WithSchema(porker2ServiceMethods.ByName("Logout")),
 			connect.WithClientOptions(opts...),
 		),
 		verifyUser: connect.NewClient[v2.VerifyUserRequest, v2.VerifyUserResponse](
 			httpClient,
 			baseURL+Porker2ServiceVerifyUserProcedure,
-			connect.WithSchema(porker2ServiceVerifyUserMethodDescriptor),
+			connect.WithSchema(porker2ServiceMethods.ByName("VerifyUser")),
 			connect.WithClientOptions(opts...),
 		),
 		createRoom: connect.NewClient[v2.CreateRoomRequest, v2.CreateRoomResponse](
 			httpClient,
 			baseURL+Porker2ServiceCreateRoomProcedure,
-			connect.WithSchema(porker2ServiceCreateRoomMethodDescriptor),
+			connect.WithSchema(porker2ServiceMethods.ByName("CreateRoom")),
 			connect.WithClientOptions(opts...),
 		),
 		checkRoom: connect.NewClient[v2.CheckRoomRequest, v2.CheckRoomResponse](
 			httpClient,
 			baseURL+Porker2ServiceCheckRoomProcedure,
-			connect.WithSchema(porker2ServiceCheckRoomMethodDescriptor),
+			connect.WithSchema(porker2ServiceMethods.ByName("CheckRoom")),
 			connect.WithClientOptions(opts...),
 		),
 		joinRoom: connect.NewClient[v2.JoinRoomRequest, v2.JoinRoomResponse](
 			httpClient,
 			baseURL+Porker2ServiceJoinRoomProcedure,
-			connect.WithSchema(porker2ServiceJoinRoomMethodDescriptor),
+			connect.WithSchema(porker2ServiceMethods.ByName("JoinRoom")),
 			connect.WithClientOptions(opts...),
 		),
 		leaveRoom: connect.NewClient[v2.LeaveRoomRequest, v2.LeaveRoomResponse](
 			httpClient,
 			baseURL+Porker2ServiceLeaveRoomProcedure,
-			connect.WithSchema(porker2ServiceLeaveRoomMethodDescriptor),
+			connect.WithSchema(porker2ServiceMethods.ByName("LeaveRoom")),
 			connect.WithClientOptions(opts...),
 		),
 		castVote: connect.NewClient[v2.CastVoteRequest, v2.CastVoteResponse](
 			httpClient,
 			baseURL+Porker2ServiceCastVoteProcedure,
-			connect.WithSchema(porker2ServiceCastVoteMethodDescriptor),
+			connect.WithSchema(porker2ServiceMethods.ByName("CastVote")),
 			connect.WithClientOptions(opts...),
 		),
 		showVotes: connect.NewClient[v2.ShowVotesRequest, v2.ShowVotesResponse](
 			httpClient,
 			baseURL+Porker2ServiceShowVotesProcedure,
-			connect.WithSchema(porker2ServiceShowVotesMethodDescriptor),
+			connect.WithSchema(porker2ServiceMethods.ByName("ShowVotes")),
 			connect.WithClientOptions(opts...),
 		),
 		resetVotes: connect.NewClient[v2.ResetVotesRequest, v2.ResetVotesResponse](
 			httpClient,
 			baseURL+Porker2ServiceResetVotesProcedure,
-			connect.WithSchema(porker2ServiceResetVotesMethodDescriptor),
+			connect.WithSchema(porker2ServiceMethods.ByName("ResetVotes")),
 			connect.WithClientOptions(opts...),
 		),
 		kickUser: connect.NewClient[v2.KickUserRequest, v2.KickUserResponse](
 			httpClient,
 			baseURL+Porker2ServiceKickUserProcedure,
-			connect.WithSchema(porker2ServiceKickUserMethodDescriptor),
+			connect.WithSchema(porker2ServiceMethods.ByName("KickUser")),
 			connect.WithClientOptions(opts...),
 		),
 		updateRoom: connect.NewClient[v2.UpdateRoomRequest, v2.UpdateRoomResponse](
 			httpClient,
 			baseURL+Porker2ServiceUpdateRoomProcedure,
-			connect.WithSchema(porker2ServiceUpdateRoomMethodDescriptor),
+			connect.WithSchema(porker2ServiceMethods.ByName("UpdateRoom")),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -282,76 +266,77 @@ type Porker2ServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewPorker2ServiceHandler(svc Porker2ServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	porker2ServiceMethods := v2.File_porker_v2_service_proto.Services().ByName("Porker2Service").Methods()
 	porker2ServiceLoginHandler := connect.NewUnaryHandler(
 		Porker2ServiceLoginProcedure,
 		svc.Login,
-		connect.WithSchema(porker2ServiceLoginMethodDescriptor),
+		connect.WithSchema(porker2ServiceMethods.ByName("Login")),
 		connect.WithHandlerOptions(opts...),
 	)
 	porker2ServiceLogoutHandler := connect.NewUnaryHandler(
 		Porker2ServiceLogoutProcedure,
 		svc.Logout,
-		connect.WithSchema(porker2ServiceLogoutMethodDescriptor),
+		connect.WithSchema(porker2ServiceMethods.ByName("Logout")),
 		connect.WithHandlerOptions(opts...),
 	)
 	porker2ServiceVerifyUserHandler := connect.NewUnaryHandler(
 		Porker2ServiceVerifyUserProcedure,
 		svc.VerifyUser,
-		connect.WithSchema(porker2ServiceVerifyUserMethodDescriptor),
+		connect.WithSchema(porker2ServiceMethods.ByName("VerifyUser")),
 		connect.WithHandlerOptions(opts...),
 	)
 	porker2ServiceCreateRoomHandler := connect.NewUnaryHandler(
 		Porker2ServiceCreateRoomProcedure,
 		svc.CreateRoom,
-		connect.WithSchema(porker2ServiceCreateRoomMethodDescriptor),
+		connect.WithSchema(porker2ServiceMethods.ByName("CreateRoom")),
 		connect.WithHandlerOptions(opts...),
 	)
 	porker2ServiceCheckRoomHandler := connect.NewUnaryHandler(
 		Porker2ServiceCheckRoomProcedure,
 		svc.CheckRoom,
-		connect.WithSchema(porker2ServiceCheckRoomMethodDescriptor),
+		connect.WithSchema(porker2ServiceMethods.ByName("CheckRoom")),
 		connect.WithHandlerOptions(opts...),
 	)
 	porker2ServiceJoinRoomHandler := connect.NewServerStreamHandler(
 		Porker2ServiceJoinRoomProcedure,
 		svc.JoinRoom,
-		connect.WithSchema(porker2ServiceJoinRoomMethodDescriptor),
+		connect.WithSchema(porker2ServiceMethods.ByName("JoinRoom")),
 		connect.WithHandlerOptions(opts...),
 	)
 	porker2ServiceLeaveRoomHandler := connect.NewUnaryHandler(
 		Porker2ServiceLeaveRoomProcedure,
 		svc.LeaveRoom,
-		connect.WithSchema(porker2ServiceLeaveRoomMethodDescriptor),
+		connect.WithSchema(porker2ServiceMethods.ByName("LeaveRoom")),
 		connect.WithHandlerOptions(opts...),
 	)
 	porker2ServiceCastVoteHandler := connect.NewUnaryHandler(
 		Porker2ServiceCastVoteProcedure,
 		svc.CastVote,
-		connect.WithSchema(porker2ServiceCastVoteMethodDescriptor),
+		connect.WithSchema(porker2ServiceMethods.ByName("CastVote")),
 		connect.WithHandlerOptions(opts...),
 	)
 	porker2ServiceShowVotesHandler := connect.NewUnaryHandler(
 		Porker2ServiceShowVotesProcedure,
 		svc.ShowVotes,
-		connect.WithSchema(porker2ServiceShowVotesMethodDescriptor),
+		connect.WithSchema(porker2ServiceMethods.ByName("ShowVotes")),
 		connect.WithHandlerOptions(opts...),
 	)
 	porker2ServiceResetVotesHandler := connect.NewUnaryHandler(
 		Porker2ServiceResetVotesProcedure,
 		svc.ResetVotes,
-		connect.WithSchema(porker2ServiceResetVotesMethodDescriptor),
+		connect.WithSchema(porker2ServiceMethods.ByName("ResetVotes")),
 		connect.WithHandlerOptions(opts...),
 	)
 	porker2ServiceKickUserHandler := connect.NewUnaryHandler(
 		Porker2ServiceKickUserProcedure,
 		svc.KickUser,
-		connect.WithSchema(porker2ServiceKickUserMethodDescriptor),
+		connect.WithSchema(porker2ServiceMethods.ByName("KickUser")),
 		connect.WithHandlerOptions(opts...),
 	)
 	porker2ServiceUpdateRoomHandler := connect.NewUnaryHandler(
 		Porker2ServiceUpdateRoomProcedure,
 		svc.UpdateRoom,
-		connect.WithSchema(porker2ServiceUpdateRoomMethodDescriptor),
+		connect.WithSchema(porker2ServiceMethods.ByName("UpdateRoom")),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/porker.v2.Porker2Service/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

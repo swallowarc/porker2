@@ -17,6 +17,7 @@ func TestNewRoomCondition(t *testing.T) {
 	assert.Equal(t, VoteStateHide, c.VoteState)
 	assert.Empty(t, c.Ballots)
 	assert.True(t, c.AutoOpen)
+	assert.Equal(t, DisplayModePoint, c.DisplayMode)
 }
 
 func TestRoomCondition_Join(t *testing.T) {
@@ -120,8 +121,9 @@ func TestRoomCondition_Kick(t *testing.T) {
 
 func TestRoomCondition_UpdateSetting(t *testing.T) {
 	c := NewRoomCondition()
-	c.UpdateSetting(false)
+	c.UpdateSetting(false, DisplayModeTShirt)
 	assert.False(t, c.AutoOpen)
+	assert.Equal(t, DisplayModeTShirt, c.DisplayMode)
 }
 
 func TestRoomCondition_AutoOpen(t *testing.T) {
@@ -137,7 +139,7 @@ func TestRoomCondition_AutoOpen(t *testing.T) {
 
 	// 自動開票が無効の場合
 	c.Reset()
-	c.UpdateSetting(false)
+	c.UpdateSetting(false, DisplayModePoint)
 	c.Vote("user1", Point3)
 	c.Vote("user2", Point5)
 	assert.Equal(t, VoteStateHide, c.VoteState)
@@ -161,6 +163,7 @@ func TestRoomCondition_Json(t *testing.T) {
 	assert.Equal(t, c.AdminUserID, c2.AdminUserID)
 	assert.Equal(t, c.VoteState, c2.VoteState)
 	assert.Equal(t, c.AutoOpen, c2.AutoOpen)
+	assert.Equal(t, c.DisplayMode, c2.DisplayMode)
 	assert.Len(t, c2.Ballots, 1)
 	assert.Equal(t, c.Ballots[0].UserID, c2.Ballots[0].UserID)
 	assert.Equal(t, c.Ballots[0].Point, c2.Ballots[0].Point)

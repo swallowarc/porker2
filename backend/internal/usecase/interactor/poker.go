@@ -165,13 +165,13 @@ func (i *pokerInteractor) Kick(ctx context.Context, userID, targetUserID user.ID
 	})
 }
 
-func (i *pokerInteractor) Update(ctx context.Context, userID user.ID, roomID poker.RoomID, autoOpen bool) error {
+func (i *pokerInteractor) Update(ctx context.Context, userID user.ID, roomID poker.RoomID, autoOpen bool, displayMode poker.DisplayMode) error {
 	if err := i.checkUserRoomJoin(ctx, userID, roomID); err != nil {
 		return err
 	}
 
 	return i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.RoomCondition) error {
-		c.UpdateSetting(autoOpen)
+		c.UpdateSetting(autoOpen, displayMode)
 		return nil
 	})
 }

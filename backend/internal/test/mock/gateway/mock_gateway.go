@@ -21,6 +21,7 @@ import (
 type MockMemDBClient struct {
 	ctrl     *gomock.Controller
 	recorder *MockMemDBClientMockRecorder
+	isgomock struct{}
 }
 
 // MockMemDBClientMockRecorder is the mock recorder for MockMemDBClient.

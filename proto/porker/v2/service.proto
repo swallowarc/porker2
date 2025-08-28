@@ -206,6 +206,7 @@ message KickUserResponse {}
 message UpdateRoomRequest {
   string room_id = 1;
   bool auto_open = 2;
+  DisplayMode display_mode = 3;
 }
 
 message UpdateRoomResponse {}
