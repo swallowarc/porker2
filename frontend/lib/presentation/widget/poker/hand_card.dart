@@ -7,6 +7,7 @@ class HandCard extends StatefulWidget {
   final Function() onTap;
   final int delayMilliseconds;
   final bool selected;
+  final DisplayMode displayMode;
 
   const HandCard({
     super.key,
@@ -14,6 +15,7 @@ class HandCard extends StatefulWidget {
     required this.onTap,
     required this.delayMilliseconds,
     required this.selected,
+    this.displayMode = DisplayMode.DISPLAY_MODE_POINT,
   });
 
   @override
@@ -97,7 +99,7 @@ class HandCardState extends State<HandCard> with TickerProviderStateMixin {
           position: offset,
           child: GestureDetector(
             onTap: _handleTap,
-            child: BaseCard.initOpen(widget.point),
+            child: BaseCard.initOpen(widget.point, displayMode: widget.displayMode),
           ),
         );
       },

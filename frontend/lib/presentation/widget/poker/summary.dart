@@ -26,7 +26,15 @@ class Summary extends HookConsumerWidget {
     });
     final double average = total / validVotes;
 
-    return Text("Avg: ${average.toStringAsFixed(1)}",
+    String displayText;
+    if (poker.displayMode == DisplayMode.DISPLAY_MODE_TSHIRT) {
+      final tshirtSize = averageToTshirtSize(average);
+      displayText = "Avg: $tshirtSize (${average.toStringAsFixed(1)})";
+    } else {
+      displayText = "Avg: ${average.toStringAsFixed(1)}";
+    }
+
+    return Text(displayText,
         style: const TextStyle(fontSize: 17, color: Colors.green));
   }
 }

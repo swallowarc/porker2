@@ -25,7 +25,7 @@ class HandCards extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userProvider);
     final pokerNotifier = ref.read(pokerProvider.notifier);
-    final _ = ref.watch(pokerProvider);
+    final poker = ref.watch(pokerProvider);
 
     final myPoint = pokerNotifier.myPoint(user.userID);
 
@@ -82,6 +82,7 @@ class HandCards extends HookConsumerWidget {
                           },
                           delayMilliseconds: index * 100,
                           selected: myPoint == pointOrder[index],
+                          displayMode: poker.displayMode,
                         ),
                       ),
                     );
@@ -108,6 +109,7 @@ class HandCards extends HookConsumerWidget {
                 },
                 delayMilliseconds: 1000,
                 selected: myPoint == Point.POINT_COFFEE,
+                displayMode: poker.displayMode,
               ),
               const SizedBox(width: 20),
               HandCard(
@@ -125,6 +127,7 @@ class HandCards extends HookConsumerWidget {
                 },
                 delayMilliseconds: 1100,
                 selected: myPoint == Point.POINT_QUESTION,
+                displayMode: poker.displayMode,
               ),
             ],
           ),

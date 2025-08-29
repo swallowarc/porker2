@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:porker2fe/data/datasource/pb/porker/v2/domain.pb.dart';
 import 'package:porker2fe/data/datasource/pb/porker/v2/domain.pbenum.dart';
 import 'package:porker2fe/presentation/widget/poker/base_card.dart';
 
@@ -13,6 +14,7 @@ class FieldCard extends ConsumerStatefulWidget {
 
   final Point point;
   final bool opened;
+  final DisplayMode displayMode;
 
   FieldCard({
     super.key,
@@ -20,6 +22,7 @@ class FieldCard extends ConsumerStatefulWidget {
     required this.loginName,
     required this.point,
     required this.opened,
+    this.displayMode = DisplayMode.DISPLAY_MODE_POINT,
   }) {
     _loginIDHash = loginID.hashCode;
     _loginNameHash = loginName.hashCode;
@@ -115,6 +118,7 @@ class FieldCardState extends ConsumerState<FieldCard>
       widget.point,
       widget._loginIDHash,
       widget._loginNameHash,
+      displayMode: widget.displayMode,
     );
 
     if (_turnController.isAnimating || _turnController.value > 0) {

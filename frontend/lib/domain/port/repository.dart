@@ -30,7 +30,7 @@ abstract class Porker2ServiceRepository {
 
   Future<void> kickUser(String roomID, targetUserID);
 
-  Future<void> updateRoom(String roomID, bool autoOpen);
+  Future<void> updateRoom(String roomID, bool autoOpen, DisplayMode displayMode);
 }
 
 abstract class LocalStorageRepository {

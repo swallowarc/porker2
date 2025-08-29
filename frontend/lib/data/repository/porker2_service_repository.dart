@@ -127,9 +127,10 @@ class Porker2ServiceRepositoryImpl extends Porker2ServiceRepository {
   }
 
   @override
-  Future<void> updateRoom(String roomID, bool autoOpen) async {
+  Future<void> updateRoom(String roomID, bool autoOpen, DisplayMode displayMode) async {
     _client.updateRoom(UpdateRoomRequest()
       ..roomId = roomID
-      ..autoOpen = autoOpen);
+      ..autoOpen = autoOpen
+      ..displayMode = displayMode);
   }
 }

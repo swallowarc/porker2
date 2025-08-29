@@ -173,7 +173,15 @@ class _Drawer extends HookConsumerWidget {
             title: const Text('Auto open'),
             value: poker.autoOpen,
             onChanged: (bool value) {
-              invoke(context, () => pokerNotifier.updateRoom(value), (_) {});
+              invoke(context, () => pokerNotifier.updateRoom(value, poker.displayMode), (_) {});
+            },
+          ),
+          SwitchListTile(
+            title: const Text('T-shirt mode'),
+            value: poker.displayMode == DisplayMode.DISPLAY_MODE_TSHIRT,
+            onChanged: (bool value) {
+              final newMode = value ? DisplayMode.DISPLAY_MODE_TSHIRT : DisplayMode.DISPLAY_MODE_POINT;
+              invoke(context, () => pokerNotifier.updateRoom(poker.autoOpen, newMode), (_) {});
             },
           ),
         ],

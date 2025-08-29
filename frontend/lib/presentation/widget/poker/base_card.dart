@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:porker2fe/data/datasource/pb/porker/v2/domain.pb.dart';
 import 'package:porker2fe/data/datasource/pb/porker/v2/domain.pbenum.dart';
 import 'package:porker2fe/domain/entity/point.dart';
 import 'package:sprintf/sprintf.dart';
@@ -34,11 +35,12 @@ class BaseCard extends StatelessWidget {
   final Point point;
   final int loginIDHash;
   final int loginNameHash;
+  final DisplayMode displayMode;
 
   const BaseCard(this.opened, this.point, this.loginIDHash, this.loginNameHash,
-      {super.key});
+      {super.key, this.displayMode = DisplayMode.DISPLAY_MODE_POINT});
 
-  const BaseCard.initOpen(this.point, {super.key})
+  const BaseCard.initOpen(this.point, {super.key, this.displayMode = DisplayMode.DISPLAY_MODE_POINT})
       : opened = true,
         loginIDHash = 0,
         loginNameHash = 0;
@@ -53,7 +55,7 @@ class BaseCard extends StatelessWidget {
           color: _pointColors[point],
           child: Center(
             child: Text(
-              pointFromPb(point),
+              pointFromPbDisplay(point, displayMode),
               style: const TextStyle(color: Colors.black54, fontSize: 32),
             ),
           ),

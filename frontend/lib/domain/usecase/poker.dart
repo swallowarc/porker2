@@ -12,7 +12,8 @@ abstract class PokerState with _$PokerState {
       String adminUserID,
       List<Ballot> ballots,
       VoteState voteState,
-      bool autoOpen,) = _PokerState;
+      bool autoOpen,
+      DisplayMode displayMode,) = _PokerState;
 }
 
 class Poker extends StateNotifier<PokerState> {
@@ -21,7 +22,7 @@ class Poker extends StateNotifier<PokerState> {
   String _subscribingRoomID = "";
 
   Poker(this._svcRepo)
-      : super(const PokerState("", "", [], VoteState.VOTE_STATE_HIDE, true));
+      : super(const PokerState("", "", [], VoteState.VOTE_STATE_HIDE, true, DisplayMode.DISPLAY_MODE_POINT));
 
   void _reset() {
     state = state.copyWith(
@@ -30,6 +31,7 @@ class Poker extends StateNotifier<PokerState> {
       ballots: [],
       voteState: VoteState.VOTE_STATE_HIDE,
       autoOpen: true,
+      displayMode: DisplayMode.DISPLAY_MODE_POINT,
     );
   }
 
@@ -57,6 +59,7 @@ class Poker extends StateNotifier<PokerState> {
         ballots: rc.ballots,
         voteState: rc.voteState,
         autoOpen: rc.autoOpen,
+        displayMode: rc.displayMode,
       );
     }).then((_) {
       logger.d("unsubscribe room condition");
@@ -84,8 +87,8 @@ class Poker extends StateNotifier<PokerState> {
         targetUserID,
       );
 
-  Future<void> updateRoom(bool autoOpen) async {
-    await _svcRepo.updateRoom(state.roomID, autoOpen);
+  Future<void> updateRoom(bool autoOpen, DisplayMode displayMode) async {
+    await _svcRepo.updateRoom(state.roomID, autoOpen, displayMode);
   }
 
   bool get opened => state.voteState == VoteState.VOTE_STATE_OPEN;
