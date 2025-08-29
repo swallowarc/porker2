@@ -1,32 +1,83 @@
-# build frontend
-FROM swallowarc/flutter-builder AS build_frontend
+# ===== Flutter Dependencies Stage =====
+# Cache Flutter dependencies separately to avoid re-downloading on code changes
+FROM swallowarc/flutter-builder AS flutter_deps
 
 WORKDIR /app
-COPY ./frontend ./
-RUN flutter clean
+
+# Copy only dependency files first for better caching
+COPY frontend/pubspec.yaml frontend/pubspec.lock ./
 RUN flutter pub get
-RUN flutter build web --release
 
-# バックエンド（Go gRPCサーバ）をビルドするステージ
-FROM golang:1.24-alpine AS build_backend
+# ===== Flutter Build Stage =====
+FROM flutter_deps AS build_frontend
 
 WORKDIR /app
-COPY ./backend ./
-RUN GOARCH=amd64 GOOS=linux go build -o server cmd/porker2/main.go
 
-# 最終ステージ: Nginxを使ってフロントエンドを提供し、Goサーバを同じコンテナで実行
+# Copy the rest of frontend code
+COPY frontend/ ./
+
+# Build without re-fetching dependencies (--no-pub flag)
+RUN flutter build web --release --no-pub
+
+# ===== Go Dependencies Stage =====
+# Cache Go modules separately
+FROM golang:1.24-alpine AS go_deps
+
+WORKDIR /app
+
+# Install git for fetching dependencies
+RUN apk add --no-cache git
+
+# Copy only go.mod and go.sum for dependency caching
+COPY backend/go.mod backend/go.sum ./
+RUN go mod download && go mod verify
+
+# ===== Go Build Stage =====
+FROM go_deps AS build_backend
+
+WORKDIR /app
+
+# Copy the backend source code
+COPY backend/ ./
+
+# Build with optimizations
+# - CGO_ENABLED=0 for static binary
+# - ldflags -s -w to strip debug info and reduce binary size
+# - trimpath to remove file system paths from binary
+RUN CGO_ENABLED=0 GOARCH=amd64 GOOS=linux \
+    go build -ldflags="-s -w" -trimpath -o server cmd/porker2/main.go
+
+# ===== Final Stage =====
 FROM nginx:alpine AS final
 
 WORKDIR /app
 
-# フロントエンドの静的ファイルをコピー
-COPY --from=build_frontend /app/build/web /usr/share/nginx/html
+# Install ca-certificates for HTTPS connections
+RUN apk add --no-cache ca-certificates tzdata
 
-# Nginxのデフォルト設定を上書きして、APIリクエストをGoサーバにプロキシする
+# Copy built artifacts from previous stages
+COPY --from=build_frontend /app/build/web /usr/share/nginx/html
+COPY --from=build_backend /app/server .
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Goサーバのバイナリをコピー
-COPY --from=build_backend /app/server .
+# Create a non-root user for better security
+RUN adduser -D -u 1001 appuser && \
+    chown -R appuser:appuser /app && \
+    chown -R appuser:appuser /usr/share/nginx/html && \
+    chown -R appuser:appuser /var/cache/nginx && \
+    chown -R appuser:appuser /var/log/nginx && \
+    touch /var/run/nginx.pid && \
+    chown appuser:appuser /var/run/nginx.pid
 
-# GoサーバとNginxを同時に起動
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost/health || exit 1
+
+# Expose ports
+EXPOSE 80 8080
+
+# Switch to non-root user
+USER appuser
+
+# Start both services
 CMD ["sh", "-c", "./server & nginx -g 'daemon off;'"]
