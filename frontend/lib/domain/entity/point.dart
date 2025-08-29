@@ -105,37 +105,59 @@ double pointToDouble (Point point) {
 }
 
 String averageToTshirtSize(double average) {
-  if (average <= 0.25) {
+  // Check for exact values first
+  if (average == 0.0) {
     return "Kids";
-  } else if (average <= 0.5) {
-    return "Kids-XXS";
-  } else if (average <= 0.75) {
+  } else if (average == 0.5) {
     return "XXS";
-  } else if (average <= 1.0) {
-    return "XXS-XS";
-  } else if (average <= 1.5) {
+  } else if (average == 1.0) {
     return "XS";
-  } else if (average <= 2.0) {
-    return "XS-S";
-  } else if (average <= 2.5) {
+  } else if (average == 2.0) {
     return "S";
-  } else if (average <= 3.0) {
-    return "S-M";
-  } else if (average <= 4.0) {
+  } else if (average == 3.0) {
     return "M";
-  } else if (average <= 5.0) {
-    return "M-L";
-  } else if (average <= 6.5) {
+  } else if (average == 5.0) {
     return "L";
-  } else if (average <= 8.0) {
-    return "L-XL";
-  } else if (average <= 10.5) {
+  } else if (average == 8.0) {
     return "XL";
-  } else if (average <= 13.0) {
-    return "XL-XXL";
-  } else if (average <= 17.0) {
+  } else if (average == 13.0) {
     return "XXL";
-  } else if (average <= 21.0) {
+  } else if (average == 21.0) {
+    return "3XL";
+  }
+  
+  // Handle ranges for non-exact values
+  if (average < 0.25) {
+    return "Kids";
+  } else if (average < 0.5) {
+    return "Kids-XXS";
+  } else if (average < 0.75) {
+    return "XXS";
+  } else if (average < 1.0) {
+    return "XXS-XS";
+  } else if (average < 1.5) {
+    return "XS";
+  } else if (average < 2.0) {
+    return "XS-S";
+  } else if (average < 2.5) {
+    return "S";
+  } else if (average < 3.0) {
+    return "S-M";
+  } else if (average < 4.0) {
+    return "M";
+  } else if (average < 5.0) {
+    return "M-L";
+  } else if (average < 6.5) {
+    return "L";
+  } else if (average < 8.0) {
+    return "L-XL";
+  } else if (average < 10.5) {
+    return "XL";
+  } else if (average < 13.0) {
+    return "XL-XXL";
+  } else if (average < 17.0) {
+    return "XXL";
+  } else if (average < 21.0) {
     return "XXL-3XL";
   } else {
     return "3XL";
