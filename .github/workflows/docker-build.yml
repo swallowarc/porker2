@@ -95,64 +95,34 @@ jobs:
           body: |
             ## Docker Image
             
-            Docker image has been published to Docker Hub:
-            
             `${{ env.DOCKER_IMAGE }}:${{ github.ref_name }}`
             
-            ### Multi-Architecture Support
+            マルチアーキテクチャサポート: `linux/amd64`, `linux/arm64`
             
-            This release includes images for both `linux/amd64` and `linux/arm64` platforms.
-            
-            ### Running with Docker
+            ### 使用方法
             
             ```bash
-            # Pull the image (automatically selects the right architecture)
-            docker pull ${{ env.DOCKER_IMAGE }}:${{ github.ref_name }}
-            
-            # Run the container
             docker run -d \
               --name porker2 \
               -p 8080:8080 \
               -p 80:80 \
-              -e REDIS_URL="redis://your-redis-host:6379" \
-              -e PORKER2_ENV="production" \
+              -e ENV=production \
+              -e REDIS_HOST_PORT=redis:6379 \
+              -e REDIS_DB=0 \
+              -e CONNECT_CORS_ALLOW_ORIGINS=http://localhost \
+              -e SESSION_COOKIE_DOMAIN=localhost \
               ${{ env.DOCKER_IMAGE }}:${{ github.ref_name }}
             ```
             
-            ### Running with Docker Compose
+            ### 環境変数
             
-            ```yaml
-            version: '3.8'
-            services:
-              porker2:
-                image: ${{ env.DOCKER_IMAGE }}:${{ github.ref_name }}
-                ports:
-                  - "8080:8080"
-                  - "80:80"
-                environment:
-                  - REDIS_URL=redis://redis:6379
-                  - PORKER2_ENV=production
-                depends_on:
-                  - redis
-              
-              redis:
-                image: redis:7-alpine
-                ports:
-                  - "6379:6379"
-            ```
+            | 変数名 | 説明 | デフォルト値 |
+            |--------|------|------------|
+            | `ENV` | 環境 (local/production) | local |
+            | `REDIS_HOST_PORT` | Redisホスト:ポート | localhost:6379 |
+            | `REDIS_DB` | Redis DBインデックス | 0 |
+            | `CONNECT_PORT` | バックエンドポート | 8080 |
+            | `CONNECT_CORS_ALLOW_ORIGINS` | CORS許可オリジン | 必須 |
+            | `SESSION_COOKIE_DOMAIN` | クッキードメイン | localhost |
             
-            ### Build Optimizations
-            
-            This release uses an optimized build process with:
-            - Layer caching for dependencies
-            - Multi-stage parallel builds
-            - Registry-based caching
-            - Reduced image size
-            
-            ### Environment Variables
-            
-            - `REDIS_URL`: Redis connection URL (required)
-            - `PORKER2_ENV`: Environment (development/production)
-            - `LOG_LEVEL`: Logging level (debug/info/warn/error)
-            
-            See [README.md](https://github.com/${{ github.repository }}) for more details.
+            詳細は [README.md](https://github.com/${{ github.repository }}) を参照してください。
