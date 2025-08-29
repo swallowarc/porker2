@@ -36,7 +36,9 @@ Future<void> invoke<T>(BuildContext context,
       switch (e.code) {
         case StatusCode.unauthenticated:
           logger.e(e.toString());
-          GoRouter.of(context).go('/');
+          if (context.mounted) {
+            GoRouter.of(context).go('/');
+          }
           return;
         default:
           break;
@@ -48,9 +50,11 @@ Future<void> invoke<T>(BuildContext context,
       snackBackgroundColor = Colors.yellow.shade200;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-      backgroundColor: snackBackgroundColor,
-    ));
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(message),
+        backgroundColor: snackBackgroundColor,
+      ));
+    }
   });
 }
