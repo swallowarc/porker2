@@ -26,3 +26,5 @@ docker/data/redis/dump.rdb
 /server
 
 .DS_Store
+/.mcp.json
+/.env
