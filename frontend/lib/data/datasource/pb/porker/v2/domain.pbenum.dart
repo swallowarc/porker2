@@ -26,6 +26,23 @@ class Violation extends $pb.ProtobufEnum {
   const Violation._($core.int v, $core.String n) : super(v, n);
 }
 
+class UserRole extends $pb.ProtobufEnum {
+  static const UserRole USER_ROLE_UNSPECIFIED = UserRole._(0, _omitEnumNames ? '' : 'USER_ROLE_UNSPECIFIED');
+  static const UserRole USER_ROLE_VOTER = UserRole._(1, _omitEnumNames ? '' : 'USER_ROLE_VOTER');
+  static const UserRole USER_ROLE_OBSERVER = UserRole._(2, _omitEnumNames ? '' : 'USER_ROLE_OBSERVER');
+
+  static const $core.List<UserRole> values = <UserRole> [
+    USER_ROLE_UNSPECIFIED,
+    USER_ROLE_VOTER,
+    USER_ROLE_OBSERVER,
+  ];
+
+  static final $core.Map<$core.int, UserRole> _byValue = $pb.ProtobufEnum.initByValue(values);
+  static UserRole? valueOf($core.int value) => _byValue[value];
+
+  const UserRole._($core.int v, $core.String n) : super(v, n);
+}
+
 class VoteState extends $pb.ProtobufEnum {
   static const VoteState VOTE_STATE_UNSPECIFIED = VoteState._(0, _omitEnumNames ? '' : 'VOTE_STATE_UNSPECIFIED');
   static const VoteState VOTE_STATE_HIDE = VoteState._(1, _omitEnumNames ? '' : 'VOTE_STATE_HIDE');

@@ -21,23 +21,25 @@ var (
 
 type (
 	RoomCondition struct {
-		RoomID      RoomID      `json:"room_id"`
-		AdminUserID user.ID     `json:"admin_user_id"`
-		VoteState   VoteState   `json:"vote_state"`
-		Ballots     []*Ballot   `json:"ballots"`
-		AutoOpen    bool        `json:"auto_open"`
-		DisplayMode DisplayMode `json:"display_mode"`
+		RoomID        RoomID      `json:"room_id"`
+		AdminUserID   user.ID     `json:"admin_user_id"`
+		VoteState     VoteState   `json:"vote_state"`
+		Ballots       []*Ballot   `json:"ballots"`
+		AutoOpen      bool        `json:"auto_open"`
+		DisplayMode   DisplayMode `json:"display_mode"`
+		ObserverCount int32       `json:"observer_count"`
 	}
 )
 
 func NewRoomCondition() *RoomCondition {
 	return &RoomCondition{
-		RoomID:      newRoomID(),
-		AdminUserID: "",
-		VoteState:   VoteStateHide,
-		Ballots:     []*Ballot{},
-		AutoOpen:    true,
-		DisplayMode: DisplayModePoint,
+		RoomID:        newRoomID(),
+		AdminUserID:   "",
+		VoteState:     VoteStateHide,
+		Ballots:       []*Ballot{},
+		AutoOpen:      true,
+		DisplayMode:   DisplayModePoint,
+		ObserverCount: 0,
 	}
 }
 
@@ -92,6 +94,9 @@ func (c *RoomCondition) Vote(userID user.ID, point Point) {
 
 	for _, b := range c.Ballots {
 		if b.UserID == userID {
+			if b.IsObserver() {
+				return
+			}
 			b.Point = point
 			break
 		}
@@ -156,19 +161,41 @@ func (c *RoomCondition) UpdateSetting(autoOpen bool, displayMode DisplayMode) {
 	c.tally()
 }
 
+func (c *RoomCondition) ToggleObserverMode(userID user.ID, isObserver bool) {
+	for _, b := range c.Ballots {
+		if b.UserID == userID {
+			previouslyObserver := b.IsObserver()
+			b.SetObserverMode(isObserver)
+			
+			if previouslyObserver && !isObserver {
+				c.ObserverCount--
+			} else if !previouslyObserver && isObserver {
+				c.ObserverCount++
+			}
+			
+			c.tally()
+			break
+		}
+	}
+}
+
 func (c *RoomCondition) tally() {
 	if !c.AutoOpen || c.VoteState == VoteStateOpen {
 		return
 	}
 
-	memberCount := len(c.Ballots)
+	voterCount := 0
+	unvotedCount := 0
 	for _, b := range c.Ballots {
-		if b.Point != PointUnspecified {
-			memberCount--
+		if !b.IsObserver() {
+			voterCount++
+			if b.Point == PointUnspecified {
+				unvotedCount++
+			}
 		}
 	}
 
-	if memberCount == 0 {
+	if voterCount > 0 && unvotedCount == 0 {
 		c.VoteState = VoteStateOpen
 	}
 }

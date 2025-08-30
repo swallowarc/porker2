@@ -1184,6 +1184,111 @@ class UpdateRoomResponse extends $pb.GeneratedMessage {
   static UpdateRoomResponse? _defaultInstance;
 }
 
+///  ToggleObserverMode 観察者モードの切り替え
+///  ユーザーの役割を投票者と観察者の間で切り替える。
+///  観察者は投票せずに部屋の状況を閲覧のみ可能。
+///
+///  Errors:
+///  - Unauthenticated:
+///    - cookieのtokenがない、または無効
+///  - NotFound:
+///    - 指定されたroomに参加していない
+class ToggleObserverModeRequest extends $pb.GeneratedMessage {
+  factory ToggleObserverModeRequest({
+    $core.String? roomId,
+    $core.bool? isObserver,
+  }) {
+    final $result = create();
+    if (roomId != null) {
+      $result.roomId = roomId;
+    }
+    if (isObserver != null) {
+      $result.isObserver = isObserver;
+    }
+    return $result;
+  }
+  ToggleObserverModeRequest._() : super();
+  factory ToggleObserverModeRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ToggleObserverModeRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ToggleObserverModeRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'porker.v2'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'roomId')
+    ..aOB(2, _omitFieldNames ? '' : 'isObserver')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ToggleObserverModeRequest clone() => ToggleObserverModeRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ToggleObserverModeRequest copyWith(void Function(ToggleObserverModeRequest) updates) => super.copyWith((message) => updates(message as ToggleObserverModeRequest)) as ToggleObserverModeRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ToggleObserverModeRequest create() => ToggleObserverModeRequest._();
+  ToggleObserverModeRequest createEmptyInstance() => create();
+  static $pb.PbList<ToggleObserverModeRequest> createRepeated() => $pb.PbList<ToggleObserverModeRequest>();
+  @$core.pragma('dart2js:noInline')
+  static ToggleObserverModeRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ToggleObserverModeRequest>(create);
+  static ToggleObserverModeRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get roomId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set roomId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasRoomId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearRoomId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.bool get isObserver => $_getBF(1);
+  @$pb.TagNumber(2)
+  set isObserver($core.bool v) { $_setBool(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasIsObserver() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearIsObserver() => clearField(2);
+}
+
+class ToggleObserverModeResponse extends $pb.GeneratedMessage {
+  factory ToggleObserverModeResponse() => create();
+  ToggleObserverModeResponse._() : super();
+  factory ToggleObserverModeResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ToggleObserverModeResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ToggleObserverModeResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'porker.v2'), createEmptyInstance: create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ToggleObserverModeResponse clone() => ToggleObserverModeResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ToggleObserverModeResponse copyWith(void Function(ToggleObserverModeResponse) updates) => super.copyWith((message) => updates(message as ToggleObserverModeResponse)) as ToggleObserverModeResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ToggleObserverModeResponse create() => ToggleObserverModeResponse._();
+  ToggleObserverModeResponse createEmptyInstance() => create();
+  static $pb.PbList<ToggleObserverModeResponse> createRepeated() => $pb.PbList<ToggleObserverModeResponse>();
+  @$core.pragma('dart2js:noInline')
+  static ToggleObserverModeResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ToggleObserverModeResponse>(create);
+  static ToggleObserverModeResponse? _defaultInstance;
+}
+
 
 const _omitFieldNames = $core.bool.fromEnvironment('protobuf.omit_field_names');
 const _omitMessageNames = $core.bool.fromEnvironment('protobuf.omit_message_names');

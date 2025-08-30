@@ -45,11 +45,23 @@ func pointToProto(p poker.Point) pb.Point {
 	}
 }
 
+func userRoleToProto(r poker.UserRole) pb.UserRole {
+	switch r {
+	case poker.UserRoleVoter:
+		return pb.UserRole_USER_ROLE_VOTER
+	case poker.UserRoleObserver:
+		return pb.UserRole_USER_ROLE_OBSERVER
+	default:
+		return pb.UserRole_USER_ROLE_UNSPECIFIED
+	}
+}
+
 func ballotToProto(b *poker.Ballot) *pb.Ballot {
 	return &pb.Ballot{
 		UserId:   b.UserID.String(),
 		UserName: b.UserName.String(),
 		Point:    pointToProto(b.Point),
+		Role:     userRoleToProto(b.Role),
 	}
 }
 
@@ -67,11 +79,12 @@ func roomIDFromProto(p string) poker.RoomID {
 
 func roomConditionToProto(rc *poker.RoomCondition) *pb.RoomCondition {
 	return &pb.RoomCondition{
-		RoomId:      rc.RoomID.String(),
-		AdminUserId: rc.AdminUserID.String(),
-		VoteState:   pb.VoteState(rc.VoteState),
-		Ballots:     ballotsToProto(rc.Ballots),
-		AutoOpen:    rc.AutoOpen,
-		DisplayMode: pb.DisplayMode(rc.DisplayMode),
+		RoomId:        rc.RoomID.String(),
+		AdminUserId:   rc.AdminUserID.String(),
+		VoteState:     pb.VoteState(rc.VoteState),
+		Ballots:       ballotsToProto(rc.Ballots),
+		AutoOpen:      rc.AutoOpen,
+		DisplayMode:   pb.DisplayMode(rc.DisplayMode),
+		ObserverCount: rc.ObserverCount,
 	}
 }
