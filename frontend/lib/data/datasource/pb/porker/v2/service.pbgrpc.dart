@@ -69,6 +69,10 @@ class Porker2ServiceClient extends $grpc.Client {
       '/porker.v2.Porker2Service/UpdateRoom',
       ($0.UpdateRoomRequest value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.UpdateRoomResponse.fromBuffer(value));
+  static final _$toggleObserverMode = $grpc.ClientMethod<$0.ToggleObserverModeRequest, $0.ToggleObserverModeResponse>(
+      '/porker.v2.Porker2Service/ToggleObserverMode',
+      ($0.ToggleObserverModeRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.ToggleObserverModeResponse.fromBuffer(value));
 
   Porker2ServiceClient($grpc.ClientChannel channel,
       {$grpc.CallOptions? options,
@@ -122,6 +126,10 @@ class Porker2ServiceClient extends $grpc.Client {
 
   $grpc.ResponseFuture<$0.UpdateRoomResponse> updateRoom($0.UpdateRoomRequest request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$updateRoom, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.ToggleObserverModeResponse> toggleObserverMode($0.ToggleObserverModeRequest request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$toggleObserverMode, request, options: options);
   }
 }
 
@@ -214,6 +222,13 @@ abstract class Porker2ServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.UpdateRoomRequest.fromBuffer(value),
         ($0.UpdateRoomResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.ToggleObserverModeRequest, $0.ToggleObserverModeResponse>(
+        'ToggleObserverMode',
+        toggleObserverMode_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.ToggleObserverModeRequest.fromBuffer(value),
+        ($0.ToggleObserverModeResponse value) => value.writeToBuffer()));
   }
 
   $async.Future<$0.LoginResponse> login_Pre($grpc.ServiceCall call, $async.Future<$0.LoginRequest> request) async {
@@ -264,6 +279,10 @@ abstract class Porker2ServiceBase extends $grpc.Service {
     return updateRoom(call, await request);
   }
 
+  $async.Future<$0.ToggleObserverModeResponse> toggleObserverMode_Pre($grpc.ServiceCall call, $async.Future<$0.ToggleObserverModeRequest> request) async {
+    return toggleObserverMode(call, await request);
+  }
+
   $async.Future<$0.LoginResponse> login($grpc.ServiceCall call, $0.LoginRequest request);
   $async.Future<$0.LogoutResponse> logout($grpc.ServiceCall call, $0.LogoutRequest request);
   $async.Future<$0.VerifyUserResponse> verifyUser($grpc.ServiceCall call, $0.VerifyUserRequest request);
@@ -276,4 +295,5 @@ abstract class Porker2ServiceBase extends $grpc.Service {
   $async.Future<$0.ResetVotesResponse> resetVotes($grpc.ServiceCall call, $0.ResetVotesRequest request);
   $async.Future<$0.KickUserResponse> kickUser($grpc.ServiceCall call, $0.KickUserRequest request);
   $async.Future<$0.UpdateRoomResponse> updateRoom($grpc.ServiceCall call, $0.UpdateRoomRequest request);
+  $async.Future<$0.ToggleObserverModeResponse> toggleObserverMode($grpc.ServiceCall call, $0.ToggleObserverModeRequest request);
 }

@@ -253,3 +253,18 @@ func (p *porker2) UpdateRoom(ctx context.Context, r *connect.Request[pb.UpdateRo
 
 	return res, nil
 }
+
+func (p *porker2) ToggleObserverMode(ctx context.Context, r *connect.Request[pb.ToggleObserverModeRequest]) (*connect.Response[pb.ToggleObserverModeResponse], error) {
+	if err := p.v.VarWithMessage(r.Msg.RoomId, validator.TagRoomID, "invalid argument"); err != nil {
+		return nil, err
+	}
+
+	if err := p.pokerItr.ToggleObserverMode(ctx, p.session.UserIDFromCtx(ctx), roomIDFromProto(r.Msg.RoomId), r.Msg.IsObserver); err != nil {
+		return nil, err
+	}
+
+	res := &connect.Response[pb.ToggleObserverModeResponse]{}
+	p.session.RefreshCookie(ctx, res)
+
+	return res, nil
+}

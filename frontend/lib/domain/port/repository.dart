@@ -31,6 +31,8 @@ abstract class Porker2ServiceRepository {
   Future<void> kickUser(String roomID, targetUserID);
 
   Future<void> updateRoom(String roomID, bool autoOpen, DisplayMode displayMode);
+
+  Future<void> toggleObserverMode(String roomID, bool isObserver);
 }
 
 abstract class LocalStorageRepository {

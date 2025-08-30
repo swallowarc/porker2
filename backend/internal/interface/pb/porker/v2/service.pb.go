@@ -1137,6 +1137,104 @@ func (*UpdateRoomResponse) Descriptor() ([]byte, []int) {
 	return file_porker_v2_service_proto_rawDescGZIP(), []int{23}
 }
 
+// ToggleObserverMode 観察者モードの切り替え
+// ユーザーの役割を投票者と観察者の間で切り替える。
+// 観察者は投票せずに部屋の状況を閲覧のみ可能。
+//
+// Errors:
+// - Unauthenticated:
+//   - cookieのtokenがない、または無効
+//
+// - NotFound:
+//   - 指定されたroomに参加していない
+type ToggleObserverModeRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RoomId        string                 `protobuf:"bytes,1,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
+	IsObserver    bool                   `protobuf:"varint,2,opt,name=is_observer,json=isObserver,proto3" json:"is_observer,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ToggleObserverModeRequest) Reset() {
+	*x = ToggleObserverModeRequest{}
+	mi := &file_porker_v2_service_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ToggleObserverModeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ToggleObserverModeRequest) ProtoMessage() {}
+
+func (x *ToggleObserverModeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_porker_v2_service_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ToggleObserverModeRequest.ProtoReflect.Descriptor instead.
+func (*ToggleObserverModeRequest) Descriptor() ([]byte, []int) {
+	return file_porker_v2_service_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *ToggleObserverModeRequest) GetRoomId() string {
+	if x != nil {
+		return x.RoomId
+	}
+	return ""
+}
+
+func (x *ToggleObserverModeRequest) GetIsObserver() bool {
+	if x != nil {
+		return x.IsObserver
+	}
+	return false
+}
+
+type ToggleObserverModeResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ToggleObserverModeResponse) Reset() {
+	*x = ToggleObserverModeResponse{}
+	mi := &file_porker_v2_service_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ToggleObserverModeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ToggleObserverModeResponse) ProtoMessage() {}
+
+func (x *ToggleObserverModeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_porker_v2_service_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ToggleObserverModeResponse.ProtoReflect.Descriptor instead.
+func (*ToggleObserverModeResponse) Descriptor() ([]byte, []int) {
+	return file_porker_v2_service_proto_rawDescGZIP(), []int{25}
+}
+
 var File_porker_v2_service_proto protoreflect.FileDescriptor
 
 const file_porker_v2_service_proto_rawDesc = "" +
@@ -1183,7 +1281,12 @@ const file_porker_v2_service_proto_rawDesc = "" +
 	"\aroom_id\x18\x01 \x01(\tR\x06roomId\x12\x1b\n" +
 	"\tauto_open\x18\x02 \x01(\bR\bautoOpen\x129\n" +
 	"\fdisplay_mode\x18\x03 \x01(\x0e2\x16.porker.v2.DisplayModeR\vdisplayMode\"\x14\n" +
-	"\x12UpdateRoomResponse2\xe0\x06\n" +
+	"\x12UpdateRoomResponse\"U\n" +
+	"\x19ToggleObserverModeRequest\x12\x17\n" +
+	"\aroom_id\x18\x01 \x01(\tR\x06roomId\x12\x1f\n" +
+	"\vis_observer\x18\x02 \x01(\bR\n" +
+	"isObserver\"\x1c\n" +
+	"\x1aToggleObserverModeResponse2\xc3\a\n" +
 	"\x0ePorker2Service\x12:\n" +
 	"\x05Login\x12\x17.porker.v2.LoginRequest\x1a\x18.porker.v2.LoginResponse\x12=\n" +
 	"\x06Logout\x12\x18.porker.v2.LogoutRequest\x1a\x19.porker.v2.LogoutResponse\x12I\n" +
@@ -1200,7 +1303,8 @@ const file_porker_v2_service_proto_rawDesc = "" +
 	"ResetVotes\x12\x1c.porker.v2.ResetVotesRequest\x1a\x1d.porker.v2.ResetVotesResponse\x12C\n" +
 	"\bKickUser\x12\x1a.porker.v2.KickUserRequest\x1a\x1b.porker.v2.KickUserResponse\x12I\n" +
 	"\n" +
-	"UpdateRoom\x12\x1c.porker.v2.UpdateRoomRequest\x1a\x1d.porker.v2.UpdateRoomResponseBPZNgithub.com/swallowarc/porker2/backend/internal/interface/pb/porker/v2;porkerv2b\x06proto3"
+	"UpdateRoom\x12\x1c.porker.v2.UpdateRoomRequest\x1a\x1d.porker.v2.UpdateRoomResponse\x12a\n" +
+	"\x12ToggleObserverMode\x12$.porker.v2.ToggleObserverModeRequest\x1a%.porker.v2.ToggleObserverModeResponseBPZNgithub.com/swallowarc/porker2/backend/internal/interface/pb/porker/v2;porkerv2b\x06proto3"
 
 var (
 	file_porker_v2_service_proto_rawDescOnce sync.Once
@@ -1214,40 +1318,42 @@ func file_porker_v2_service_proto_rawDescGZIP() []byte {
 	return file_porker_v2_service_proto_rawDescData
 }
 
-var file_porker_v2_service_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
+var file_porker_v2_service_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
 var file_porker_v2_service_proto_goTypes = []any{
-	(*LoginRequest)(nil),       // 0: porker.v2.LoginRequest
-	(*LoginResponse)(nil),      // 1: porker.v2.LoginResponse
-	(*VerifyUserRequest)(nil),  // 2: porker.v2.VerifyUserRequest
-	(*VerifyUserResponse)(nil), // 3: porker.v2.VerifyUserResponse
-	(*LogoutRequest)(nil),      // 4: porker.v2.LogoutRequest
-	(*LogoutResponse)(nil),     // 5: porker.v2.LogoutResponse
-	(*CreateRoomRequest)(nil),  // 6: porker.v2.CreateRoomRequest
-	(*CreateRoomResponse)(nil), // 7: porker.v2.CreateRoomResponse
-	(*CheckRoomRequest)(nil),   // 8: porker.v2.CheckRoomRequest
-	(*CheckRoomResponse)(nil),  // 9: porker.v2.CheckRoomResponse
-	(*JoinRoomRequest)(nil),    // 10: porker.v2.JoinRoomRequest
-	(*JoinRoomResponse)(nil),   // 11: porker.v2.JoinRoomResponse
-	(*LeaveRoomRequest)(nil),   // 12: porker.v2.LeaveRoomRequest
-	(*LeaveRoomResponse)(nil),  // 13: porker.v2.LeaveRoomResponse
-	(*CastVoteRequest)(nil),    // 14: porker.v2.CastVoteRequest
-	(*CastVoteResponse)(nil),   // 15: porker.v2.CastVoteResponse
-	(*ResetVotesRequest)(nil),  // 16: porker.v2.ResetVotesRequest
-	(*ResetVotesResponse)(nil), // 17: porker.v2.ResetVotesResponse
-	(*ShowVotesRequest)(nil),   // 18: porker.v2.ShowVotesRequest
-	(*ShowVotesResponse)(nil),  // 19: porker.v2.ShowVotesResponse
-	(*KickUserRequest)(nil),    // 20: porker.v2.KickUserRequest
-	(*KickUserResponse)(nil),   // 21: porker.v2.KickUserResponse
-	(*UpdateRoomRequest)(nil),  // 22: porker.v2.UpdateRoomRequest
-	(*UpdateRoomResponse)(nil), // 23: porker.v2.UpdateRoomResponse
-	(*RoomCondition)(nil),      // 24: porker.v2.RoomCondition
-	(Point)(0),                 // 25: porker.v2.Point
-	(DisplayMode)(0),           // 26: porker.v2.DisplayMode
+	(*LoginRequest)(nil),               // 0: porker.v2.LoginRequest
+	(*LoginResponse)(nil),              // 1: porker.v2.LoginResponse
+	(*VerifyUserRequest)(nil),          // 2: porker.v2.VerifyUserRequest
+	(*VerifyUserResponse)(nil),         // 3: porker.v2.VerifyUserResponse
+	(*LogoutRequest)(nil),              // 4: porker.v2.LogoutRequest
+	(*LogoutResponse)(nil),             // 5: porker.v2.LogoutResponse
+	(*CreateRoomRequest)(nil),          // 6: porker.v2.CreateRoomRequest
+	(*CreateRoomResponse)(nil),         // 7: porker.v2.CreateRoomResponse
+	(*CheckRoomRequest)(nil),           // 8: porker.v2.CheckRoomRequest
+	(*CheckRoomResponse)(nil),          // 9: porker.v2.CheckRoomResponse
+	(*JoinRoomRequest)(nil),            // 10: porker.v2.JoinRoomRequest
+	(*JoinRoomResponse)(nil),           // 11: porker.v2.JoinRoomResponse
+	(*LeaveRoomRequest)(nil),           // 12: porker.v2.LeaveRoomRequest
+	(*LeaveRoomResponse)(nil),          // 13: porker.v2.LeaveRoomResponse
+	(*CastVoteRequest)(nil),            // 14: porker.v2.CastVoteRequest
+	(*CastVoteResponse)(nil),           // 15: porker.v2.CastVoteResponse
+	(*ResetVotesRequest)(nil),          // 16: porker.v2.ResetVotesRequest
+	(*ResetVotesResponse)(nil),         // 17: porker.v2.ResetVotesResponse
+	(*ShowVotesRequest)(nil),           // 18: porker.v2.ShowVotesRequest
+	(*ShowVotesResponse)(nil),          // 19: porker.v2.ShowVotesResponse
+	(*KickUserRequest)(nil),            // 20: porker.v2.KickUserRequest
+	(*KickUserResponse)(nil),           // 21: porker.v2.KickUserResponse
+	(*UpdateRoomRequest)(nil),          // 22: porker.v2.UpdateRoomRequest
+	(*UpdateRoomResponse)(nil),         // 23: porker.v2.UpdateRoomResponse
+	(*ToggleObserverModeRequest)(nil),  // 24: porker.v2.ToggleObserverModeRequest
+	(*ToggleObserverModeResponse)(nil), // 25: porker.v2.ToggleObserverModeResponse
+	(*RoomCondition)(nil),              // 26: porker.v2.RoomCondition
+	(Point)(0),                         // 27: porker.v2.Point
+	(DisplayMode)(0),                   // 28: porker.v2.DisplayMode
 }
 var file_porker_v2_service_proto_depIdxs = []int32{
-	24, // 0: porker.v2.JoinRoomResponse.condition:type_name -> porker.v2.RoomCondition
-	25, // 1: porker.v2.CastVoteRequest.point:type_name -> porker.v2.Point
-	26, // 2: porker.v2.UpdateRoomRequest.display_mode:type_name -> porker.v2.DisplayMode
+	26, // 0: porker.v2.JoinRoomResponse.condition:type_name -> porker.v2.RoomCondition
+	27, // 1: porker.v2.CastVoteRequest.point:type_name -> porker.v2.Point
+	28, // 2: porker.v2.UpdateRoomRequest.display_mode:type_name -> porker.v2.DisplayMode
 	0,  // 3: porker.v2.Porker2Service.Login:input_type -> porker.v2.LoginRequest
 	4,  // 4: porker.v2.Porker2Service.Logout:input_type -> porker.v2.LogoutRequest
 	2,  // 5: porker.v2.Porker2Service.VerifyUser:input_type -> porker.v2.VerifyUserRequest
@@ -1260,20 +1366,22 @@ var file_porker_v2_service_proto_depIdxs = []int32{
 	16, // 12: porker.v2.Porker2Service.ResetVotes:input_type -> porker.v2.ResetVotesRequest
 	20, // 13: porker.v2.Porker2Service.KickUser:input_type -> porker.v2.KickUserRequest
 	22, // 14: porker.v2.Porker2Service.UpdateRoom:input_type -> porker.v2.UpdateRoomRequest
-	1,  // 15: porker.v2.Porker2Service.Login:output_type -> porker.v2.LoginResponse
-	5,  // 16: porker.v2.Porker2Service.Logout:output_type -> porker.v2.LogoutResponse
-	3,  // 17: porker.v2.Porker2Service.VerifyUser:output_type -> porker.v2.VerifyUserResponse
-	7,  // 18: porker.v2.Porker2Service.CreateRoom:output_type -> porker.v2.CreateRoomResponse
-	9,  // 19: porker.v2.Porker2Service.CheckRoom:output_type -> porker.v2.CheckRoomResponse
-	11, // 20: porker.v2.Porker2Service.JoinRoom:output_type -> porker.v2.JoinRoomResponse
-	13, // 21: porker.v2.Porker2Service.LeaveRoom:output_type -> porker.v2.LeaveRoomResponse
-	15, // 22: porker.v2.Porker2Service.CastVote:output_type -> porker.v2.CastVoteResponse
-	19, // 23: porker.v2.Porker2Service.ShowVotes:output_type -> porker.v2.ShowVotesResponse
-	17, // 24: porker.v2.Porker2Service.ResetVotes:output_type -> porker.v2.ResetVotesResponse
-	21, // 25: porker.v2.Porker2Service.KickUser:output_type -> porker.v2.KickUserResponse
-	23, // 26: porker.v2.Porker2Service.UpdateRoom:output_type -> porker.v2.UpdateRoomResponse
-	15, // [15:27] is the sub-list for method output_type
-	3,  // [3:15] is the sub-list for method input_type
+	24, // 15: porker.v2.Porker2Service.ToggleObserverMode:input_type -> porker.v2.ToggleObserverModeRequest
+	1,  // 16: porker.v2.Porker2Service.Login:output_type -> porker.v2.LoginResponse
+	5,  // 17: porker.v2.Porker2Service.Logout:output_type -> porker.v2.LogoutResponse
+	3,  // 18: porker.v2.Porker2Service.VerifyUser:output_type -> porker.v2.VerifyUserResponse
+	7,  // 19: porker.v2.Porker2Service.CreateRoom:output_type -> porker.v2.CreateRoomResponse
+	9,  // 20: porker.v2.Porker2Service.CheckRoom:output_type -> porker.v2.CheckRoomResponse
+	11, // 21: porker.v2.Porker2Service.JoinRoom:output_type -> porker.v2.JoinRoomResponse
+	13, // 22: porker.v2.Porker2Service.LeaveRoom:output_type -> porker.v2.LeaveRoomResponse
+	15, // 23: porker.v2.Porker2Service.CastVote:output_type -> porker.v2.CastVoteResponse
+	19, // 24: porker.v2.Porker2Service.ShowVotes:output_type -> porker.v2.ShowVotesResponse
+	17, // 25: porker.v2.Porker2Service.ResetVotes:output_type -> porker.v2.ResetVotesResponse
+	21, // 26: porker.v2.Porker2Service.KickUser:output_type -> porker.v2.KickUserResponse
+	23, // 27: porker.v2.Porker2Service.UpdateRoom:output_type -> porker.v2.UpdateRoomResponse
+	25, // 28: porker.v2.Porker2Service.ToggleObserverMode:output_type -> porker.v2.ToggleObserverModeResponse
+	16, // [16:29] is the sub-list for method output_type
+	3,  // [3:16] is the sub-list for method input_type
 	3,  // [3:3] is the sub-list for extension type_name
 	3,  // [3:3] is the sub-list for extension extendee
 	0,  // [0:3] is the sub-list for field type_name
@@ -1291,7 +1399,7 @@ func file_porker_v2_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_porker_v2_service_proto_rawDesc), len(file_porker_v2_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   24,
+			NumMessages:   26,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

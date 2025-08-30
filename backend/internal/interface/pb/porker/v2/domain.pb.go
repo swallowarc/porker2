@@ -64,6 +64,55 @@ func (Violation) EnumDescriptor() ([]byte, []int) {
 	return file_porker_v2_domain_proto_rawDescGZIP(), []int{0}
 }
 
+type UserRole int32
+
+const (
+	UserRole_USER_ROLE_UNSPECIFIED UserRole = 0
+	UserRole_USER_ROLE_VOTER       UserRole = 1
+	UserRole_USER_ROLE_OBSERVER    UserRole = 2
+)
+
+// Enum value maps for UserRole.
+var (
+	UserRole_name = map[int32]string{
+		0: "USER_ROLE_UNSPECIFIED",
+		1: "USER_ROLE_VOTER",
+		2: "USER_ROLE_OBSERVER",
+	}
+	UserRole_value = map[string]int32{
+		"USER_ROLE_UNSPECIFIED": 0,
+		"USER_ROLE_VOTER":       1,
+		"USER_ROLE_OBSERVER":    2,
+	}
+)
+
+func (x UserRole) Enum() *UserRole {
+	p := new(UserRole)
+	*p = x
+	return p
+}
+
+func (x UserRole) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (UserRole) Descriptor() protoreflect.EnumDescriptor {
+	return file_porker_v2_domain_proto_enumTypes[1].Descriptor()
+}
+
+func (UserRole) Type() protoreflect.EnumType {
+	return &file_porker_v2_domain_proto_enumTypes[1]
+}
+
+func (x UserRole) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use UserRole.Descriptor instead.
+func (UserRole) EnumDescriptor() ([]byte, []int) {
+	return file_porker_v2_domain_proto_rawDescGZIP(), []int{1}
+}
+
 type VoteState int32
 
 const (
@@ -97,11 +146,11 @@ func (x VoteState) String() string {
 }
 
 func (VoteState) Descriptor() protoreflect.EnumDescriptor {
-	return file_porker_v2_domain_proto_enumTypes[1].Descriptor()
+	return file_porker_v2_domain_proto_enumTypes[2].Descriptor()
 }
 
 func (VoteState) Type() protoreflect.EnumType {
-	return &file_porker_v2_domain_proto_enumTypes[1]
+	return &file_porker_v2_domain_proto_enumTypes[2]
 }
 
 func (x VoteState) Number() protoreflect.EnumNumber {
@@ -110,7 +159,7 @@ func (x VoteState) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use VoteState.Descriptor instead.
 func (VoteState) EnumDescriptor() ([]byte, []int) {
-	return file_porker_v2_domain_proto_rawDescGZIP(), []int{1}
+	return file_porker_v2_domain_proto_rawDescGZIP(), []int{2}
 }
 
 type DisplayMode int32
@@ -146,11 +195,11 @@ func (x DisplayMode) String() string {
 }
 
 func (DisplayMode) Descriptor() protoreflect.EnumDescriptor {
-	return file_porker_v2_domain_proto_enumTypes[2].Descriptor()
+	return file_porker_v2_domain_proto_enumTypes[3].Descriptor()
 }
 
 func (DisplayMode) Type() protoreflect.EnumType {
-	return &file_porker_v2_domain_proto_enumTypes[2]
+	return &file_porker_v2_domain_proto_enumTypes[3]
 }
 
 func (x DisplayMode) Number() protoreflect.EnumNumber {
@@ -159,7 +208,7 @@ func (x DisplayMode) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use DisplayMode.Descriptor instead.
 func (DisplayMode) EnumDescriptor() ([]byte, []int) {
-	return file_porker_v2_domain_proto_rawDescGZIP(), []int{2}
+	return file_porker_v2_domain_proto_rawDescGZIP(), []int{3}
 }
 
 type Point int32
@@ -222,11 +271,11 @@ func (x Point) String() string {
 }
 
 func (Point) Descriptor() protoreflect.EnumDescriptor {
-	return file_porker_v2_domain_proto_enumTypes[3].Descriptor()
+	return file_porker_v2_domain_proto_enumTypes[4].Descriptor()
 }
 
 func (Point) Type() protoreflect.EnumType {
-	return &file_porker_v2_domain_proto_enumTypes[3]
+	return &file_porker_v2_domain_proto_enumTypes[4]
 }
 
 func (x Point) Number() protoreflect.EnumNumber {
@@ -235,7 +284,7 @@ func (x Point) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Point.Descriptor instead.
 func (Point) EnumDescriptor() ([]byte, []int) {
-	return file_porker_v2_domain_proto_rawDescGZIP(), []int{3}
+	return file_porker_v2_domain_proto_rawDescGZIP(), []int{4}
 }
 
 type Ballot struct {
@@ -243,6 +292,7 @@ type Ballot struct {
 	UserName      string                 `protobuf:"bytes,1,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`
 	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	Point         Point                  `protobuf:"varint,3,opt,name=point,proto3,enum=porker.v2.Point" json:"point,omitempty"`
+	Role          UserRole               `protobuf:"varint,4,opt,name=role,proto3,enum=porker.v2.UserRole" json:"role,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -298,6 +348,13 @@ func (x *Ballot) GetPoint() Point {
 	return Point_POINT_UNSPECIFIED
 }
 
+func (x *Ballot) GetRole() UserRole {
+	if x != nil {
+		return x.Role
+	}
+	return UserRole_USER_ROLE_UNSPECIFIED
+}
+
 type RoomCondition struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	RoomId        string                 `protobuf:"bytes,1,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
@@ -306,6 +363,7 @@ type RoomCondition struct {
 	Ballots       []*Ballot              `protobuf:"bytes,4,rep,name=ballots,proto3" json:"ballots,omitempty"`
 	AutoOpen      bool                   `protobuf:"varint,5,opt,name=auto_open,json=autoOpen,proto3" json:"auto_open,omitempty"`
 	DisplayMode   DisplayMode            `protobuf:"varint,6,opt,name=display_mode,json=displayMode,proto3,enum=porker.v2.DisplayMode" json:"display_mode,omitempty"`
+	ObserverCount int32                  `protobuf:"varint,7,opt,name=observer_count,json=observerCount,proto3" json:"observer_count,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -382,15 +440,23 @@ func (x *RoomCondition) GetDisplayMode() DisplayMode {
 	return DisplayMode_DISPLAY_MODE_UNSPECIFIED
 }
 
+func (x *RoomCondition) GetObserverCount() int32 {
+	if x != nil {
+		return x.ObserverCount
+	}
+	return 0
+}
+
 var File_porker_v2_domain_proto protoreflect.FileDescriptor
 
 const file_porker_v2_domain_proto_rawDesc = "" +
 	"\n" +
-	"\x16porker/v2/domain.proto\x12\tporker.v2\"f\n" +
+	"\x16porker/v2/domain.proto\x12\tporker.v2\"\x8f\x01\n" +
 	"\x06Ballot\x12\x1b\n" +
 	"\tuser_name\x18\x01 \x01(\tR\buserName\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12&\n" +
-	"\x05point\x18\x03 \x01(\x0e2\x10.porker.v2.PointR\x05point\"\x86\x02\n" +
+	"\x05point\x18\x03 \x01(\x0e2\x10.porker.v2.PointR\x05point\x12'\n" +
+	"\x04role\x18\x04 \x01(\x0e2\x13.porker.v2.UserRoleR\x04role\"\xad\x02\n" +
 	"\rRoomCondition\x12\x17\n" +
 	"\aroom_id\x18\x01 \x01(\tR\x06roomId\x12\"\n" +
 	"\radmin_user_id\x18\x02 \x01(\tR\vadminUserId\x123\n" +
@@ -398,9 +464,14 @@ const file_porker_v2_domain_proto_rawDesc = "" +
 	"vote_state\x18\x03 \x01(\x0e2\x14.porker.v2.VoteStateR\tvoteState\x12+\n" +
 	"\aballots\x18\x04 \x03(\v2\x11.porker.v2.BallotR\aballots\x12\x1b\n" +
 	"\tauto_open\x18\x05 \x01(\bR\bautoOpen\x129\n" +
-	"\fdisplay_mode\x18\x06 \x01(\x0e2\x16.porker.v2.DisplayModeR\vdisplayMode*&\n" +
+	"\fdisplay_mode\x18\x06 \x01(\x0e2\x16.porker.v2.DisplayModeR\vdisplayMode\x12%\n" +
+	"\x0eobserver_count\x18\a \x01(\x05R\robserverCount*&\n" +
 	"\tViolation\x12\x19\n" +
-	"\x15VIOLATION_UNSPECIFIED\x10\x00*Q\n" +
+	"\x15VIOLATION_UNSPECIFIED\x10\x00*R\n" +
+	"\bUserRole\x12\x19\n" +
+	"\x15USER_ROLE_UNSPECIFIED\x10\x00\x12\x13\n" +
+	"\x0fUSER_ROLE_VOTER\x10\x01\x12\x16\n" +
+	"\x12USER_ROLE_OBSERVER\x10\x02*Q\n" +
 	"\tVoteState\x12\x1a\n" +
 	"\x16VOTE_STATE_UNSPECIFIED\x10\x00\x12\x13\n" +
 	"\x0fVOTE_STATE_HIDE\x10\x01\x12\x13\n" +
@@ -435,26 +506,28 @@ func file_porker_v2_domain_proto_rawDescGZIP() []byte {
 	return file_porker_v2_domain_proto_rawDescData
 }
 
-var file_porker_v2_domain_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
+var file_porker_v2_domain_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
 var file_porker_v2_domain_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_porker_v2_domain_proto_goTypes = []any{
 	(Violation)(0),        // 0: porker.v2.Violation
-	(VoteState)(0),        // 1: porker.v2.VoteState
-	(DisplayMode)(0),      // 2: porker.v2.DisplayMode
-	(Point)(0),            // 3: porker.v2.Point
-	(*Ballot)(nil),        // 4: porker.v2.Ballot
-	(*RoomCondition)(nil), // 5: porker.v2.RoomCondition
+	(UserRole)(0),         // 1: porker.v2.UserRole
+	(VoteState)(0),        // 2: porker.v2.VoteState
+	(DisplayMode)(0),      // 3: porker.v2.DisplayMode
+	(Point)(0),            // 4: porker.v2.Point
+	(*Ballot)(nil),        // 5: porker.v2.Ballot
+	(*RoomCondition)(nil), // 6: porker.v2.RoomCondition
 }
 var file_porker_v2_domain_proto_depIdxs = []int32{
-	3, // 0: porker.v2.Ballot.point:type_name -> porker.v2.Point
-	1, // 1: porker.v2.RoomCondition.vote_state:type_name -> porker.v2.VoteState
-	4, // 2: porker.v2.RoomCondition.ballots:type_name -> porker.v2.Ballot
-	2, // 3: porker.v2.RoomCondition.display_mode:type_name -> porker.v2.DisplayMode
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	4, // 0: porker.v2.Ballot.point:type_name -> porker.v2.Point
+	1, // 1: porker.v2.Ballot.role:type_name -> porker.v2.UserRole
+	2, // 2: porker.v2.RoomCondition.vote_state:type_name -> porker.v2.VoteState
+	5, // 3: porker.v2.RoomCondition.ballots:type_name -> porker.v2.Ballot
+	3, // 4: porker.v2.RoomCondition.display_mode:type_name -> porker.v2.DisplayMode
+	5, // [5:5] is the sub-list for method output_type
+	5, // [5:5] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_porker_v2_domain_proto_init() }
@@ -467,7 +540,7 @@ func file_porker_v2_domain_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_porker_v2_domain_proto_rawDesc), len(file_porker_v2_domain_proto_rawDesc)),
-			NumEnums:      4,
+			NumEnums:      5,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,

@@ -38,5 +38,7 @@ type (
 		Kick(ctx context.Context, userID, targetUserID user.ID, roomID poker.RoomID) error
 		// Update updates the room.
 		Update(ctx context.Context, userID user.ID, roomID poker.RoomID, autoOpen bool, displayMode poker.DisplayMode) error
+		// ToggleObserverMode toggles the observer mode for a user.
+		ToggleObserverMode(ctx context.Context, userID user.ID, roomID poker.RoomID, isObserver bool) error
 	}
 )

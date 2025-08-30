@@ -184,6 +184,13 @@ class _Drawer extends HookConsumerWidget {
               invoke(context, () => pokerNotifier.updateRoom(poker.autoOpen, newMode), (_) {});
             },
           ),
+          SwitchListTile(
+            title: const Text('Observer mode'),
+            value: pokerNotifier.isObserver(user.userID),
+            onChanged: (bool value) {
+              invoke(context, () => pokerNotifier.toggleObserverMode(value), (_) {});
+            },
+          ),
         ],
       ),
     );

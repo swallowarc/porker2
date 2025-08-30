@@ -28,6 +28,11 @@ class HandCards extends HookConsumerWidget {
     final poker = ref.watch(pokerProvider);
 
     final myPoint = pokerNotifier.myPoint(user.userID);
+    final isObserver = pokerNotifier.isObserver(user.userID);
+
+    if (isObserver) {
+      return Container();
+    }
 
     return Center(
       child: Column(
