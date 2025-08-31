@@ -22,6 +22,7 @@ class Ballot extends $pb.GeneratedMessage {
     $core.String? userName,
     $core.String? userId,
     Point? point,
+    UserRole? role,
   }) {
     final $result = create();
     if (userName != null) {
@@ -33,6 +34,9 @@ class Ballot extends $pb.GeneratedMessage {
     if (point != null) {
       $result.point = point;
     }
+    if (role != null) {
+      $result.role = role;
+    }
     return $result;
   }
   Ballot._() : super();
@@ -43,6 +47,7 @@ class Ballot extends $pb.GeneratedMessage {
     ..aOS(1, _omitFieldNames ? '' : 'userName')
     ..aOS(2, _omitFieldNames ? '' : 'userId')
     ..e<Point>(3, _omitFieldNames ? '' : 'point', $pb.PbFieldType.OE, defaultOrMaker: Point.POINT_UNSPECIFIED, valueOf: Point.valueOf, enumValues: Point.values)
+    ..e<UserRole>(4, _omitFieldNames ? '' : 'role', $pb.PbFieldType.OE, defaultOrMaker: UserRole.USER_ROLE_UNSPECIFIED, valueOf: UserRole.valueOf, enumValues: UserRole.values)
     ..hasRequiredFields = false
   ;
 
@@ -93,6 +98,15 @@ class Ballot extends $pb.GeneratedMessage {
   $core.bool hasPoint() => $_has(2);
   @$pb.TagNumber(3)
   void clearPoint() => clearField(3);
+
+  @$pb.TagNumber(4)
+  UserRole get role => $_getN(3);
+  @$pb.TagNumber(4)
+  set role(UserRole v) { setField(4, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasRole() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearRole() => clearField(4);
 }
 
 class RoomCondition extends $pb.GeneratedMessage {
@@ -103,6 +117,7 @@ class RoomCondition extends $pb.GeneratedMessage {
     $core.Iterable<Ballot>? ballots,
     $core.bool? autoOpen,
     DisplayMode? displayMode,
+    $core.int? observerCount,
   }) {
     final $result = create();
     if (roomId != null) {
@@ -123,6 +138,9 @@ class RoomCondition extends $pb.GeneratedMessage {
     if (displayMode != null) {
       $result.displayMode = displayMode;
     }
+    if (observerCount != null) {
+      $result.observerCount = observerCount;
+    }
     return $result;
   }
   RoomCondition._() : super();
@@ -136,6 +154,7 @@ class RoomCondition extends $pb.GeneratedMessage {
     ..pc<Ballot>(4, _omitFieldNames ? '' : 'ballots', $pb.PbFieldType.PM, subBuilder: Ballot.create)
     ..aOB(5, _omitFieldNames ? '' : 'autoOpen')
     ..e<DisplayMode>(6, _omitFieldNames ? '' : 'displayMode', $pb.PbFieldType.OE, defaultOrMaker: DisplayMode.DISPLAY_MODE_UNSPECIFIED, valueOf: DisplayMode.valueOf, enumValues: DisplayMode.values)
+    ..a<$core.int>(7, _omitFieldNames ? '' : 'observerCount', $pb.PbFieldType.O3)
     ..hasRequiredFields = false
   ;
 
@@ -207,6 +226,15 @@ class RoomCondition extends $pb.GeneratedMessage {
   $core.bool hasDisplayMode() => $_has(5);
   @$pb.TagNumber(6)
   void clearDisplayMode() => clearField(6);
+
+  @$pb.TagNumber(7)
+  $core.int get observerCount => $_getIZ(6);
+  @$pb.TagNumber(7)
+  set observerCount($core.int v) { $_setSignedInt32(6, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasObserverCount() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearObserverCount() => clearField(7);
 }
 
 

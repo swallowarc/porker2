@@ -64,6 +64,9 @@ const (
 	// Porker2ServiceUpdateRoomProcedure is the fully-qualified name of the Porker2Service's UpdateRoom
 	// RPC.
 	Porker2ServiceUpdateRoomProcedure = "/porker.v2.Porker2Service/UpdateRoom"
+	// Porker2ServiceToggleObserverModeProcedure is the fully-qualified name of the Porker2Service's
+	// ToggleObserverMode RPC.
+	Porker2ServiceToggleObserverModeProcedure = "/porker.v2.Porker2Service/ToggleObserverMode"
 )
 
 // Porker2ServiceClient is a client for the porker.v2.Porker2Service service.
@@ -80,6 +83,7 @@ type Porker2ServiceClient interface {
 	ResetVotes(context.Context, *connect.Request[v2.ResetVotesRequest]) (*connect.Response[v2.ResetVotesResponse], error)
 	KickUser(context.Context, *connect.Request[v2.KickUserRequest]) (*connect.Response[v2.KickUserResponse], error)
 	UpdateRoom(context.Context, *connect.Request[v2.UpdateRoomRequest]) (*connect.Response[v2.UpdateRoomResponse], error)
+	ToggleObserverMode(context.Context, *connect.Request[v2.ToggleObserverModeRequest]) (*connect.Response[v2.ToggleObserverModeResponse], error)
 }
 
 // NewPorker2ServiceClient constructs a client for the porker.v2.Porker2Service service. By default,
@@ -165,23 +169,30 @@ func NewPorker2ServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(porker2ServiceMethods.ByName("UpdateRoom")),
 			connect.WithClientOptions(opts...),
 		),
+		toggleObserverMode: connect.NewClient[v2.ToggleObserverModeRequest, v2.ToggleObserverModeResponse](
+			httpClient,
+			baseURL+Porker2ServiceToggleObserverModeProcedure,
+			connect.WithSchema(porker2ServiceMethods.ByName("ToggleObserverMode")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // porker2ServiceClient implements Porker2ServiceClient.
 type porker2ServiceClient struct {
-	login      *connect.Client[v2.LoginRequest, v2.LoginResponse]
-	logout     *connect.Client[v2.LogoutRequest, v2.LogoutResponse]
-	verifyUser *connect.Client[v2.VerifyUserRequest, v2.VerifyUserResponse]
-	createRoom *connect.Client[v2.CreateRoomRequest, v2.CreateRoomResponse]
-	checkRoom  *connect.Client[v2.CheckRoomRequest, v2.CheckRoomResponse]
-	joinRoom   *connect.Client[v2.JoinRoomRequest, v2.JoinRoomResponse]
-	leaveRoom  *connect.Client[v2.LeaveRoomRequest, v2.LeaveRoomResponse]
-	castVote   *connect.Client[v2.CastVoteRequest, v2.CastVoteResponse]
-	showVotes  *connect.Client[v2.ShowVotesRequest, v2.ShowVotesResponse]
-	resetVotes *connect.Client[v2.ResetVotesRequest, v2.ResetVotesResponse]
-	kickUser   *connect.Client[v2.KickUserRequest, v2.KickUserResponse]
-	updateRoom *connect.Client[v2.UpdateRoomRequest, v2.UpdateRoomResponse]
+	login              *connect.Client[v2.LoginRequest, v2.LoginResponse]
+	logout             *connect.Client[v2.LogoutRequest, v2.LogoutResponse]
+	verifyUser         *connect.Client[v2.VerifyUserRequest, v2.VerifyUserResponse]
+	createRoom         *connect.Client[v2.CreateRoomRequest, v2.CreateRoomResponse]
+	checkRoom          *connect.Client[v2.CheckRoomRequest, v2.CheckRoomResponse]
+	joinRoom           *connect.Client[v2.JoinRoomRequest, v2.JoinRoomResponse]
+	leaveRoom          *connect.Client[v2.LeaveRoomRequest, v2.LeaveRoomResponse]
+	castVote           *connect.Client[v2.CastVoteRequest, v2.CastVoteResponse]
+	showVotes          *connect.Client[v2.ShowVotesRequest, v2.ShowVotesResponse]
+	resetVotes         *connect.Client[v2.ResetVotesRequest, v2.ResetVotesResponse]
+	kickUser           *connect.Client[v2.KickUserRequest, v2.KickUserResponse]
+	updateRoom         *connect.Client[v2.UpdateRoomRequest, v2.UpdateRoomResponse]
+	toggleObserverMode *connect.Client[v2.ToggleObserverModeRequest, v2.ToggleObserverModeResponse]
 }
 
 // Login calls porker.v2.Porker2Service.Login.
@@ -244,6 +255,11 @@ func (c *porker2ServiceClient) UpdateRoom(ctx context.Context, req *connect.Requ
 	return c.updateRoom.CallUnary(ctx, req)
 }
 
+// ToggleObserverMode calls porker.v2.Porker2Service.ToggleObserverMode.
+func (c *porker2ServiceClient) ToggleObserverMode(ctx context.Context, req *connect.Request[v2.ToggleObserverModeRequest]) (*connect.Response[v2.ToggleObserverModeResponse], error) {
+	return c.toggleObserverMode.CallUnary(ctx, req)
+}
+
 // Porker2ServiceHandler is an implementation of the porker.v2.Porker2Service service.
 type Porker2ServiceHandler interface {
 	Login(context.Context, *connect.Request[v2.LoginRequest]) (*connect.Response[v2.LoginResponse], error)
@@ -258,6 +274,7 @@ type Porker2ServiceHandler interface {
 	ResetVotes(context.Context, *connect.Request[v2.ResetVotesRequest]) (*connect.Response[v2.ResetVotesResponse], error)
 	KickUser(context.Context, *connect.Request[v2.KickUserRequest]) (*connect.Response[v2.KickUserResponse], error)
 	UpdateRoom(context.Context, *connect.Request[v2.UpdateRoomRequest]) (*connect.Response[v2.UpdateRoomResponse], error)
+	ToggleObserverMode(context.Context, *connect.Request[v2.ToggleObserverModeRequest]) (*connect.Response[v2.ToggleObserverModeResponse], error)
 }
 
 // NewPorker2ServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -339,6 +356,12 @@ func NewPorker2ServiceHandler(svc Porker2ServiceHandler, opts ...connect.Handler
 		connect.WithSchema(porker2ServiceMethods.ByName("UpdateRoom")),
 		connect.WithHandlerOptions(opts...),
 	)
+	porker2ServiceToggleObserverModeHandler := connect.NewUnaryHandler(
+		Porker2ServiceToggleObserverModeProcedure,
+		svc.ToggleObserverMode,
+		connect.WithSchema(porker2ServiceMethods.ByName("ToggleObserverMode")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/porker.v2.Porker2Service/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case Porker2ServiceLoginProcedure:
@@ -365,6 +388,8 @@ func NewPorker2ServiceHandler(svc Porker2ServiceHandler, opts ...connect.Handler
 			porker2ServiceKickUserHandler.ServeHTTP(w, r)
 		case Porker2ServiceUpdateRoomProcedure:
 			porker2ServiceUpdateRoomHandler.ServeHTTP(w, r)
+		case Porker2ServiceToggleObserverModeProcedure:
+			porker2ServiceToggleObserverModeHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -420,4 +445,8 @@ func (UnimplementedPorker2ServiceHandler) KickUser(context.Context, *connect.Req
 
 func (UnimplementedPorker2ServiceHandler) UpdateRoom(context.Context, *connect.Request[v2.UpdateRoomRequest]) (*connect.Response[v2.UpdateRoomResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("porker.v2.Porker2Service.UpdateRoom is not implemented"))
+}
+
+func (UnimplementedPorker2ServiceHandler) ToggleObserverMode(context.Context, *connect.Request[v2.ToggleObserverModeRequest]) (*connect.Response[v2.ToggleObserverModeResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("porker.v2.Porker2Service.ToggleObserverMode is not implemented"))
 }

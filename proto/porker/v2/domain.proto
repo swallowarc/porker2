@@ -7,6 +7,12 @@ enum Violation {
   VIOLATION_UNSPECIFIED = 0;
 }
 
+enum UserRole {
+  USER_ROLE_UNSPECIFIED = 0;
+  USER_ROLE_VOTER = 1;
+  USER_ROLE_OBSERVER = 2;
+}
+
 enum VoteState {
   VOTE_STATE_UNSPECIFIED = 0;
   VOTE_STATE_HIDE = 1;
@@ -39,6 +45,7 @@ message Ballot {
   string user_name = 1;
   string user_id = 2;
   Point point = 3;
+  UserRole role = 4;
 }
 
 message RoomCondition {
@@ -48,4 +55,5 @@ message RoomCondition {
   repeated Ballot ballots = 4;
   bool auto_open = 5;
   DisplayMode display_mode = 6;
+  int32 observer_count = 7;
 }

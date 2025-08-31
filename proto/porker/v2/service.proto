@@ -19,6 +19,7 @@ service Porker2Service {
   rpc ResetVotes(ResetVotesRequest) returns (ResetVotesResponse);
   rpc KickUser(KickUserRequest) returns (KickUserResponse);
   rpc UpdateRoom(UpdateRoomRequest) returns (UpdateRoomResponse);
+  rpc ToggleObserverMode(ToggleObserverModeRequest) returns (ToggleObserverModeResponse);
 }
 
 /* セッションについて
@@ -210,3 +211,20 @@ message UpdateRoomRequest {
 }
 
 message UpdateRoomResponse {}
+
+/* ToggleObserverMode 観察者モードの切り替え
+ * ユーザーの役割を投票者と観察者の間で切り替える。
+ * 観察者は投票せずに部屋の状況を閲覧のみ可能。
+ *
+ * Errors:
+ * - Unauthenticated:
+ *   - cookieのtokenがない、または無効
+ * - NotFound:
+ *   - 指定されたroomに参加していない
+ */
+message ToggleObserverModeRequest {
+  string room_id = 1;
+  bool is_observer = 2;
+}
+
+message ToggleObserverModeResponse {}

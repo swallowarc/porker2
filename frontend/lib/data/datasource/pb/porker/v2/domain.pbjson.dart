@@ -25,6 +25,21 @@ const Violation$json = {
 final $typed_data.Uint8List violationDescriptor = $convert.base64Decode(
     'CglWaW9sYXRpb24SGQoVVklPTEFUSU9OX1VOU1BFQ0lGSUVEEAA=');
 
+@$core.Deprecated('Use userRoleDescriptor instead')
+const UserRole$json = {
+  '1': 'UserRole',
+  '2': [
+    {'1': 'USER_ROLE_UNSPECIFIED', '2': 0},
+    {'1': 'USER_ROLE_VOTER', '2': 1},
+    {'1': 'USER_ROLE_OBSERVER', '2': 2},
+  ],
+};
+
+/// Descriptor for `UserRole`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List userRoleDescriptor = $convert.base64Decode(
+    'CghVc2VyUm9sZRIZChVVU0VSX1JPTEVfVU5TUEVDSUZJRUQQABITCg9VU0VSX1JPTEVfVk9URV'
+    'IQARIWChJVU0VSX1JPTEVfT0JTRVJWRVIQAg==');
+
 @$core.Deprecated('Use voteStateDescriptor instead')
 const VoteState$json = {
   '1': 'VoteState',
@@ -88,13 +103,15 @@ const Ballot$json = {
     {'1': 'user_name', '3': 1, '4': 1, '5': 9, '10': 'userName'},
     {'1': 'user_id', '3': 2, '4': 1, '5': 9, '10': 'userId'},
     {'1': 'point', '3': 3, '4': 1, '5': 14, '6': '.porker.v2.Point', '10': 'point'},
+    {'1': 'role', '3': 4, '4': 1, '5': 14, '6': '.porker.v2.UserRole', '10': 'role'},
   ],
 };
 
 /// Descriptor for `Ballot`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List ballotDescriptor = $convert.base64Decode(
     'CgZCYWxsb3QSGwoJdXNlcl9uYW1lGAEgASgJUgh1c2VyTmFtZRIXCgd1c2VyX2lkGAIgASgJUg'
-    'Z1c2VySWQSJgoFcG9pbnQYAyABKA4yEC5wb3JrZXIudjIuUG9pbnRSBXBvaW50');
+    'Z1c2VySWQSJgoFcG9pbnQYAyABKA4yEC5wb3JrZXIudjIuUG9pbnRSBXBvaW50EicKBHJvbGUY'
+    'BCABKA4yEy5wb3JrZXIudjIuVXNlclJvbGVSBHJvbGU=');
 
 @$core.Deprecated('Use roomConditionDescriptor instead')
 const RoomCondition$json = {
@@ -106,6 +123,7 @@ const RoomCondition$json = {
     {'1': 'ballots', '3': 4, '4': 3, '5': 11, '6': '.porker.v2.Ballot', '10': 'ballots'},
     {'1': 'auto_open', '3': 5, '4': 1, '5': 8, '10': 'autoOpen'},
     {'1': 'display_mode', '3': 6, '4': 1, '5': 14, '6': '.porker.v2.DisplayMode', '10': 'displayMode'},
+    {'1': 'observer_count', '3': 7, '4': 1, '5': 5, '10': 'observerCount'},
   ],
 };
 
@@ -115,5 +133,6 @@ final $typed_data.Uint8List roomConditionDescriptor = $convert.base64Decode(
     'lkGAIgASgJUgthZG1pblVzZXJJZBIzCgp2b3RlX3N0YXRlGAMgASgOMhQucG9ya2VyLnYyLlZv'
     'dGVTdGF0ZVIJdm90ZVN0YXRlEisKB2JhbGxvdHMYBCADKAsyES5wb3JrZXIudjIuQmFsbG90Ug'
     'diYWxsb3RzEhsKCWF1dG9fb3BlbhgFIAEoCFIIYXV0b09wZW4SOQoMZGlzcGxheV9tb2RlGAYg'
-    'ASgOMhYucG9ya2VyLnYyLkRpc3BsYXlNb2RlUgtkaXNwbGF5TW9kZQ==');
+    'ASgOMhYucG9ya2VyLnYyLkRpc3BsYXlNb2RlUgtkaXNwbGF5TW9kZRIlCg5vYnNlcnZlcl9jb3'
+    'VudBgHIAEoBVINb2JzZXJ2ZXJDb3VudA==');
 

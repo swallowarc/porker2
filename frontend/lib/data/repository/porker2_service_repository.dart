@@ -133,4 +133,11 @@ class Porker2ServiceRepositoryImpl extends Porker2ServiceRepository {
       ..autoOpen = autoOpen
       ..displayMode = displayMode);
   }
+
+  @override
+  Future<void> toggleObserverMode(String roomID, bool isObserver) async {
+    _client.toggleObserverMode(ToggleObserverModeRequest()
+      ..roomId = roomID
+      ..isObserver = isObserver);
+  }
 }

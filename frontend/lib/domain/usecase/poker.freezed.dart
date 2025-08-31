@@ -20,6 +20,7 @@ mixin _$PokerState {
   VoteState get voteState;
   bool get autoOpen;
   DisplayMode get displayMode;
+  int get observerCount;
 
   /// Create a copy of PokerState
   /// with the given fields replaced by the non-null parameter values.
@@ -42,7 +43,9 @@ mixin _$PokerState {
             (identical(other.autoOpen, autoOpen) ||
                 other.autoOpen == autoOpen) &&
             (identical(other.displayMode, displayMode) ||
-                other.displayMode == displayMode));
+                other.displayMode == displayMode) &&
+            (identical(other.observerCount, observerCount) ||
+                other.observerCount == observerCount));
   }
 
   @override
@@ -53,11 +56,12 @@ mixin _$PokerState {
       const DeepCollectionEquality().hash(ballots),
       voteState,
       autoOpen,
-      displayMode);
+      displayMode,
+      observerCount);
 
   @override
   String toString() {
-    return 'PokerState(roomID: $roomID, adminUserID: $adminUserID, ballots: $ballots, voteState: $voteState, autoOpen: $autoOpen, displayMode: $displayMode)';
+    return 'PokerState(roomID: $roomID, adminUserID: $adminUserID, ballots: $ballots, voteState: $voteState, autoOpen: $autoOpen, displayMode: $displayMode, observerCount: $observerCount)';
   }
 }
 
@@ -73,7 +77,8 @@ abstract mixin class $PokerStateCopyWith<$Res> {
       List<Ballot> ballots,
       VoteState voteState,
       bool autoOpen,
-      DisplayMode displayMode});
+      DisplayMode displayMode,
+      int observerCount});
 }
 
 /// @nodoc
@@ -94,6 +99,7 @@ class _$PokerStateCopyWithImpl<$Res> implements $PokerStateCopyWith<$Res> {
     Object? voteState = null,
     Object? autoOpen = null,
     Object? displayMode = null,
+    Object? observerCount = null,
   }) {
     return _then(_self.copyWith(
       roomID: null == roomID
@@ -120,6 +126,10 @@ class _$PokerStateCopyWithImpl<$Res> implements $PokerStateCopyWith<$Res> {
           ? _self.displayMode
           : displayMode // ignore: cast_nullable_to_non_nullable
               as DisplayMode,
+      observerCount: null == observerCount
+          ? _self.observerCount
+          : observerCount // ignore: cast_nullable_to_non_nullable
+              as int,
     ));
   }
 }
@@ -217,16 +227,28 @@ extension PokerStatePatterns on PokerState {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(String roomID, String adminUserID, List<Ballot> ballots,
-            VoteState voteState, bool autoOpen, DisplayMode displayMode)?
+    TResult Function(
+            String roomID,
+            String adminUserID,
+            List<Ballot> ballots,
+            VoteState voteState,
+            bool autoOpen,
+            DisplayMode displayMode,
+            int observerCount)?
         $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
       case _PokerState() when $default != null:
-        return $default(_that.roomID, _that.adminUserID, _that.ballots,
-            _that.voteState, _that.autoOpen, _that.displayMode);
+        return $default(
+            _that.roomID,
+            _that.adminUserID,
+            _that.ballots,
+            _that.voteState,
+            _that.autoOpen,
+            _that.displayMode,
+            _that.observerCount);
       case _:
         return orElse();
     }
@@ -247,15 +269,27 @@ extension PokerStatePatterns on PokerState {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(String roomID, String adminUserID, List<Ballot> ballots,
-            VoteState voteState, bool autoOpen, DisplayMode displayMode)
+    TResult Function(
+            String roomID,
+            String adminUserID,
+            List<Ballot> ballots,
+            VoteState voteState,
+            bool autoOpen,
+            DisplayMode displayMode,
+            int observerCount)
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _PokerState():
-        return $default(_that.roomID, _that.adminUserID, _that.ballots,
-            _that.voteState, _that.autoOpen, _that.displayMode);
+        return $default(
+            _that.roomID,
+            _that.adminUserID,
+            _that.ballots,
+            _that.voteState,
+            _that.autoOpen,
+            _that.displayMode,
+            _that.observerCount);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -275,15 +309,27 @@ extension PokerStatePatterns on PokerState {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(String roomID, String adminUserID, List<Ballot> ballots,
-            VoteState voteState, bool autoOpen, DisplayMode displayMode)?
+    TResult? Function(
+            String roomID,
+            String adminUserID,
+            List<Ballot> ballots,
+            VoteState voteState,
+            bool autoOpen,
+            DisplayMode displayMode,
+            int observerCount)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _PokerState() when $default != null:
-        return $default(_that.roomID, _that.adminUserID, _that.ballots,
-            _that.voteState, _that.autoOpen, _that.displayMode);
+        return $default(
+            _that.roomID,
+            _that.adminUserID,
+            _that.ballots,
+            _that.voteState,
+            _that.autoOpen,
+            _that.displayMode,
+            _that.observerCount);
       case _:
         return null;
     }
@@ -294,7 +340,7 @@ extension PokerStatePatterns on PokerState {
 
 class _PokerState implements PokerState {
   const _PokerState(this.roomID, this.adminUserID, final List<Ballot> ballots,
-      this.voteState, this.autoOpen, this.displayMode)
+      this.voteState, this.autoOpen, this.displayMode, this.observerCount)
       : _ballots = ballots;
 
   @override
@@ -315,6 +361,8 @@ class _PokerState implements PokerState {
   final bool autoOpen;
   @override
   final DisplayMode displayMode;
+  @override
+  final int observerCount;
 
   /// Create a copy of PokerState
   /// with the given fields replaced by the non-null parameter values.
@@ -338,7 +386,9 @@ class _PokerState implements PokerState {
             (identical(other.autoOpen, autoOpen) ||
                 other.autoOpen == autoOpen) &&
             (identical(other.displayMode, displayMode) ||
-                other.displayMode == displayMode));
+                other.displayMode == displayMode) &&
+            (identical(other.observerCount, observerCount) ||
+                other.observerCount == observerCount));
   }
 
   @override
@@ -349,11 +399,12 @@ class _PokerState implements PokerState {
       const DeepCollectionEquality().hash(_ballots),
       voteState,
       autoOpen,
-      displayMode);
+      displayMode,
+      observerCount);
 
   @override
   String toString() {
-    return 'PokerState(roomID: $roomID, adminUserID: $adminUserID, ballots: $ballots, voteState: $voteState, autoOpen: $autoOpen, displayMode: $displayMode)';
+    return 'PokerState(roomID: $roomID, adminUserID: $adminUserID, ballots: $ballots, voteState: $voteState, autoOpen: $autoOpen, displayMode: $displayMode, observerCount: $observerCount)';
   }
 }
 
@@ -371,7 +422,8 @@ abstract mixin class _$PokerStateCopyWith<$Res>
       List<Ballot> ballots,
       VoteState voteState,
       bool autoOpen,
-      DisplayMode displayMode});
+      DisplayMode displayMode,
+      int observerCount});
 }
 
 /// @nodoc
@@ -392,6 +444,7 @@ class __$PokerStateCopyWithImpl<$Res> implements _$PokerStateCopyWith<$Res> {
     Object? voteState = null,
     Object? autoOpen = null,
     Object? displayMode = null,
+    Object? observerCount = null,
   }) {
     return _then(_PokerState(
       null == roomID
@@ -418,6 +471,10 @@ class __$PokerStateCopyWithImpl<$Res> implements _$PokerStateCopyWith<$Res> {
           ? _self.displayMode
           : displayMode // ignore: cast_nullable_to_non_nullable
               as DisplayMode,
+      null == observerCount
+          ? _self.observerCount
+          : observerCount // ignore: cast_nullable_to_non_nullable
+              as int,
     ));
   }
 }

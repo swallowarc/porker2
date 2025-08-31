@@ -279,3 +279,26 @@ const UpdateRoomResponse$json = {
 final $typed_data.Uint8List updateRoomResponseDescriptor = $convert.base64Decode(
     'ChJVcGRhdGVSb29tUmVzcG9uc2U=');
 
+@$core.Deprecated('Use toggleObserverModeRequestDescriptor instead')
+const ToggleObserverModeRequest$json = {
+  '1': 'ToggleObserverModeRequest',
+  '2': [
+    {'1': 'room_id', '3': 1, '4': 1, '5': 9, '10': 'roomId'},
+    {'1': 'is_observer', '3': 2, '4': 1, '5': 8, '10': 'isObserver'},
+  ],
+};
+
+/// Descriptor for `ToggleObserverModeRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List toggleObserverModeRequestDescriptor = $convert.base64Decode(
+    'ChlUb2dnbGVPYnNlcnZlck1vZGVSZXF1ZXN0EhcKB3Jvb21faWQYASABKAlSBnJvb21JZBIfCg'
+    'tpc19vYnNlcnZlchgCIAEoCFIKaXNPYnNlcnZlcg==');
+
+@$core.Deprecated('Use toggleObserverModeResponseDescriptor instead')
+const ToggleObserverModeResponse$json = {
+  '1': 'ToggleObserverModeResponse',
+};
+
+/// Descriptor for `ToggleObserverModeResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List toggleObserverModeResponseDescriptor = $convert.base64Decode(
+    'ChpUb2dnbGVPYnNlcnZlck1vZGVSZXNwb25zZQ==');
+
