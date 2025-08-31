@@ -108,20 +108,27 @@ class PokerPage extends HookConsumerWidget {
   }
 
   bool _isUnanimity(PokerState state) {
-    if (state.ballots.length < 2) {
-      return false;
-    }
-
     if (state.voteState != VoteState.VOTE_STATE_OPEN) {
       return false;
     }
 
-    final firstPoint = state.ballots.first.point;
+    // Filter out observers - only count voters
+    final voterBallots = state.ballots
+        .where((ballot) => ballot.role != UserRole.USER_ROLE_OBSERVER)
+        .toList();
+
+    // Need at least 2 voters for unanimity
+    if (voterBallots.length < 2) {
+      return false;
+    }
+
+    final firstPoint = voterBallots.first.point;
     if (!_fireworksTargetPoints.contains(firstPoint)) {
       return false;
     }
 
-    for (final ballot in state.ballots) {
+    // Check if all voters have the same point
+    for (final ballot in voterBallots) {
       if (ballot.point != firstPoint) {
         return false;
       }
@@ -139,7 +146,7 @@ class _Drawer extends HookConsumerWidget {
     final user = ref.watch(userProvider);
 
     return Drawer(
-      width: 200,
+      width: 250,
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
@@ -154,9 +161,31 @@ class _Drawer extends HookConsumerWidget {
               child: Text(user.userName),
             ),
           ),
+          // Personal Settings Section
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Text(
+              'Personal Settings',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey,
+              ),
+            ),
+          ),
+          SwitchListTile(
+            title: const Text('Observer mode'),
+            subtitle: const Text('Watch without voting', style: TextStyle(fontSize: 12)),
+            secondary: const Icon(Icons.visibility),
+            value: pokerNotifier.isObserver(user.userID),
+            onChanged: (bool value) {
+              invoke(context, () => pokerNotifier.toggleObserverMode(value), (_) {});
+            },
+          ),
           ListTile(
             title: const Text('Leave room'),
-            leading: const Icon(Icons.door_back_door_outlined),
+            subtitle: const Text('Exit this poker session', style: TextStyle(fontSize: 12)),
+            leading: const Icon(Icons.exit_to_app),
             onTap: () {
               showDialog<void>(
                 context: context,
@@ -169,8 +198,23 @@ class _Drawer extends HookConsumerWidget {
               );
             },
           ),
+          const Divider(thickness: 1, height: 32),
+          // Room Settings Section
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+            child: Text(
+              'Room Settings',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey,
+              ),
+            ),
+          ),
           SwitchListTile(
             title: const Text('Auto open'),
+            subtitle: const Text('Reveal when all voted', style: TextStyle(fontSize: 12)),
+            secondary: const Icon(Icons.flash_auto),
             value: poker.autoOpen,
             onChanged: (bool value) {
               invoke(context, () => pokerNotifier.updateRoom(value, poker.displayMode), (_) {});
@@ -178,17 +222,12 @@ class _Drawer extends HookConsumerWidget {
           ),
           SwitchListTile(
             title: const Text('T-shirt mode'),
+            subtitle: const Text('Use T-shirt sizes', style: TextStyle(fontSize: 12)),
+            secondary: const Icon(Icons.checkroom),
             value: poker.displayMode == DisplayMode.DISPLAY_MODE_TSHIRT,
             onChanged: (bool value) {
               final newMode = value ? DisplayMode.DISPLAY_MODE_TSHIRT : DisplayMode.DISPLAY_MODE_POINT;
               invoke(context, () => pokerNotifier.updateRoom(poker.autoOpen, newMode), (_) {});
-            },
-          ),
-          SwitchListTile(
-            title: const Text('Observer mode'),
-            value: pokerNotifier.isObserver(user.userID),
-            onChanged: (bool value) {
-              invoke(context, () => pokerNotifier.toggleObserverMode(value), (_) {});
             },
           ),
         ],
