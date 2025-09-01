@@ -12,19 +12,43 @@ class Summary extends HookConsumerWidget {
     final poker = ref.watch(pokerProvider);
 
     if (poker.voteState != VoteState.VOTE_STATE_OPEN) {
-      return const Text(" ", style: TextStyle(fontSize: 17));
+      // Show participant counts even when votes are hidden
+      final voterCount = poker.ballots
+          .where((e) => e.role != UserRole.USER_ROLE_OBSERVER)
+          .length;
+      final observerCount = poker.ballots
+          .where((e) => e.role == UserRole.USER_ROLE_OBSERVER)
+          .length;
+
+      return Column(
+        children: [
+          const Text(" ", style: TextStyle(fontSize: 17)),
+          Text(
+            "$voterCount voters, $observerCount observers",
+            style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+          ),
+        ],
+      );
     }
 
-    final validVotes = poker.ballots.where((e) => validPoint(e.point)).length;
+    // Only count votes from non-observers
+    final voterBallots = poker.ballots
+        .where((e) => e.role != UserRole.USER_ROLE_OBSERVER)
+        .toList();
+    final observerCount = poker.ballots
+        .where((e) => e.role == UserRole.USER_ROLE_OBSERVER)
+        .length;
 
-    final double total = poker.ballots.fold(0, (prev, e) {
+    final validVotes = voterBallots.where((e) => validPoint(e.point)).length;
+
+    final double total = voterBallots.fold(0, (prev, e) {
       if (validPoint(e.point)) {
         return prev + pointToDouble(e.point);
       } else {
         return prev;
       }
     });
-    final double average = total / validVotes;
+    final double average = validVotes > 0 ? total / validVotes : 0;
 
     String displayText;
     if (poker.displayMode == DisplayMode.DISPLAY_MODE_TSHIRT) {
@@ -34,7 +58,16 @@ class Summary extends HookConsumerWidget {
       displayText = "Avg: ${average.toStringAsFixed(1)}";
     }
 
-    return Text(displayText,
-        style: const TextStyle(fontSize: 17, color: Colors.green));
+    return Column(
+      children: [
+        Text(displayText,
+            style: const TextStyle(fontSize: 17, color: Colors.green)),
+        const SizedBox(height: 4),
+        Text(
+          "$validVotes voters${observerCount > 0 ? ', $observerCount observers' : ''}",
+          style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+        ),
+      ],
+    );
   }
 }

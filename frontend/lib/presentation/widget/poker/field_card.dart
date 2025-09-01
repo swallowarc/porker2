@@ -13,6 +13,7 @@ class FieldCard extends ConsumerStatefulWidget {
   late final int _loginNameHash;
 
   final Point point;
+  final UserRole role;
   final bool opened;
   final DisplayMode displayMode;
 
@@ -21,6 +22,7 @@ class FieldCard extends ConsumerStatefulWidget {
     required this.loginID,
     required this.loginName,
     required this.point,
+    required this.role,
     required this.opened,
     this.displayMode = DisplayMode.DISPLAY_MODE_POINT,
   }) {
@@ -98,12 +100,18 @@ class FieldCardState extends ConsumerState<FieldCard>
   @override
   Widget build(BuildContext context) {
     final voted = widget.point != Point.POINT_UNSPECIFIED;
+    final isObserver = widget.role == UserRole.USER_ROLE_OBSERVER;
+    final opacity = isObserver ? 0.7 : 1.0;
+
     if (!voted) {
-      return SizedBox(
-        width: 100,
-        height: 130,
-        child: Card(
-          color: Theme.of(context).scaffoldBackgroundColor,
+      return Opacity(
+        opacity: opacity,
+        child: SizedBox(
+          width: 100,
+          height: 130,
+          child: Card(
+            color: Theme.of(context).scaffoldBackgroundColor,
+          ),
         ),
       );
     }
@@ -121,8 +129,9 @@ class FieldCardState extends ConsumerState<FieldCard>
       displayMode: widget.displayMode,
     );
 
+    Widget resultCard;
     if (_turnController.isAnimating || _turnController.value > 0) {
-      return AnimatedBuilder(
+      resultCard = AnimatedBuilder(
         animation: _turnController,
         builder: (context, child) {
           final angle = _turnController.value * pi;
@@ -140,19 +149,24 @@ class FieldCardState extends ConsumerState<FieldCard>
           );
         },
       );
+    } else {
+      resultCard = AnimatedBuilder(
+        animation: _slideController,
+        builder: (BuildContext context, Widget? child) {
+          return SlideTransition(
+            position: _slideOffsetAnimation,
+            child: Transform(
+              transform: Matrix4.rotationZ(tilt),
+              child: card,
+            ),
+          );
+        },
+      );
     }
 
-    return AnimatedBuilder(
-      animation: _slideController,
-      builder: (BuildContext context, Widget? child) {
-        return SlideTransition(
-          position: _slideOffsetAnimation,
-          child: Transform(
-            transform: Matrix4.rotationZ(tilt),
-            child: card,
-          ),
-        );
-      },
+    return Opacity(
+      opacity: opacity,
+      child: resultCard,
     );
   }
 }

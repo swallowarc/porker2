@@ -163,9 +163,41 @@ class _Drawer extends HookConsumerWidget {
               child: Text(user.userName),
             ),
           ),
-          // Personal Settings Section
+          // Room Settings Section
           const Padding(
             padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Text(
+              'Room Settings',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey,
+              ),
+            ),
+          ),
+          SwitchListTile(
+            title: const Text('Auto open'),
+            subtitle: const Text('Reveal when all voted', style: TextStyle(fontSize: 12)),
+            secondary: const Icon(Icons.flash_auto),
+            value: poker.autoOpen,
+            onChanged: (bool value) {
+              invoke(context, () => pokerNotifier.updateRoom(value, poker.displayMode), (_) {});
+            },
+          ),
+          SwitchListTile(
+            title: const Text('T-shirt mode'),
+            subtitle: const Text('Use T-shirt sizes', style: TextStyle(fontSize: 12)),
+            secondary: const Icon(Icons.checkroom),
+            value: poker.displayMode == DisplayMode.DISPLAY_MODE_TSHIRT,
+            onChanged: (bool value) {
+              final newMode = value ? DisplayMode.DISPLAY_MODE_TSHIRT : DisplayMode.DISPLAY_MODE_POINT;
+              invoke(context, () => pokerNotifier.updateRoom(poker.autoOpen, newMode), (_) {});
+            },
+          ),
+          const Divider(thickness: 1, height: 32),
+          // Personal Settings Section
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
             child: Text(
               'Personal Settings',
               style: TextStyle(
@@ -198,38 +230,6 @@ class _Drawer extends HookConsumerWidget {
                       (_) => GoRouter.of(context).go('/room')),
                 ),
               );
-            },
-          ),
-          const Divider(thickness: 1, height: 32),
-          // Room Settings Section
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-            child: Text(
-              'Room Settings',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey,
-              ),
-            ),
-          ),
-          SwitchListTile(
-            title: const Text('Auto open'),
-            subtitle: const Text('Reveal when all voted', style: TextStyle(fontSize: 12)),
-            secondary: const Icon(Icons.flash_auto),
-            value: poker.autoOpen,
-            onChanged: (bool value) {
-              invoke(context, () => pokerNotifier.updateRoom(value, poker.displayMode), (_) {});
-            },
-          ),
-          SwitchListTile(
-            title: const Text('T-shirt mode'),
-            subtitle: const Text('Use T-shirt sizes', style: TextStyle(fontSize: 12)),
-            secondary: const Icon(Icons.checkroom),
-            value: poker.displayMode == DisplayMode.DISPLAY_MODE_TSHIRT,
-            onChanged: (bool value) {
-              final newMode = value ? DisplayMode.DISPLAY_MODE_TSHIRT : DisplayMode.DISPLAY_MODE_POINT;
-              invoke(context, () => pokerNotifier.updateRoom(poker.autoOpen, newMode), (_) {});
             },
           ),
         ],
