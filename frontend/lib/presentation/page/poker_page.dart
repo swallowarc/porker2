@@ -9,6 +9,7 @@ import 'package:porker2fe/presentation/const.dart';
 import 'package:porker2fe/presentation/invoke.dart';
 import 'package:porker2fe/presentation/provider/provider.dart';
 import 'package:porker2fe/presentation/widget/app_bar.dart';
+import 'package:porker2fe/presentation/widget/bottom_bar.dart';
 import 'package:porker2fe/presentation/widget/dialog.dart';
 import 'package:porker2fe/presentation/widget/fireworks.dart';
 import 'package:porker2fe/presentation/widget/poker/field_cards.dart';
@@ -104,6 +105,7 @@ class PokerPage extends HookConsumerWidget {
         ],
       ),
       drawer: isMediumScreen ? _Drawer() : null,
+      bottomNavigationBar: const BottomBar(),
     );
   }
 

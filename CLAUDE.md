@@ -122,15 +122,37 @@ The frontend follows clean architecture principles with state management via Riv
 3. **Voting State**: Two states - hidden (1) and open (2)
 4. **Session Storage**: Redis with automatic TTL management
 
+### Features
+
+#### Observer Mode
+Users can join a room as observers to watch the voting process without participating:
+- **User Roles**: `USER_ROLE_VOTER` (1) for participants, `USER_ROLE_OBSERVER` (2) for observers
+- Observers can see all votes and results but cannot cast votes
+- Observer count is tracked separately in `RoomCondition.observer_count`
+- Observers are excluded from vote calculations and averages
+
+#### T-shirt Sizing Mode
+Rooms can switch between numeric points and T-shirt sizes for estimation:
+- **Display Modes**: `DISPLAY_MODE_POINT` (1) for numbers, `DISPLAY_MODE_TSHIRT` (2) for T-shirt sizes
+- T-shirt size mapping:
+  - XS: 0-0.5 points
+  - S: 1-2 points
+  - M: 3-5 points
+  - L: 8 points
+  - XL: 13 points
+  - XXL: 21+ points
+- Display mode is configurable per room and affects how points are shown to all participants
+- Averages are calculated numerically but displayed according to the selected mode
+
 ### Redis Key Schema
 
 - **User Sessions**:
-  - `token:(token)` ’ user_id
-  - `user_id:(user_id)` ’ user data
-  - `user_name:(user_name)` ’ user_id (for duplicate checking)
+  - `token:(token)` â†’ user_id
+  - `user_id:(user_id)` â†’ user data
+  - `user_name:(user_name)` â†’ user_id (for duplicate checking)
 - **Room State**:
-  - `room_condition:(room_id)` ’ room state stream
-  - `room_lock:(room_id)` ’ distributed lock for vote operations
+  - `room_condition:(room_id)` â†’ room state stream
+  - `room_lock:(room_id)` â†’ distributed lock for vote operations
 
 ## Common Development Patterns
 

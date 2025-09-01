@@ -35,7 +35,7 @@ class Porker2AppBar extends HookConsumerWidget implements PreferredSizeWidget {
         Tooltip(
           message: 'Logout',
           child: IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.account_circle),
             onPressed: () async {
               showDialog<void>(
                 context: context,
