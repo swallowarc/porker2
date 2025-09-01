@@ -28,3 +28,4 @@ docker/data/redis/dump.rdb
 .DS_Store
 /.mcp.json
 /.env
+/playwright/.auth/storage.json
