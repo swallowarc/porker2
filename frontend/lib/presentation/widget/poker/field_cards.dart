@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:porker2fe/data/datasource/pb/porker/v2/domain.pb.dart';
 import 'package:porker2fe/presentation/invoke.dart';
 import 'package:porker2fe/presentation/provider/provider.dart';
 import 'package:porker2fe/presentation/widget/dialog.dart';
@@ -22,6 +23,7 @@ class FieldCards extends HookConsumerWidget {
                 point: e.point,
                 loginID: e.userId,
                 loginName: e.userName,
+                role: e.role,
                 opened: ref.read(pokerProvider.notifier).opened,
                 displayMode: poker.displayMode,
               ),
@@ -30,6 +32,7 @@ class FieldCards extends HookConsumerWidget {
                 context,
                 e.userName,
                 e.userId,
+                e.role,
                 poker.adminUserID,
                 isAdmin,
                 () {
@@ -68,11 +71,27 @@ class FieldCards extends HookConsumerWidget {
     BuildContext context,
     String userName,
     String userID,
+    UserRole role,
     String adminUserID,
     bool isAdmin,
     Function closeFn,
   ) {
     List<Widget> children = [];
+
+    // Add observer icon if user is an observer
+    if (role == UserRole.USER_ROLE_OBSERVER) {
+      children.add(
+        Tooltip(
+          message: "Observer",
+          child: Icon(
+            Icons.visibility_outlined,
+            color: Colors.grey.shade600,
+            size: 20,
+          ),
+        ),
+      );
+      children.add(const SizedBox(width: 5));
+    }
 
     if (userID == adminUserID) {
       children.add(
