@@ -2,7 +2,7 @@
 # Use official Dart image and install Flutter SDK for better caching
 FROM dart:stable AS flutter_deps
 
-# Install Flutter SDK
+# Install Flutter SDK dependencies
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -11,17 +11,22 @@ RUN apt-get update && apt-get install -y \
     zip \
     && rm -rf /var/lib/apt/lists/*
 
-# Download and install Flutter SDK
-ENV FLUTTER_VERSION=3.24.5
+# Create a non-root user for Flutter operations
+RUN useradd -m -u 1001 flutteruser
+
+# Download and install Flutter SDK (latest stable with Dart 3.6+)
+ENV FLUTTER_VERSION=3.27.2
 RUN git clone https://github.com/flutter/flutter.git /flutter -b ${FLUTTER_VERSION} --depth 1 \
-    && /flutter/bin/flutter --version
+    && chown -R flutteruser:flutteruser /flutter
 
 ENV PATH="/flutter/bin:${PATH}"
 
-WORKDIR /app
+# Switch to non-root user
+USER flutteruser
+WORKDIR /home/flutteruser/app
 
 # Copy only dependency files first for better caching
-COPY frontend/pubspec.yaml frontend/pubspec.lock ./
+COPY --chown=flutteruser:flutteruser frontend/pubspec.yaml frontend/pubspec.lock ./
 
 # Pre-download Flutter web SDK and dependencies
 RUN flutter config --no-analytics \
@@ -31,10 +36,10 @@ RUN flutter config --no-analytics \
 # ===== Flutter Build Stage =====
 FROM flutter_deps AS build_frontend
 
-WORKDIR /app
+WORKDIR /home/flutteruser/app
 
 # Copy the rest of frontend code
-COPY frontend/ ./
+COPY --chown=flutteruser:flutteruser frontend/ ./
 
 # Build with optimizations
 # --tree-shake-icons: Remove unused icon glyphs
@@ -80,7 +85,7 @@ WORKDIR /app
 RUN apk add --no-cache ca-certificates tzdata
 
 # Copy built artifacts from previous stages
-COPY --from=build_frontend /app/build/web /usr/share/nginx/html
+COPY --from=build_frontend /home/flutteruser/app/build/web /usr/share/nginx/html
 COPY --from=build_backend /app/server .
 COPY nginx.conf /etc/nginx/nginx.conf
 
