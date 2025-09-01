@@ -1,45 +1,23 @@
 # ===== Flutter Dependencies Stage =====
-# Use official Flutter image for better performance and smaller size
-FROM ghcr.io/cirruslabs/flutter:3.32.1 AS flutter_deps
+# Cache Flutter dependencies separately to avoid re-downloading on code changes
+FROM swallowarc/flutter-builder AS flutter_deps
 
-# Create a non-root user for Flutter operations
-RUN useradd -m -u 1001 flutteruser && \
-    chown -R flutteruser:flutteruser /sdks/flutter
-
-# Switch to non-root user
-USER flutteruser
-WORKDIR /home/flutteruser/app
-
-# Configure Flutter
-RUN flutter config --no-analytics && \
-    flutter doctor -v
+WORKDIR /app
 
 # Copy only dependency files first for better caching
-COPY --chown=flutteruser:flutteruser frontend/pubspec.yaml frontend/pubspec.lock ./
-
-# Get dependencies separately for better caching
-RUN flutter pub get --no-example
-
-# Pre-cache web SDK separately
-RUN flutter precache --web --no-ios --no-android
+COPY frontend/pubspec.yaml frontend/pubspec.lock ./
+RUN flutter pub get
 
 # ===== Flutter Build Stage =====
 FROM flutter_deps AS build_frontend
 
-WORKDIR /home/flutteruser/app
+WORKDIR /app
 
 # Copy the rest of frontend code
-COPY --chown=flutteruser:flutteruser frontend/ ./
+COPY frontend/ ./
 
-# Build with optimizations
-# --tree-shake-icons: Remove unused icon glyphs
-# --no-source-maps: Remove source maps for smaller size
-# --dart2js-optimization: Maximum optimization level
-RUN flutter build web --release --no-pub \
-    --tree-shake-icons \
-    --no-source-maps \
-    --base-href=/ \
-    --dart2js-optimization=O4
+# Build without re-fetching dependencies (--no-pub flag)
+RUN flutter build web --release --no-pub
 
 # ===== Go Dependencies Stage =====
 # Cache Go modules separately
@@ -66,11 +44,8 @@ COPY backend/ ./
 # - CGO_ENABLED=0 for static binary
 # - ldflags -s -w to strip debug info and reduce binary size
 # - trimpath to remove file system paths from binary
-# - Use buildvcs=false to skip VCS stamping
-ARG TARGETOS=linux
-ARG TARGETARCH=amd64
-RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
-    go build -buildvcs=false -ldflags="-s -w" -trimpath -o server cmd/porker2/main.go
+RUN CGO_ENABLED=0 GOARCH=amd64 GOOS=linux \
+    go build -ldflags="-s -w" -trimpath -o server cmd/porker2/main.go
 
 # ===== Final Stage =====
 FROM nginx:alpine AS final
@@ -81,7 +56,7 @@ WORKDIR /app
 RUN apk add --no-cache ca-certificates tzdata
 
 # Copy built artifacts from previous stages
-COPY --from=build_frontend /home/flutteruser/app/build/web /usr/share/nginx/html
+COPY --from=build_frontend /app/build/web /usr/share/nginx/html
 COPY --from=build_backend /app/server .
 COPY nginx.conf /etc/nginx/nginx.conf
 

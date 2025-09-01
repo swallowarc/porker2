@@ -10,10 +10,6 @@ on:
         description: 'Push images to registry'
         required: false
         default: 'false'
-      platforms:
-        description: 'Platforms to build for (comma-separated)'
-        required: false
-        default: 'linux/amd64,linux/arm64'
 
 env:
   DOCKER_IMAGE: swallowarc/porker2
@@ -23,7 +19,6 @@ env:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    timeout-minutes: 30  # Add timeout to prevent indefinite hangs
     permissions:
       contents: read
       packages: write
@@ -37,10 +32,6 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          driver-opts: |
-            image=moby/buildkit:latest
-            network=host
 
       - name: Log in to Docker Hub
         if: github.event_name != 'pull_request' || github.event.inputs.push == 'true'
@@ -61,59 +52,21 @@ jobs:
             type=semver,pattern={{major}}
             type=raw,value=latest,enable={{is_default_branch}}
 
-      # Note: Flutter cache removed as it's not used by Docker build
-
-      # Determine platforms and cache strategy based on event type
-      - name: Determine build configuration
-        id: config
-        run: |
-          if [[ "${{ github.event_name }}" == "push" && "${{ startsWith(github.ref, 'refs/tags/') }}" == "true" ]]; then
-            # For tags, build multi-arch with registry cache
-            echo "platforms=linux/amd64,linux/arm64" >> $GITHUB_OUTPUT
-            echo "cache_type=registry" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.event.inputs.platforms }}" != "" ]]; then
-            # For manual dispatch with platforms input
-            echo "platforms=${{ github.event.inputs.platforms }}" >> $GITHUB_OUTPUT
-            echo "cache_type=gha" >> $GITHUB_OUTPUT
-          else
-            # For other cases, build only amd64 for speed with GHA cache
-            echo "platforms=linux/amd64" >> $GITHUB_OUTPUT
-            echo "cache_type=gha" >> $GITHUB_OUTPUT
-          fi
-
-      # Build with GHA cache for non-tag builds
-      - name: Build and push Docker image (GHA cache)
-        if: steps.config.outputs.cache_type == 'gha'
+      - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
-          platforms: ${{ steps.config.outputs.platforms }}
+          platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' || github.event.inputs.push == 'true' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha,scope=buildkit-${{ github.ref_name }}
-          cache-to: type=gha,mode=max,scope=buildkit-${{ github.ref_name }}
-          provenance: false
-          sbom: false
-          build-args: |
-            BUILDKIT_INLINE_CACHE=1
-
-      # Build with registry cache for tag builds
-      - name: Build and push Docker image (Registry cache)
-        if: steps.config.outputs.cache_type == 'registry'
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./Dockerfile
-          platforms: ${{ steps.config.outputs.platforms }}
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=${{ env.DOCKER_IMAGE }}:buildcache
-          cache-to: type=registry,ref=${{ env.DOCKER_IMAGE }}:buildcache,mode=max,compression=zstd,compression-level=3
-          provenance: false
-          sbom: false
+          cache-from: |
+            type=gha
+            type=registry,ref=${{ env.DOCKER_IMAGE }}:buildcache
+          cache-to: |
+            type=gha,mode=max
+            type=registry,ref=${{ env.DOCKER_IMAGE }}:buildcache,mode=max
           build-args: |
             BUILDKIT_INLINE_CACHE=1
 
