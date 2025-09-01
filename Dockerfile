@@ -14,8 +14,8 @@ RUN apt-get update && apt-get install -y \
 # Create a non-root user for Flutter operations
 RUN useradd -m -u 1001 flutteruser
 
-# Download and install Flutter SDK (latest stable with Dart 3.6+)
-ENV FLUTTER_VERSION=3.27.2
+# Download and install Flutter SDK (latest stable with Dart 3.8+)
+ENV FLUTTER_VERSION=3.32.1
 RUN git clone https://github.com/flutter/flutter.git /flutter -b ${FLUTTER_VERSION} --depth 1 \
     && chown -R flutteruser:flutteruser /flutter
 
