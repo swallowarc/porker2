@@ -1,0 +1,82 @@
+name: Docker Build (Development)
+
+on:
+  pull_request:
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - 'proto/**'
+      - 'Dockerfile'
+      - 'nginx.conf'
+      - '.github/workflows/docker-build-dev.yml'
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - 'proto/**'
+      - 'Dockerfile'
+      - 'nginx.conf'
+      - '.github/workflows/docker-build-dev.yml'
+
+env:
+  DOCKER_IMAGE: swallowarc/porker2
+  DOCKER_BUILDKIT: 1
+  COMPOSE_DOCKER_CLI_BUILD: 1
+
+jobs:
+  build-check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Cache Flutter pub dependencies
+      - name: Cache Flutter dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            frontend/.dart_tool
+            frontend/build
+          key: ${{ runner.os }}-flutter-${{ hashFiles('frontend/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-
+
+      # Cache Go modules
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-${{ hashFiles('backend/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Build Docker image (amd64 only)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64
+          push: false
+          tags: ${{ env.DOCKER_IMAGE }}:dev-${{ github.sha }}
+          cache-from: |
+            type=gha
+            type=registry,ref=${{ env.DOCKER_IMAGE }}:buildcache
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILDKIT_INLINE_CACHE=1
+
+      - name: Test image structure
+        run: |
+          docker run --rm ${{ env.DOCKER_IMAGE }}:dev-${{ github.sha }} sh -c "ls -la /app/server && ls -la /usr/share/nginx/html"

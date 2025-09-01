@@ -1,12 +1,32 @@
 # ===== Flutter Dependencies Stage =====
-# Cache Flutter dependencies separately to avoid re-downloading on code changes
-FROM swallowarc/flutter-builder AS flutter_deps
+# Use official Dart image and install Flutter SDK for better caching
+FROM dart:stable AS flutter_deps
+
+# Install Flutter SDK
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    unzip \
+    xz-utils \
+    zip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Download and install Flutter SDK
+ENV FLUTTER_VERSION=3.24.5
+RUN git clone https://github.com/flutter/flutter.git /flutter -b ${FLUTTER_VERSION} --depth 1 \
+    && /flutter/bin/flutter --version
+
+ENV PATH="/flutter/bin:${PATH}"
 
 WORKDIR /app
 
 # Copy only dependency files first for better caching
 COPY frontend/pubspec.yaml frontend/pubspec.lock ./
-RUN flutter pub get
+
+# Pre-download Flutter web SDK and dependencies
+RUN flutter config --no-analytics \
+    && flutter precache --web \
+    && flutter pub get
 
 # ===== Flutter Build Stage =====
 FROM flutter_deps AS build_frontend
@@ -16,8 +36,12 @@ WORKDIR /app
 # Copy the rest of frontend code
 COPY frontend/ ./
 
-# Build without re-fetching dependencies (--no-pub flag)
-RUN flutter build web --release --no-pub
+# Build with optimizations
+# --tree-shake-icons: Remove unused icon glyphs
+# --no-source-maps: Remove source maps for smaller size
+RUN flutter build web --release --no-pub \
+    --tree-shake-icons \
+    --no-source-maps
 
 # ===== Go Dependencies Stage =====
 # Cache Go modules separately
