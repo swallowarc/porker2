@@ -1,37 +1,27 @@
 # ===== Flutter Dependencies Stage =====
-# Use official Dart image and install Flutter SDK for better caching
-FROM dart:stable AS flutter_deps
-
-# Install Flutter SDK dependencies
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    unzip \
-    xz-utils \
-    zip \
-    && rm -rf /var/lib/apt/lists/*
+# Use official Flutter image for better performance and smaller size
+FROM ghcr.io/cirruslabs/flutter:3.32.1 AS flutter_deps
 
 # Create a non-root user for Flutter operations
-RUN useradd -m -u 1001 flutteruser
-
-# Download and install Flutter SDK (latest stable with Dart 3.8+)
-ENV FLUTTER_VERSION=3.32.1
-RUN git clone https://github.com/flutter/flutter.git /flutter -b ${FLUTTER_VERSION} --depth 1 \
-    && chown -R flutteruser:flutteruser /flutter
-
-ENV PATH="/flutter/bin:${PATH}"
+RUN useradd -m -u 1001 flutteruser && \
+    chown -R flutteruser:flutteruser /sdks/flutter
 
 # Switch to non-root user
 USER flutteruser
 WORKDIR /home/flutteruser/app
 
+# Configure Flutter
+RUN flutter config --no-analytics && \
+    flutter doctor -v
+
 # Copy only dependency files first for better caching
 COPY --chown=flutteruser:flutteruser frontend/pubspec.yaml frontend/pubspec.lock ./
 
-# Pre-download Flutter web SDK and dependencies
-RUN flutter config --no-analytics \
-    && flutter precache --web \
-    && flutter pub get
+# Get dependencies separately for better caching
+RUN flutter pub get --no-example
+
+# Pre-cache web SDK separately
+RUN flutter precache --web --no-ios --no-android
 
 # ===== Flutter Build Stage =====
 FROM flutter_deps AS build_frontend
@@ -44,9 +34,12 @@ COPY --chown=flutteruser:flutteruser frontend/ ./
 # Build with optimizations
 # --tree-shake-icons: Remove unused icon glyphs
 # --no-source-maps: Remove source maps for smaller size
+# --dart2js-optimization: Maximum optimization level
 RUN flutter build web --release --no-pub \
     --tree-shake-icons \
-    --no-source-maps
+    --no-source-maps \
+    --base-href=/ \
+    --dart2js-optimization=O4
 
 # ===== Go Dependencies Stage =====
 # Cache Go modules separately
@@ -73,8 +66,11 @@ COPY backend/ ./
 # - CGO_ENABLED=0 for static binary
 # - ldflags -s -w to strip debug info and reduce binary size
 # - trimpath to remove file system paths from binary
-RUN CGO_ENABLED=0 GOARCH=amd64 GOOS=linux \
-    go build -ldflags="-s -w" -trimpath -o server cmd/porker2/main.go
+# - Use buildvcs=false to skip VCS stamping
+ARG TARGETOS=linux
+ARG TARGETARCH=amd64
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
+    go build -buildvcs=false -ldflags="-s -w" -trimpath -o server cmd/porker2/main.go
 
 # ===== Final Stage =====
 FROM nginx:alpine AS final
