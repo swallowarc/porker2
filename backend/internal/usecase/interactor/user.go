@@ -47,10 +47,10 @@ func (i *userInteractor) Logout(ctx context.Context, userID user.ID) error {
 		return err
 	}
 
-	var eg errgroup.Group
+	g, ctx := errgroup.WithContext(ctx)
 
 	if roomID != "" {
-		eg.Go(func() error {
+		g.Go(func() error {
 			return i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.RoomCondition) error {
 				c.Leave(userID)
 				return nil
@@ -58,11 +58,11 @@ func (i *userInteractor) Logout(ctx context.Context, userID user.ID) error {
 		})
 	}
 
-	eg.Go(func() error {
+	g.Go(func() error {
 		return i.userRepo.Delete(ctx, userID)
 	})
 
-	return eg.Wait()
+	return g.Wait()
 }
 
 func (i *userInteractor) GetUser(ctx context.Context, userID user.ID) (user.Name, error) {

@@ -51,11 +51,12 @@ class User extends StateNotifier<UserState> {
       return true;
     } catch (e) {
       if (e is GrpcError && e.code == StatusCode.unauthenticated) {
-        return false;
-      } else {
-        logger.e(e.toString());
+        // User is not authenticated - this is expected behavior
         return false;
       }
+      // For other errors, log and rethrow to allow proper error handling
+      logger.e("Failed to verify user: $e", error: e);
+      rethrow;
     }
   }
 

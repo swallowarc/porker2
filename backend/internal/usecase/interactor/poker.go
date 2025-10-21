@@ -55,24 +55,45 @@ func (i *pokerInteractor) CheckRoom(ctx context.Context, userID user.ID, roomID 
 }
 
 func (i *pokerInteractor) JoinRoom(ctx context.Context, userID user.ID, roomID poker.RoomID, fn port.RoomSubscriber) error {
+	userName, err := i.handleAutoLeaveFromPreviousRoom(ctx, userID, roomID)
+	if err != nil {
+		return err
+	}
+
+	if err := i.performRoomJoin(ctx, userID, userName, roomID); err != nil {
+		return err
+	}
+
+	return i.setupRoomSubscription(ctx, userID, roomID, fn)
+}
+
+// handleAutoLeaveFromPreviousRoom handles automatic leaving from previous room if user is already in another room.
+// Returns the user name for joining the new room.
+func (i *pokerInteractor) handleAutoLeaveFromPreviousRoom(ctx context.Context, userID user.ID, targetRoomID poker.RoomID) (user.Name, error) {
 	userName, _, joinedRoomID, err := i.userRepo.GetByID(ctx, userID)
 	if err != nil {
 		if !merror.IsNotFound(err) {
-			return err
+			return "", err
 		}
-	} else {
-		if joinedRoomID != "" && joinedRoomID != roomID {
-			logger.FromCtx(ctx).Info("leave the room because the user is already in other room",
-				slog.String("user_id", userID.String()),
-				slog.String("room_id", joinedRoomID.String()),
-			)
-			if err := i.LeaveRoom(ctx, userID); err != nil {
-				return err
-			}
+		return "", nil
+	}
+
+	if joinedRoomID != "" && joinedRoomID != targetRoomID {
+		logger.FromCtx(ctx).Info("leave the room because the user is already in other room",
+			slog.String("user_id", userID.String()),
+			slog.String("room_id", joinedRoomID.String()),
+		)
+		if err := i.LeaveRoom(ctx, userID); err != nil {
+			return "", err
 		}
 	}
 
-	if err := i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.RoomCondition) error {
+	return userName, nil
+}
+
+// performRoomJoin executes the actual room join operation with transactional semantics.
+func (i *pokerInteractor) performRoomJoin(ctx context.Context, userID user.ID, userName user.Name, roomID poker.RoomID) error {
+	return i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.RoomCondition) error {
 		if err := c.Join(userID, userName); err != nil {
 			return err
 		}
@@ -81,22 +102,18 @@ func (i *pokerInteractor) JoinRoom(ctx context.Context, userID user.ID, roomID p
 			return err
 		}
 		return nil
-	}); err != nil {
-		return err
-	}
+	})
+}
 
-	if err := i.pokerRepo.SubscribeRoomCondition(ctx, roomID, func(ctx context.Context, c *poker.RoomCondition) (bool, error) {
+// setupRoomSubscription sets up room condition subscription with automatic unsubscribe when user leaves.
+func (i *pokerInteractor) setupRoomSubscription(ctx context.Context, userID user.ID, roomID poker.RoomID, fn port.RoomSubscriber) error {
+	return i.pokerRepo.SubscribeRoomCondition(ctx, roomID, func(ctx context.Context, c *poker.RoomCondition) (bool, error) {
 		if !c.IsUserIn(userID) {
 			logger.FromCtx(ctx).Info("stop subscribing room condition (user is not in the room)")
 			return false, nil
 		}
 		return fn(ctx, c)
-
-	}); err != nil {
-		return err
-	}
-
-	return nil
+	})
 }
 
 func (i *pokerInteractor) LeaveRoom(ctx context.Context, userID user.ID) error {
@@ -122,66 +139,58 @@ func (i *pokerInteractor) LeaveRoom(ctx context.Context, userID user.ID) error {
 	return nil
 }
 
-func (i *pokerInteractor) CastVote(ctx context.Context, userID user.ID, roomID poker.RoomID, point poker.Point) error {
+// executeRoomOperation is a helper method to execute room operations with user room join check.
+func (i *pokerInteractor) executeRoomOperation(
+	ctx context.Context,
+	userID user.ID,
+	roomID poker.RoomID,
+	operation func(*poker.RoomCondition) error,
+) error {
 	if err := i.checkUserRoomJoin(ctx, userID, roomID); err != nil {
 		return err
 	}
 
 	return i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.RoomCondition) error {
+		return operation(c)
+	})
+}
+
+func (i *pokerInteractor) CastVote(ctx context.Context, userID user.ID, roomID poker.RoomID, point poker.Point) error {
+	return i.executeRoomOperation(ctx, userID, roomID, func(c *poker.RoomCondition) error {
 		c.Vote(userID, point)
 		return nil
 	})
 }
 
 func (i *pokerInteractor) ShowVotes(ctx context.Context, userID user.ID, roomID poker.RoomID) error {
-	if err := i.checkUserRoomJoin(ctx, userID, roomID); err != nil {
-		return err
-	}
-
-	return i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.RoomCondition) error {
+	return i.executeRoomOperation(ctx, userID, roomID, func(c *poker.RoomCondition) error {
 		c.Open()
 		return nil
 	})
 }
 
 func (i *pokerInteractor) ResetVotes(ctx context.Context, userID user.ID, roomID poker.RoomID) error {
-	if err := i.checkUserRoomJoin(ctx, userID, roomID); err != nil {
-		return err
-	}
-
-	return i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.RoomCondition) error {
+	return i.executeRoomOperation(ctx, userID, roomID, func(c *poker.RoomCondition) error {
 		c.Reset()
 		return nil
 	})
 }
 
 func (i *pokerInteractor) Kick(ctx context.Context, userID, targetUserID user.ID, roomID poker.RoomID) error {
-	if err := i.checkUserRoomJoin(ctx, userID, roomID); err != nil {
-		return err
-	}
-
-	return i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.RoomCondition) error {
+	return i.executeRoomOperation(ctx, userID, roomID, func(c *poker.RoomCondition) error {
 		return c.Kick(userID, targetUserID)
 	})
 }
 
 func (i *pokerInteractor) Update(ctx context.Context, userID user.ID, roomID poker.RoomID, autoOpen bool, displayMode poker.DisplayMode) error {
-	if err := i.checkUserRoomJoin(ctx, userID, roomID); err != nil {
-		return err
-	}
-
-	return i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.RoomCondition) error {
+	return i.executeRoomOperation(ctx, userID, roomID, func(c *poker.RoomCondition) error {
 		c.UpdateSetting(autoOpen, displayMode)
 		return nil
 	})
 }
 
 func (i *pokerInteractor) ToggleObserverMode(ctx context.Context, userID user.ID, roomID poker.RoomID, isObserver bool) error {
-	if err := i.checkUserRoomJoin(ctx, userID, roomID); err != nil {
-		return err
-	}
-
-	return i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.RoomCondition) error {
+	return i.executeRoomOperation(ctx, userID, roomID, func(c *poker.RoomCondition) error {
 		c.ToggleObserverMode(userID, isObserver)
 		return nil
 	})

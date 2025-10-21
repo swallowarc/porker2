@@ -52,43 +52,54 @@ class Poker extends StateNotifier<PokerState> {
     }
     _subscribingRoomID = roomId;
 
-    _svcRepo.joinRoom(roomId, (RoomCondition rc) {
-      logger.d("subscribe room condition: $rc");
-
-      state = state.copyWith(
-        roomID: rc.roomId,
-        adminUserID: rc.adminUserId,
-        ballots: rc.ballots,
-        voteState: rc.voteState,
-        autoOpen: rc.autoOpen,
-        displayMode: rc.displayMode,
-        observerCount: rc.observerCount,
-      );
-    }).then((_) {
+    try {
+      await _svcRepo.joinRoom(roomId, _handleRoomConditionUpdate);
       logger.d("unsubscribe room condition");
-      _subscribingRoomID = "";
-      _reset();
-    }).onError((error, stackTrace) {
+    } catch (error, stackTrace) {
       logger.e("subscribe room condition error: $error",
           error: error, stackTrace: stackTrace);
-      _subscribingRoomID = "";
-      _reset();
-    });
+    } finally {
+      _cleanupSubscription();
+    }
   }
 
-  Future<void> leaveRoom() async => _svcRepo.leaveRoom(state.roomID);
+  void _handleRoomConditionUpdate(RoomCondition rc) {
+    logger.d("subscribe room condition: $rc");
+    state = state.copyWith(
+      roomID: rc.roomId,
+      adminUserID: rc.adminUserId,
+      ballots: rc.ballots,
+      voteState: rc.voteState,
+      autoOpen: rc.autoOpen,
+      displayMode: rc.displayMode,
+      observerCount: rc.observerCount,
+    );
+  }
 
-  Future<void> castVote(Point point) => _svcRepo.castVote(state.roomID, point);
+  void _cleanupSubscription() {
+    _subscribingRoomID = "";
+    _reset();
+  }
 
-  Future<void> showVotes() => _svcRepo.showVotes(state.roomID);
+  Future<void> leaveRoom() async {
+    await _svcRepo.leaveRoom(state.roomID);
+  }
 
-  Future<void> resetVotes() => _svcRepo.resetVotes(state.roomID);
+  Future<void> castVote(Point point) async {
+    await _svcRepo.castVote(state.roomID, point);
+  }
 
-  Future<void> kickUser(String targetUserID) =>
-      _svcRepo.kickUser(
-        state.roomID,
-        targetUserID,
-      );
+  Future<void> showVotes() async {
+    await _svcRepo.showVotes(state.roomID);
+  }
+
+  Future<void> resetVotes() async {
+    await _svcRepo.resetVotes(state.roomID);
+  }
+
+  Future<void> kickUser(String targetUserID) async {
+    await _svcRepo.kickUser(state.roomID, targetUserID);
+  }
 
   Future<void> updateRoom(bool autoOpen, DisplayMode displayMode) async {
     await _svcRepo.updateRoom(state.roomID, autoOpen, displayMode);
