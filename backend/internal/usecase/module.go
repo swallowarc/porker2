@@ -11,6 +11,7 @@ func Module() fx.Option {
 		fx.Provide(
 			interactor.NewUser,
 			interactor.NewPoker,
+			interactor.NewHealth,
 		),
 	)
 }

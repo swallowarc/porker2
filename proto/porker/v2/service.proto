@@ -6,6 +6,8 @@ import "porker/v2/domain.proto";
 option go_package = "github.com/swallowarc/porker2/backend/internal/interface/pb/porker/v2;porkerv2";
 
 service Porker2Service {
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+
   rpc Login(LoginRequest) returns (LoginResponse);
   rpc Logout(LogoutRequest) returns (LogoutResponse);
   rpc VerifyUser(VerifyUserRequest) returns (VerifyUserResponse);
@@ -228,3 +230,17 @@ message ToggleObserverModeRequest {
 }
 
 message ToggleObserverModeResponse {}
+
+/* HealthCheck ヘルスチェック
+ * Kubernetes readiness/liveness probe用のエンドポイント
+ * Redisへの接続確認を含む
+ *
+ * Errors:
+ * - Internal:
+ *   - Redisへの接続に失敗
+ */
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+  string status = 1; // "ok" if healthy
+}

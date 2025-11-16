@@ -20,10 +20,11 @@ import (
 
 type (
 	porker2 struct {
-		session  session.Manager
-		v        validator.Validator
-		userItr  interactor.User
-		pokerItr interactor.Poker
+		session   session.Manager
+		v         validator.Validator
+		userItr   interactor.User
+		pokerItr  interactor.Poker
+		healthItr interactor.Health
 	}
 )
 
@@ -32,12 +33,14 @@ func NewPorker2Controller(
 	v validator.Validator,
 	userItr interactor.User,
 	pokerItr interactor.Poker,
+	healthItr interactor.Health,
 ) pbconn.Porker2ServiceHandler {
 	return &porker2{
-		session:  session,
-		v:        v,
-		userItr:  userItr,
-		pokerItr: pokerItr,
+		session:   session,
+		v:         v,
+		userItr:   userItr,
+		pokerItr:  pokerItr,
+		healthItr: healthItr,
 	}
 }
 
@@ -267,4 +270,16 @@ func (p *porker2) ToggleObserverMode(ctx context.Context, r *connect.Request[pb.
 	p.session.RefreshCookie(ctx, res)
 
 	return res, nil
+}
+
+func (p *porker2) HealthCheck(ctx context.Context, _ *connect.Request[pb.HealthCheckRequest]) (*connect.Response[pb.HealthCheckResponse], error) {
+	if err := p.healthItr.Check(ctx); err != nil {
+		return nil, err
+	}
+
+	return &connect.Response[pb.HealthCheckResponse]{
+		Msg: &pb.HealthCheckResponse{
+			Status: "ok",
+		},
+	}, nil
 }

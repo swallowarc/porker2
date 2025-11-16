@@ -41,4 +41,9 @@ type (
 		// ToggleObserverMode toggles the observer mode for a user.
 		ToggleObserverMode(ctx context.Context, userID user.ID, roomID poker.RoomID, isObserver bool) error
 	}
+
+	Health interface {
+		// Check performs health check including Redis connectivity.
+		Check(ctx context.Context) error
+	}
 )
