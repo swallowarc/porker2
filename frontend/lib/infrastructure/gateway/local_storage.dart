@@ -1,9 +1,9 @@
-import 'package:porker2fe/domain/port/repository.dart';
+import 'package:porker2fe/domain/port/port.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _userNameKey = "userName";
 
-class LocalStorageRepositoryImpl implements LocalStorageRepository {
+class LocalStorageImpl implements LocalStorage {
   @override
   Future<String> getUserName() async {
     final res = (await SharedPreferences.getInstance()).getString(_userNameKey);

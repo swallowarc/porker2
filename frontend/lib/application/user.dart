@@ -2,9 +2,9 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:grpc/grpc.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/core/logger/logger.dart';
-import 'package:porker2fe/core/provider/repository_providers.dart';
+import 'package:porker2fe/core/provider/providers.dart';
 import 'package:porker2fe/domain/entity/user.dart';
-import 'package:porker2fe/domain/port/repository.dart';
+import 'package:porker2fe/domain/port/port.dart';
 
 part 'user.freezed.dart';
 
@@ -17,13 +17,13 @@ abstract class UserState with _$UserState {
 }
 
 class User extends Notifier<UserState> {
-  late final Porker2ServiceRepository _svcRepo;
-  late final LocalStorageRepository _storageRepo;
+  late final Porker2Service _svcRepo;
+  late final LocalStorage _storageRepo;
 
   @override
   UserState build() {
-    _svcRepo = ref.read(porker2ServiceRepositoryProvider);
-    _storageRepo = ref.read(localStorageRepositoryProvider);
+    _svcRepo = ref.read(porker2ServiceProvider);
+    _storageRepo = ref.read(localStorageProvider);
     return const UserState("", "");
   }
 

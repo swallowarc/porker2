@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:porker2fe/data/datasource/pb/porker/v2/domain.pb.dart';
-import 'package:porker2fe/data/datasource/pb/porker/v2/domain.pbenum.dart';
+import 'package:porker2fe/infrastructure/datasource/pb/porker/v2/domain.pb.dart';
+import 'package:porker2fe/infrastructure/datasource/pb/porker/v2/domain.pbenum.dart';
 import 'package:porker2fe/presentation/widget/poker/base_card.dart';
 
 class FieldCard extends ConsumerStatefulWidget {

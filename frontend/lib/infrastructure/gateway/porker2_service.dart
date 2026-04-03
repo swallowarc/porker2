@@ -1,16 +1,16 @@
 import 'package:grpc/grpc_web.dart';
 import 'package:porker2fe/core/error/retry.dart';
 import 'package:porker2fe/core/logger/logger.dart';
-import 'package:porker2fe/data/datasource/pb/porker/v2/domain.pb.dart';
-import 'package:porker2fe/data/datasource/pb/porker/v2/service.pbgrpc.dart';
+import 'package:porker2fe/infrastructure/datasource/pb/porker/v2/domain.pb.dart';
+import 'package:porker2fe/infrastructure/datasource/pb/porker/v2/service.pbgrpc.dart';
 import 'package:porker2fe/domain/entity/room.dart';
 import 'package:porker2fe/domain/entity/user.dart';
-import 'package:porker2fe/domain/port/repository.dart';
+import 'package:porker2fe/domain/port/port.dart';
 
-class Porker2ServiceRepositoryImpl extends Porker2ServiceRepository {
+class Porker2ServiceImpl extends Porker2Service {
   final Porker2ServiceClient _client;
 
-  Porker2ServiceRepositoryImpl(this._client);
+  Porker2ServiceImpl(this._client);
 
   @override
   Future<LoginResult> login(String userName) async {

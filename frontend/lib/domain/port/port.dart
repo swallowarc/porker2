@@ -1,9 +1,9 @@
-import 'package:porker2fe/data/datasource/pb/porker/v2/domain.pb.dart';
+import 'package:porker2fe/infrastructure/datasource/pb/porker/v2/domain.pb.dart';
 import 'package:porker2fe/domain/entity/user.dart';
 
 typedef LoginResult = ({String userID});
 
-abstract class Porker2ServiceRepository {
+abstract class Porker2Service {
   Future<LoginResult> login(String userName);
 
   Future<void> logout();
@@ -31,7 +31,7 @@ abstract class Porker2ServiceRepository {
   Future<void> toggleObserverMode(String roomID, bool isObserver);
 }
 
-abstract class LocalStorageRepository {
+abstract class LocalStorage {
   Future<String> getUserName();
 
   Future<void> setUserName(String name);
