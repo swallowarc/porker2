@@ -600,14 +600,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
-  mockito:
-    dependency: transitive
-    description:
-      name: mockito
-      sha256: eff30d002f0c8bf073b6f929df4483b543133fcafce056870163587b03f1d422
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.6.4"
   native_toolchain_c:
     dependency: transitive
     description:
@@ -768,22 +760,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0-dev.8"
-  riverpod_annotation:
-    dependency: "direct main"
-    description:
-      name: riverpod_annotation
-      sha256: cc1474bc2df55ec3c1da1989d139dcef22cd5e2bd78da382e867a69a8eca2e46
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.0.0"
-  riverpod_generator:
-    dependency: "direct dev"
-    description:
-      name: riverpod_generator
-      sha256: e43b1537229cc8f487f09b0c20d15dba840acbadcf5fc6dad7ad5e8ab75950dc
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.0.0+1"
   riverpod_lint:
     dependency: "direct dev"
     description:

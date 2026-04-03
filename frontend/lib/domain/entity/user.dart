@@ -1,4 +1,7 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:porker2fe/core/error/error.dart';
+
+part 'user.freezed.dart';
 
 final userNameFormatRegExp = RegExp(r"^[a-zA-Z0-9_-]{1,10}$");
 
@@ -10,14 +13,14 @@ final alreadyUsedNameError = ExpectedError(
   "the name is already in use by another user",
 );
 
-class UserEntity {
-  final String userID;
-  final String userName;
+@freezed
+abstract class UserEntity with _$UserEntity {
+  const UserEntity._();
 
-  UserEntity({
-    required this.userID,
-    required this.userName,
-  });
+  const factory UserEntity({
+    required String userID,
+    required String userName,
+  }) = _UserEntity;
 
   bool get valid => userID.isNotEmpty && userName.isNotEmpty;
 }

@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/core/logger/logger.dart';
 import 'package:porker2fe/data/datasource/pb/porker/v2/domain.pb.dart';
-import 'package:porker2fe/domain/usecase/poker.dart';
 import 'package:porker2fe/presentation/const.dart';
 import 'package:porker2fe/presentation/invoke.dart';
 import 'package:porker2fe/presentation/provider/provider.dart';
@@ -17,18 +16,6 @@ import 'package:porker2fe/presentation/widget/poker/hand_cards.dart';
 import 'package:porker2fe/presentation/widget/poker/summary.dart';
 import 'package:porker2fe/presentation/widget/poker/vote_buttons.dart';
 import 'package:porker2fe/presentation/widget/porker_progress_indicator.dart';
-
-final List<Point> _fireworksTargetPoints = [
-  Point.POINT_0,
-  Point.POINT_0_5,
-  Point.POINT_1,
-  Point.POINT_2,
-  Point.POINT_3,
-  Point.POINT_5,
-  Point.POINT_8,
-  Point.POINT_13,
-  Point.POINT_21
-];
 
 class PokerPage extends HookConsumerWidget {
   const PokerPage(this.roomId, {super.key});
@@ -74,7 +61,7 @@ class PokerPage extends HookConsumerWidget {
 
     final body = Stack(
       children: [
-        _isUnanimity(poker) ? const FireWorks() : Container(),
+        ref.read(pokerProvider.notifier).isUnanimity ? const FireWorks() : Container(),
         const Center(
           child: SingleChildScrollView(
             child: Column(
@@ -109,35 +96,6 @@ class PokerPage extends HookConsumerWidget {
     );
   }
 
-  bool _isUnanimity(PokerState state) {
-    if (state.voteState != VoteState.VOTE_STATE_OPEN) {
-      return false;
-    }
-
-    // Filter out observers - only count voters
-    final voterBallots = state.ballots
-        .where((ballot) => ballot.role != UserRole.USER_ROLE_OBSERVER)
-        .toList();
-
-    // Need at least 2 voters for unanimity
-    if (voterBallots.length < 2) {
-      return false;
-    }
-
-    final firstPoint = voterBallots.first.point;
-    if (!_fireworksTargetPoints.contains(firstPoint)) {
-      return false;
-    }
-
-    // Check if all voters have the same point
-    for (final ballot in voterBallots) {
-      if (ballot.point != firstPoint) {
-        return false;
-      }
-    }
-
-    return true;
-  }
 }
 
 class _Drawer extends HookConsumerWidget {

@@ -17,7 +17,7 @@ class Porker2ServiceRepositoryImpl extends Porker2ServiceRepository {
     try {
       final res = await _client.login(LoginRequest()
         ..userName = userName);
-      return LoginResult(userID: res.userId); // tokenはcookieに保存される
+      return (userID: res.userId); // tokenはcookieに保存される
     } on GrpcError catch (e) {
       throw (e.code == StatusCode.alreadyExists) ? alreadyUsedNameError : e;
     }
@@ -25,7 +25,7 @@ class Porker2ServiceRepositoryImpl extends Porker2ServiceRepository {
 
   @override
   Future<void> logout() async {
-    _client.logout(LogoutRequest());
+    await _client.logout(LogoutRequest());
   }
 
   @override
@@ -56,39 +56,30 @@ class Porker2ServiceRepositoryImpl extends Porker2ServiceRepository {
   }
 
   @override
-  Future<void> joinRoom(String roomID,
-      Function(RoomCondition rc) callback) async {
+  Stream<RoomCondition> joinRoom(String roomID) async* {
     bool subscribing = true;
 
     while (subscribing) {
-      await _client // await しないと無限ループ
-          .joinRoom(JoinRoomRequest(roomId: roomID))
-          .listen((res) {
-        callback(res.condition);
-      })
-          .asFuture() // gRPC streamは try-catchでエラーハンドリングできないので注意
-          .then((_) {
+      try {
+        await for (final res in _client.joinRoom(JoinRoomRequest(roomId: roomID))) {
+          yield res.condition;
+        }
+        // Stream completed normally
         subscribing = false;
-      })
-          .onError((e, stackTrace) {
+      } catch (e, stackTrace) {
         if (shouldRetry(e)) {
           // server側のWriteTimeoutを超えた場合などを想定しリトライ
           logger.i('Stream retryable error', error: e);
-          return;
+          continue;
         }
 
         subscribing = false;
         logger.e('Stream error', error: e, stackTrace: stackTrace);
 
-        if (e is GrpcError) {
-          switch (e.code) {
-            case StatusCode.notFound:
-              throw roomNotFoundError;
-            default:
-              break;
-          }
+        if (e is GrpcError && e.code == StatusCode.notFound) {
+          throw roomNotFoundError;
         }
-      });
+      }
     }
 
     logger.d('Stream completed');
@@ -96,39 +87,39 @@ class Porker2ServiceRepositoryImpl extends Porker2ServiceRepository {
 
   @override
   Future<void> leaveRoom(String roomID) async {
-    _client.leaveRoom(LeaveRoomRequest()
+    await _client.leaveRoom(LeaveRoomRequest()
       ..roomId = roomID);
   }
 
   @override
   Future<void> castVote(String roomID, Point point) async {
-    _client.castVote(CastVoteRequest()
+    await _client.castVote(CastVoteRequest()
       ..roomId = roomID
       ..point = point);
   }
 
   @override
   Future<void> resetVotes(String roomID) async {
-    _client.resetVotes(ResetVotesRequest()
+    await _client.resetVotes(ResetVotesRequest()
       ..roomId = roomID);
   }
 
   @override
   Future<void> showVotes(String roomID) async {
-    _client.showVotes(ShowVotesRequest()
+    await _client.showVotes(ShowVotesRequest()
       ..roomId = roomID);
   }
 
   @override
-  Future<void> kickUser(String roomID, targetUserID) async {
-    _client.kickUser(KickUserRequest()
+  Future<void> kickUser(String roomID, String targetUserID) async {
+    await _client.kickUser(KickUserRequest()
       ..roomId = roomID
       ..targetUserId = targetUserID);
   }
 
   @override
   Future<void> updateRoom(String roomID, bool autoOpen, DisplayMode displayMode) async {
-    _client.updateRoom(UpdateRoomRequest()
+    await _client.updateRoom(UpdateRoomRequest()
       ..roomId = roomID
       ..autoOpen = autoOpen
       ..displayMode = displayMode);
@@ -136,7 +127,7 @@ class Porker2ServiceRepositoryImpl extends Porker2ServiceRepository {
 
   @override
   Future<void> toggleObserverMode(String roomID, bool isObserver) async {
-    _client.toggleObserverMode(ToggleObserverModeRequest()
+    await _client.toggleObserverMode(ToggleObserverModeRequest()
       ..roomId = roomID
       ..isObserver = isObserver);
   }

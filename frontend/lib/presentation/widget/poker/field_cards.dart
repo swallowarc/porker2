@@ -99,7 +99,7 @@ class FieldCards extends HookConsumerWidget {
           message: "Room admin",
           child: Icon(
             Icons.star,
-            color: Theme.of(context).textTheme.bodyMedium!.color,
+            color: Theme.of(context).textTheme.bodyMedium?.color,
           ),
         ),
       );
@@ -113,7 +113,7 @@ class FieldCards extends HookConsumerWidget {
             onTap: () => closeFn(),
             child: Icon(
               Icons.cancel_outlined,
-              color: Theme.of(context).textTheme.bodyMedium!.color,
+              color: Theme.of(context).textTheme.bodyMedium?.color,
             ),
           ),
         ),

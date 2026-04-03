@@ -10,15 +10,11 @@ class Summary extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final poker = ref.watch(pokerProvider);
+    final pokerNotifier = ref.read(pokerProvider.notifier);
 
     if (poker.voteState != VoteState.VOTE_STATE_OPEN) {
-      // Show participant counts even when votes are hidden
-      final voterCount = poker.ballots
-          .where((e) => e.role != UserRole.USER_ROLE_OBSERVER)
-          .length;
-      final observerCount = poker.ballots
-          .where((e) => e.role == UserRole.USER_ROLE_OBSERVER)
-          .length;
+      final voterCount = pokerNotifier.voterBallots.length;
+      final observerCount = pokerNotifier.observerCount;
 
       return Column(
         children: [
@@ -31,24 +27,9 @@ class Summary extends HookConsumerWidget {
       );
     }
 
-    // Only count votes from non-observers
-    final voterBallots = poker.ballots
-        .where((e) => e.role != UserRole.USER_ROLE_OBSERVER)
-        .toList();
-    final observerCount = poker.ballots
-        .where((e) => e.role == UserRole.USER_ROLE_OBSERVER)
-        .length;
-
-    final validVotes = voterBallots.where((e) => validPoint(e.point)).length;
-
-    final double total = voterBallots.fold(0, (prev, e) {
-      if (validPoint(e.point)) {
-        return prev + pointToDouble(e.point);
-      } else {
-        return prev;
-      }
-    });
-    final double average = validVotes > 0 ? total / validVotes : 0;
+    final validVotes = pokerNotifier.validVoteCount;
+    final average = pokerNotifier.voteAverage;
+    final observerCount = pokerNotifier.observerCount;
 
     String displayText;
     if (poker.displayMode == DisplayMode.DISPLAY_MODE_TSHIRT) {

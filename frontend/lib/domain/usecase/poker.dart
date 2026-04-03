@@ -3,24 +3,26 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/core/logger/logger.dart';
 import 'package:porker2fe/core/provider/repository_providers.dart';
 import 'package:porker2fe/data/datasource/pb/porker/v2/domain.pb.dart';
+import 'package:porker2fe/domain/entity/point.dart';
 import 'package:porker2fe/domain/port/repository.dart';
 
 part 'poker.freezed.dart';
 
 @freezed
 abstract class PokerState with _$PokerState {
-  const factory PokerState(String roomID,
-      String adminUserID,
-      List<Ballot> ballots,
-      VoteState voteState,
-      bool autoOpen,
-      DisplayMode displayMode,
-      int observerCount,) = _PokerState;
+  const factory PokerState(
+    String roomID,
+    String adminUserID,
+    List<Ballot> ballots,
+    VoteState voteState,
+    bool autoOpen,
+    DisplayMode displayMode,
+    int observerCount,
+  ) = _PokerState;
 }
 
 class Poker extends Notifier<PokerState> {
   late final Porker2ServiceRepository _svcRepo;
-
   String _subscribingRoomID = "";
 
   @override
@@ -30,6 +32,7 @@ class Poker extends Notifier<PokerState> {
   }
 
   void _reset() {
+    _subscribingRoomID = "";
     state = state.copyWith(
       roomID: "",
       adminUserID: "",
@@ -56,28 +59,27 @@ class Poker extends Notifier<PokerState> {
     }
     _subscribingRoomID = roomId;
 
-    _svcRepo.joinRoom(roomId, (RoomCondition rc) {
-      logger.d("subscribe room condition: $rc");
+    try {
+      await for (final rc in _svcRepo.joinRoom(roomId)) {
+        logger.d("subscribe room condition: $rc");
 
-      state = state.copyWith(
-        roomID: rc.roomId,
-        adminUserID: rc.adminUserId,
-        ballots: rc.ballots,
-        voteState: rc.voteState,
-        autoOpen: rc.autoOpen,
-        displayMode: rc.displayMode,
-        observerCount: rc.observerCount,
-      );
-    }).then((_) {
+        state = state.copyWith(
+          roomID: rc.roomId,
+          adminUserID: rc.adminUserId,
+          ballots: rc.ballots,
+          voteState: rc.voteState,
+          autoOpen: rc.autoOpen,
+          displayMode: rc.displayMode,
+          observerCount: rc.observerCount,
+        );
+      }
       logger.d("unsubscribe room condition");
-      _subscribingRoomID = "";
       _reset();
-    }).onError((error, stackTrace) {
+    } catch (error, stackTrace) {
       logger.e("subscribe room condition error: $error",
           error: error, stackTrace: stackTrace);
-      _subscribingRoomID = "";
       _reset();
-    });
+    }
   }
 
   Future<void> leaveRoom() async => _svcRepo.leaveRoom(state.roomID);
@@ -123,4 +125,48 @@ class Poker extends Notifier<PokerState> {
           .role == UserRole.USER_ROLE_OBSERVER;
 
   bool get subscribing => _subscribingRoomID.isNotEmpty;
+
+  List<Ballot> get voterBallots =>
+      state.ballots
+          .where((e) => e.role != UserRole.USER_ROLE_OBSERVER)
+          .toList();
+
+  int get observerCount =>
+      state.ballots
+          .where((e) => e.role == UserRole.USER_ROLE_OBSERVER)
+          .length;
+
+  double get voteAverage {
+    final voters = voterBallots;
+    final validVotes = voters.where((e) => validPoint(e.point));
+    if (validVotes.isEmpty) return 0;
+
+    final total = validVotes.fold<double>(
+        0, (prev, e) => prev + pointToDouble(e.point));
+    return total / validVotes.length;
+  }
+
+  int get validVoteCount =>
+      voterBallots.where((e) => validPoint(e.point)).length;
+
+  bool get isUnanimity {
+    if (state.voteState != VoteState.VOTE_STATE_OPEN) {
+      return false;
+    }
+
+    final voterBallots = state.ballots
+        .where((ballot) => ballot.role != UserRole.USER_ROLE_OBSERVER)
+        .toList();
+
+    if (voterBallots.length < 2) {
+      return false;
+    }
+
+    final firstPoint = voterBallots.first.point;
+    if (firstPoint == Point.POINT_UNSPECIFIED) {
+      return false;
+    }
+
+    return voterBallots.every((ballot) => ballot.point == firstPoint);
+  }
 }
