@@ -6,7 +6,7 @@ plugins:
   - local: protoc-gen-connect-go
     out: backend/internal/interface/pb
     opt: paths=source_relative
-  - remote: buf.build/protocolbuffers/dart:v21.1.2
+  - local: protoc-gen-dart
     out: frontend/lib/data/datasource/pb
     opt:
       - grpc

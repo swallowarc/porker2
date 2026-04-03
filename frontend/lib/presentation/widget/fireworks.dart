@@ -232,30 +232,32 @@ class _FireWorksState extends State<FireWorks> {
           size: config.particleSize,
           color: LinearInterpolationParticleColor(colors: colors),
         ),
-        minAngle: -180,
-        maxAngle: 180,
-        minDistance: config.minDistance,
-        maxDistance: config.maxDistance,
-        minParticleLifespan: config.minLifespan,
-        maxParticleLifespan: config.maxLifespan,
-        minFadeOutThreshold: config.minFadeOut,
-        maxFadeOutThreshold: config.maxFadeOut,
-        minBeginScale: config.minBeginScale,
-        maxBeginScale: config.maxBeginScale,
-        minEndScale: config.minEndScale,
-        maxEndScale: config.maxEndScale,
+        deterministicProperties: DeterministicProperties(
+          angle: NumRange.between(-180.0, 180.0),
+          distance: NumRange.between(config.minDistance, config.maxDistance),
+        ),
+        emissionProperties: EmissionProperties(
+          emitDuration: const Duration(milliseconds: 100),
+          particleCount: config.particleCount,
+          particlesPerEmit: config.particleCount,
+          particleLifespan: DurationRange.between(config.minLifespan, config.maxLifespan),
+          origin: Offset(
+            config.xMin + _random.nextDouble() * config.xRange,
+            config.yMin + _random.nextDouble() * config.yRange,
+          ),
+        ),
+        visualProperties: VisualProperties(
+          fadeOutThreshold: NumRange.between(config.minFadeOut, config.maxFadeOut),
+          beginScale: NumRange.between(config.minBeginScale, config.maxBeginScale),
+          endScale: NumRange.between(config.minEndScale, config.maxEndScale),
+        ),
+        layerProperties: LayerProperties(
+          trail: StraightTrail(
+            trailWidth: config.trailWidth,
+            trailProgress: config.trailProgress,
+          ),
+        ),
         distanceCurve: config.distanceCurve,
-        origin: Offset(
-          config.xMin + _random.nextDouble() * config.xRange,
-          config.yMin + _random.nextDouble() * config.yRange,
-        ),
-        emitDuration: const Duration(milliseconds: 100),
-        particleCount: config.particleCount,
-        particlesPerEmit: config.particleCount,
-        trail: StraightTrail(
-          trailWidth: config.trailWidth,
-          trailProgress: config.trailProgress,
-        ),
       ),
     );
   }

@@ -21,7 +21,7 @@ RUN flutter build web --release --no-pub
 
 # ===== Go Dependencies Stage =====
 # Cache Go modules separately
-FROM golang:1.24-alpine AS go_deps
+FROM golang:1.26-alpine AS go_deps
 
 WORKDIR /app
 

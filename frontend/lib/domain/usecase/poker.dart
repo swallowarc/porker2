@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/core/logger/logger.dart';
+import 'package:porker2fe/core/provider/repository_providers.dart';
 import 'package:porker2fe/data/datasource/pb/porker/v2/domain.pb.dart';
 import 'package:porker2fe/domain/port/repository.dart';
 
@@ -17,13 +18,16 @@ abstract class PokerState with _$PokerState {
       int observerCount,) = _PokerState;
 }
 
-class Poker extends StateNotifier<PokerState> {
-  final Porker2ServiceRepository _svcRepo;
+class Poker extends Notifier<PokerState> {
+  late final Porker2ServiceRepository _svcRepo;
 
   String _subscribingRoomID = "";
 
-  Poker(this._svcRepo)
-      : super(const PokerState("", "", [], VoteState.VOTE_STATE_HIDE, true, DisplayMode.DISPLAY_MODE_POINT, 0));
+  @override
+  PokerState build() {
+    _svcRepo = ref.read(porker2ServiceRepositoryProvider);
+    return const PokerState("", "", [], VoteState.VOTE_STATE_HIDE, true, DisplayMode.DISPLAY_MODE_POINT, 0);
+  }
 
   void _reset() {
     state = state.copyWith(

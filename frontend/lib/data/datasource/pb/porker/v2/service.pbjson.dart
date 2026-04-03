@@ -1,13 +1,15 @@
+// This is a generated file - do not edit.
 //
-//  Generated code. Do not modify.
-//  source: porker/v2/service.proto
-//
-// @dart = 2.12
+// Generated from porker/v2/service.proto.
+
+// @dart = 3.3
 
 // ignore_for_file: annotate_overrides, camel_case_types, comment_references
-// ignore_for_file: constant_identifier_names, library_prefixes
-// ignore_for_file: non_constant_identifier_names, prefer_final_fields
-// ignore_for_file: unnecessary_import, unnecessary_this, unused_import
+// ignore_for_file: constant_identifier_names
+// ignore_for_file: curly_braces_in_flow_control_structures
+// ignore_for_file: deprecated_member_use_from_same_package, library_prefixes
+// ignore_for_file: non_constant_identifier_names, prefer_relative_imports
+// ignore_for_file: unused_import
 
 import 'dart:convert' as $convert;
 import 'dart:core' as $core;
@@ -34,8 +36,8 @@ const LoginResponse$json = {
 };
 
 /// Descriptor for `LoginResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List loginResponseDescriptor = $convert.base64Decode(
-    'Cg1Mb2dpblJlc3BvbnNlEhcKB3VzZXJfaWQYASABKAlSBnVzZXJJZA==');
+final $typed_data.Uint8List loginResponseDescriptor = $convert
+    .base64Decode('Cg1Mb2dpblJlc3BvbnNlEhcKB3VzZXJfaWQYASABKAlSBnVzZXJJZA==');
 
 @$core.Deprecated('Use verifyUserRequestDescriptor instead')
 const VerifyUserRequest$json = {
@@ -43,8 +45,8 @@ const VerifyUserRequest$json = {
 };
 
 /// Descriptor for `VerifyUserRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List verifyUserRequestDescriptor = $convert.base64Decode(
-    'ChFWZXJpZnlVc2VyUmVxdWVzdA==');
+final $typed_data.Uint8List verifyUserRequestDescriptor =
+    $convert.base64Decode('ChFWZXJpZnlVc2VyUmVxdWVzdA==');
 
 @$core.Deprecated('Use verifyUserResponseDescriptor instead')
 const VerifyUserResponse$json = {
@@ -66,8 +68,8 @@ const LogoutRequest$json = {
 };
 
 /// Descriptor for `LogoutRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List logoutRequestDescriptor = $convert.base64Decode(
-    'Cg1Mb2dvdXRSZXF1ZXN0');
+final $typed_data.Uint8List logoutRequestDescriptor =
+    $convert.base64Decode('Cg1Mb2dvdXRSZXF1ZXN0');
 
 @$core.Deprecated('Use logoutResponseDescriptor instead')
 const LogoutResponse$json = {
@@ -75,8 +77,8 @@ const LogoutResponse$json = {
 };
 
 /// Descriptor for `LogoutResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List logoutResponseDescriptor = $convert.base64Decode(
-    'Cg5Mb2dvdXRSZXNwb25zZQ==');
+final $typed_data.Uint8List logoutResponseDescriptor =
+    $convert.base64Decode('Cg5Mb2dvdXRSZXNwb25zZQ==');
 
 @$core.Deprecated('Use createRoomRequestDescriptor instead')
 const CreateRoomRequest$json = {
@@ -84,8 +86,8 @@ const CreateRoomRequest$json = {
 };
 
 /// Descriptor for `CreateRoomRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List createRoomRequestDescriptor = $convert.base64Decode(
-    'ChFDcmVhdGVSb29tUmVxdWVzdA==');
+final $typed_data.Uint8List createRoomRequestDescriptor =
+    $convert.base64Decode('ChFDcmVhdGVSb29tUmVxdWVzdA==');
 
 @$core.Deprecated('Use createRoomResponseDescriptor instead')
 const CreateRoomResponse$json = {
@@ -96,8 +98,9 @@ const CreateRoomResponse$json = {
 };
 
 /// Descriptor for `CreateRoomResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List createRoomResponseDescriptor = $convert.base64Decode(
-    'ChJDcmVhdGVSb29tUmVzcG9uc2USFwoHcm9vbV9pZBgBIAEoCVIGcm9vbUlk');
+final $typed_data.Uint8List createRoomResponseDescriptor =
+    $convert.base64Decode(
+        'ChJDcmVhdGVSb29tUmVzcG9uc2USFwoHcm9vbV9pZBgBIAEoCVIGcm9vbUlk');
 
 @$core.Deprecated('Use checkRoomRequestDescriptor instead')
 const CheckRoomRequest$json = {
@@ -117,8 +120,8 @@ const CheckRoomResponse$json = {
 };
 
 /// Descriptor for `CheckRoomResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List checkRoomResponseDescriptor = $convert.base64Decode(
-    'ChFDaGVja1Jvb21SZXNwb25zZQ==');
+final $typed_data.Uint8List checkRoomResponseDescriptor =
+    $convert.base64Decode('ChFDaGVja1Jvb21SZXNwb25zZQ==');
 
 @$core.Deprecated('Use joinRoomRequestDescriptor instead')
 const JoinRoomRequest$json = {
@@ -129,14 +132,21 @@ const JoinRoomRequest$json = {
 };
 
 /// Descriptor for `JoinRoomRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List joinRoomRequestDescriptor = $convert.base64Decode(
-    'Cg9Kb2luUm9vbVJlcXVlc3QSFwoHcm9vbV9pZBgBIAEoCVIGcm9vbUlk');
+final $typed_data.Uint8List joinRoomRequestDescriptor = $convert
+    .base64Decode('Cg9Kb2luUm9vbVJlcXVlc3QSFwoHcm9vbV9pZBgBIAEoCVIGcm9vbUlk');
 
 @$core.Deprecated('Use joinRoomResponseDescriptor instead')
 const JoinRoomResponse$json = {
   '1': 'JoinRoomResponse',
   '2': [
-    {'1': 'condition', '3': 1, '4': 1, '5': 11, '6': '.porker.v2.RoomCondition', '10': 'condition'},
+    {
+      '1': 'condition',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.porker.v2.RoomCondition',
+      '10': 'condition'
+    },
   ],
 };
 
@@ -163,15 +173,22 @@ const LeaveRoomResponse$json = {
 };
 
 /// Descriptor for `LeaveRoomResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List leaveRoomResponseDescriptor = $convert.base64Decode(
-    'ChFMZWF2ZVJvb21SZXNwb25zZQ==');
+final $typed_data.Uint8List leaveRoomResponseDescriptor =
+    $convert.base64Decode('ChFMZWF2ZVJvb21SZXNwb25zZQ==');
 
 @$core.Deprecated('Use castVoteRequestDescriptor instead')
 const CastVoteRequest$json = {
   '1': 'CastVoteRequest',
   '2': [
     {'1': 'room_id', '3': 1, '4': 1, '5': 9, '10': 'roomId'},
-    {'1': 'point', '3': 2, '4': 1, '5': 14, '6': '.porker.v2.Point', '10': 'point'},
+    {
+      '1': 'point',
+      '3': 2,
+      '4': 1,
+      '5': 14,
+      '6': '.porker.v2.Point',
+      '10': 'point'
+    },
   ],
 };
 
@@ -186,8 +203,8 @@ const CastVoteResponse$json = {
 };
 
 /// Descriptor for `CastVoteResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List castVoteResponseDescriptor = $convert.base64Decode(
-    'ChBDYXN0Vm90ZVJlc3BvbnNl');
+final $typed_data.Uint8List castVoteResponseDescriptor =
+    $convert.base64Decode('ChBDYXN0Vm90ZVJlc3BvbnNl');
 
 @$core.Deprecated('Use resetVotesRequestDescriptor instead')
 const ResetVotesRequest$json = {
@@ -207,8 +224,8 @@ const ResetVotesResponse$json = {
 };
 
 /// Descriptor for `ResetVotesResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List resetVotesResponseDescriptor = $convert.base64Decode(
-    'ChJSZXNldFZvdGVzUmVzcG9uc2U=');
+final $typed_data.Uint8List resetVotesResponseDescriptor =
+    $convert.base64Decode('ChJSZXNldFZvdGVzUmVzcG9uc2U=');
 
 @$core.Deprecated('Use showVotesRequestDescriptor instead')
 const ShowVotesRequest$json = {
@@ -228,8 +245,8 @@ const ShowVotesResponse$json = {
 };
 
 /// Descriptor for `ShowVotesResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List showVotesResponseDescriptor = $convert.base64Decode(
-    'ChFTaG93Vm90ZXNSZXNwb25zZQ==');
+final $typed_data.Uint8List showVotesResponseDescriptor =
+    $convert.base64Decode('ChFTaG93Vm90ZXNSZXNwb25zZQ==');
 
 @$core.Deprecated('Use kickUserRequestDescriptor instead')
 const KickUserRequest$json = {
@@ -251,8 +268,8 @@ const KickUserResponse$json = {
 };
 
 /// Descriptor for `KickUserResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List kickUserResponseDescriptor = $convert.base64Decode(
-    'ChBLaWNrVXNlclJlc3BvbnNl');
+final $typed_data.Uint8List kickUserResponseDescriptor =
+    $convert.base64Decode('ChBLaWNrVXNlclJlc3BvbnNl');
 
 @$core.Deprecated('Use updateRoomRequestDescriptor instead')
 const UpdateRoomRequest$json = {
@@ -260,7 +277,14 @@ const UpdateRoomRequest$json = {
   '2': [
     {'1': 'room_id', '3': 1, '4': 1, '5': 9, '10': 'roomId'},
     {'1': 'auto_open', '3': 2, '4': 1, '5': 8, '10': 'autoOpen'},
-    {'1': 'display_mode', '3': 3, '4': 1, '5': 14, '6': '.porker.v2.DisplayMode', '10': 'displayMode'},
+    {
+      '1': 'display_mode',
+      '3': 3,
+      '4': 1,
+      '5': 14,
+      '6': '.porker.v2.DisplayMode',
+      '10': 'displayMode'
+    },
   ],
 };
 
@@ -276,8 +300,8 @@ const UpdateRoomResponse$json = {
 };
 
 /// Descriptor for `UpdateRoomResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List updateRoomResponseDescriptor = $convert.base64Decode(
-    'ChJVcGRhdGVSb29tUmVzcG9uc2U=');
+final $typed_data.Uint8List updateRoomResponseDescriptor =
+    $convert.base64Decode('ChJVcGRhdGVSb29tUmVzcG9uc2U=');
 
 @$core.Deprecated('Use toggleObserverModeRequestDescriptor instead')
 const ToggleObserverModeRequest$json = {
@@ -289,9 +313,10 @@ const ToggleObserverModeRequest$json = {
 };
 
 /// Descriptor for `ToggleObserverModeRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List toggleObserverModeRequestDescriptor = $convert.base64Decode(
-    'ChlUb2dnbGVPYnNlcnZlck1vZGVSZXF1ZXN0EhcKB3Jvb21faWQYASABKAlSBnJvb21JZBIfCg'
-    'tpc19vYnNlcnZlchgCIAEoCFIKaXNPYnNlcnZlcg==');
+final $typed_data.Uint8List toggleObserverModeRequestDescriptor =
+    $convert.base64Decode(
+        'ChlUb2dnbGVPYnNlcnZlck1vZGVSZXF1ZXN0EhcKB3Jvb21faWQYASABKAlSBnJvb21JZBIfCg'
+        'tpc19vYnNlcnZlchgCIAEoCFIKaXNPYnNlcnZlcg==');
 
 @$core.Deprecated('Use toggleObserverModeResponseDescriptor instead')
 const ToggleObserverModeResponse$json = {
@@ -299,6 +324,5 @@ const ToggleObserverModeResponse$json = {
 };
 
 /// Descriptor for `ToggleObserverModeResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List toggleObserverModeResponseDescriptor = $convert.base64Decode(
-    'ChpUb2dnbGVPYnNlcnZlck1vZGVSZXNwb25zZQ==');
-
+final $typed_data.Uint8List toggleObserverModeResponseDescriptor =
+    $convert.base64Decode('ChpUb2dnbGVPYnNlcnZlck1vZGVSZXNwb25zZQ==');

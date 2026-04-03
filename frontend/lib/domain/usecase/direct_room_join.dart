@@ -10,8 +10,9 @@ abstract class DirectRoomJoinState with _$DirectRoomJoinState {
   ) = _DirectRoomJoinState;
 }
 
-class DirectRoomJoin extends StateNotifier<DirectRoomJoinState> {
-  DirectRoomJoin() : super(const DirectRoomJoinState(""));
+class DirectRoomJoin extends Notifier<DirectRoomJoinState> {
+  @override
+  DirectRoomJoinState build() => const DirectRoomJoinState("");
 
   String popPresetRoomID() {
     final presetRoomID = state.presetRoomID;

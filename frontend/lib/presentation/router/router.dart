@@ -34,7 +34,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 @TypedGoRoute<LoginRoute>(
   path: '/',
 )
-class LoginRoute extends GoRouteData {
+class LoginRoute extends GoRouteData with $LoginRoute {
   LoginRoute();
 
   @override
@@ -46,7 +46,7 @@ class LoginRoute extends GoRouteData {
 @TypedGoRoute<RoomSelectRoute>(
   path: '/room',
 )
-class RoomSelectRoute extends GoRouteData {
+class RoomSelectRoute extends GoRouteData with $RoomSelectRoute {
   RoomSelectRoute();
 
   @override
@@ -58,7 +58,7 @@ class RoomSelectRoute extends GoRouteData {
 @TypedGoRoute<PokerRoute>(
   path: '/poker',
 )
-class PokerRoute extends GoRouteData {
+class PokerRoute extends GoRouteData with $PokerRoute {
   PokerRoute({this.roomId = ""});
 
   final String roomId;

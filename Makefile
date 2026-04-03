@@ -47,9 +47,9 @@ docker_push:
 setup/tools:
 	$(GOINSTALL) go.uber.org/mock/mockgen@v0.6.0
 	$(GOINSTALL) github.com/bufbuild/buf/cmd/buf@v1.57.0
-	$(GOINSTALL) google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.8
+	$(GOINSTALL) google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11
 	$(GOINSTALL) google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1
-	$(GOINSTALL) connectrpc.com/connect/cmd/protoc-gen-connect-go@v1.18.1
+	$(GOINSTALL) connectrpc.com/connect/cmd/protoc-gen-connect-go@v1.19.1
 	$(FLUTTER_CMD) pub global activate protoc_plugin
 
 setup/redis:

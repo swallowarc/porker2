@@ -3,7 +3,6 @@ package redis
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log/slog"
 	"time"
 
@@ -64,7 +63,7 @@ func (c *redisClient) Get(ctx context.Context, key string) (string, error) {
 	val, err := c.cli.Get(ctx, key).Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
-			return "", merror.NewNotFound(fmt.Sprintf("%s does not exist", key))
+			return "", merror.NewNotFound("%s does not exist", key)
 		}
 		return "", merror.WrapInternal(err, "failed to redis Get")
 	}
@@ -75,7 +74,7 @@ func (c *redisClient) Del(ctx context.Context, key string) error {
 	err := c.cli.Del(ctx, key).Err()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
-			return merror.NewNotFound(fmt.Sprintf("%s does not exist", key))
+			return merror.NewNotFound("%s does not exist", key)
 		}
 		return merror.WrapInternal(err, "failed to redis Del")
 	}
@@ -93,7 +92,7 @@ func (c *redisClient) SRem(ctx context.Context, key string, members ...any) erro
 	err := c.cli.SRem(ctx, key, members...).Err()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
-			return merror.NewNotFound(fmt.Sprintf("not exist. key: %s, members: %v, ", key, members))
+			return merror.NewNotFound("not exist. key: %s, members: %v", key, members)
 		}
 		return merror.WrapInternal(err, "failed to redis SRem")
 	}
@@ -135,7 +134,7 @@ func (c *redisClient) ReadStream(ctx context.Context, streamKey, messageKey, pre
 		return "", "", merror.WrapInternal(err, "failed to redis Exists")
 	}
 	if exists == 0 { // 保存期間超過などでキーが存在しない
-		return "", "", merror.NewNotFound(fmt.Sprintf("stream key does not exist: %s", streamKey))
+		return "", "", merror.NewNotFound("stream key does not exist: %s", streamKey)
 	}
 
 	// 最新のメッセージを取得する

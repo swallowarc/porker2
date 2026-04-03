@@ -30,7 +30,7 @@ func main() {
 		fx.Invoke(invoke),
 	)
 	if err := app.Err(); err != nil {
-		log.Fatalf(err.Error())
+		log.Fatal(err)
 	}
 
 	app.Run()
