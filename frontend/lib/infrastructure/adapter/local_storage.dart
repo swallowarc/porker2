@@ -1,4 +1,4 @@
-import 'package:porker2fe/domain/port/port.dart';
+import 'package:porker2fe/application/port/port.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _userNameKey = "userName";

@@ -4,7 +4,7 @@ import 'package:porker2fe/core/env/env.dart';
 import 'package:porker2fe/infrastructure/generated/pb/porker/v2/service.pbgrpc.dart';
 import 'package:porker2fe/infrastructure/adapter/local_storage.dart';
 import 'package:porker2fe/infrastructure/adapter/porker2_service.dart';
-import 'package:porker2fe/domain/port/port.dart';
+import 'package:porker2fe/application/port/port.dart';
 
 /// core layer -----------------------------------------------------------------
 

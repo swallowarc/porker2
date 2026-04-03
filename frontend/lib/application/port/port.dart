@@ -1,5 +1,5 @@
 import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pb.dart';
-import 'package:porker2fe/domain/entity/user.dart';
+import 'package:porker2fe/domain/user.dart';
 
 typedef LoginResult = ({String userID});
 

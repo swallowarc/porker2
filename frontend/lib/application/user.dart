@@ -3,8 +3,8 @@ import 'package:grpc/grpc.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/core/logger/logger.dart';
 import 'package:porker2fe/core/provider/providers.dart';
-import 'package:porker2fe/domain/entity/user.dart';
-import 'package:porker2fe/domain/port/port.dart';
+import 'package:porker2fe/domain/user.dart';
+import 'package:porker2fe/application/port/port.dart';
 
 part 'user.freezed.dart';
 

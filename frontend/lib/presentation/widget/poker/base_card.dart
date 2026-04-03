@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pb.dart';
 import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pbenum.dart';
-import 'package:porker2fe/domain/entity/point.dart';
+import 'package:porker2fe/domain/point.dart';
 import 'package:sprintf/sprintf.dart';
 
 final Map<Point, Color> _pointColors = {

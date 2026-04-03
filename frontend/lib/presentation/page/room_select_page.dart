@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:porker2fe/domain/entity/room.dart';
+import 'package:porker2fe/domain/room.dart';
 import 'package:porker2fe/presentation/const.dart';
 import 'package:porker2fe/presentation/invoke.dart';
 import 'package:porker2fe/presentation/provider/provider.dart';
