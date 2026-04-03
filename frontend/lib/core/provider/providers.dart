@@ -2,8 +2,8 @@ import 'package:grpc/grpc_web.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/core/env/env.dart';
 import 'package:porker2fe/infrastructure/generated/pb/porker/v2/service.pbgrpc.dart';
-import 'package:porker2fe/infrastructure/gateway/local_storage.dart';
-import 'package:porker2fe/infrastructure/gateway/porker2_service.dart';
+import 'package:porker2fe/infrastructure/adapter/local_storage.dart';
+import 'package:porker2fe/infrastructure/adapter/porker2_service.dart';
 import 'package:porker2fe/domain/port/port.dart';
 
 /// core layer -----------------------------------------------------------------
@@ -21,7 +21,7 @@ final porker2ServiceApiProvider = Provider<Porker2ServiceClient>((ref) {
       options: WebCallOptions(withCredentials: true));
 });
 
-/// gateway
+/// adapter
 
 final localStorageProvider =
     Provider<LocalStorage>((ref) => LocalStorageImpl());

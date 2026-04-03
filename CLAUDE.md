@@ -104,7 +104,7 @@ The frontend follows clean architecture principles with state management via Riv
   - `logger/` - Logging utilities
 - **`lib/infrastructure/`** - Infrastructure layer
   - `generated/` - Protocol Buffer generated code (protoc)
-  - `gateway/` - Port implementations (gRPC service, local storage)
+  - `adapter/` - Port implementations (gRPC service, local storage)
 - **`lib/domain/`** - Domain layer (framework-independent)
   - `entity/` - Business entities
   - `port/` - Port interfaces (abstract service definitions)
