@@ -103,11 +103,11 @@ The frontend follows clean architecture principles with state management via Riv
   - `error/` - Error handling
   - `logger/` - Logging utilities
 - **`lib/infrastructure/`** - Infrastructure layer
-  - `datasource/` - Remote data sources (gRPC clients)
-  - `repository/` - Repository implementations
+  - `generated/` - Protocol Buffer generated code (protoc)
+  - `gateway/` - Port implementations (gRPC service, local storage)
 - **`lib/domain/`** - Domain layer (framework-independent)
   - `entity/` - Business entities
-  - `port/` - Repository interfaces
+  - `port/` - Port interfaces (abstract service definitions)
 - **`lib/application/`** - Application layer
   - Riverpod Notifiers for state management and use case orchestration
 - **`lib/presentation/`** - Presentation layer
@@ -163,7 +163,7 @@ Rooms can switch between numeric points and T-shirt sizes for estimation:
 2. Run `make protoc` to generate code
 3. Implement the handler in `backend/internal/interface/controller/`
 4. Add the use case in `backend/internal/usecase/interactor/`
-5. Update frontend datasource in `frontend/lib/infrastructure/datasource/`
+5. Run `make protoc` to regenerate code in `frontend/lib/infrastructure/generated/`
 6. Create/update frontend use case in `frontend/lib/application/`
 
 ### Testing Patterns

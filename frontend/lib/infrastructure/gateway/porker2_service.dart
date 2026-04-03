@@ -1,8 +1,8 @@
 import 'package:grpc/grpc_web.dart';
 import 'package:porker2fe/core/error/retry.dart';
 import 'package:porker2fe/core/logger/logger.dart';
-import 'package:porker2fe/infrastructure/datasource/pb/porker/v2/domain.pb.dart';
-import 'package:porker2fe/infrastructure/datasource/pb/porker/v2/service.pbgrpc.dart';
+import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pb.dart';
+import 'package:porker2fe/infrastructure/generated/pb/porker/v2/service.pbgrpc.dart';
 import 'package:porker2fe/domain/entity/room.dart';
 import 'package:porker2fe/domain/entity/user.dart';
 import 'package:porker2fe/domain/port/port.dart';

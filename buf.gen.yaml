@@ -7,6 +7,6 @@ plugins:
     out: backend/internal/interface/pb
     opt: paths=source_relative
   - local: protoc-gen-dart
-    out: frontend/lib/data/datasource/pb
+    out: frontend/lib/infrastructure/generated/pb
     opt:
       - grpc

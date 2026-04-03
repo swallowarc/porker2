@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:porker2fe/infrastructure/datasource/pb/porker/v2/domain.pb.dart';
+import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pb.dart';
 import 'package:porker2fe/presentation/widget/poker/base_card.dart';
 
 class HandCard extends StatefulWidget {

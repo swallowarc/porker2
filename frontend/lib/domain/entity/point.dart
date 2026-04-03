@@ -1,5 +1,5 @@
 import 'package:porker2fe/core/error/error.dart';
-import 'package:porker2fe/infrastructure/datasource/pb/porker/v2/domain.pb.dart';
+import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pb.dart';
 
 String pointFromPb(Point point) {
   switch (point) {

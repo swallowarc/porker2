@@ -2,7 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/core/logger/logger.dart';
 import 'package:porker2fe/core/provider/providers.dart';
-import 'package:porker2fe/infrastructure/datasource/pb/porker/v2/domain.pb.dart';
+import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pb.dart';
 import 'package:porker2fe/domain/entity/point.dart';
 import 'package:porker2fe/domain/port/port.dart';
 
