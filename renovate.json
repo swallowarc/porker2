@@ -8,6 +8,7 @@
   "minimumReleaseAge": "14 days",
   "prHourlyLimit": 4,
   "prConcurrentLimit": 10,
+  "postUpdateOptions": ["gomodTidy"],
   "packageRules": [
     {
       "description": "Auto-merge minor, patch, pin, and digest updates",
