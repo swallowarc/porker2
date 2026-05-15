@@ -1,18 +1,31 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended",
-    ":dependencyDashboard"
+    "config:recommended"
   ],
   "timezone": "Asia/Tokyo",
   "labels": ["dependencies"],
   "minimumReleaseAge": "14 days",
+  "prHourlyLimit": 4,
+  "prConcurrentLimit": 10,
   "packageRules": [
     {
       "description": "Auto-merge minor, patch, pin, and digest updates",
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
       "automerge": true,
       "platformAutomerge": true
+    },
+    {
+      "description": "Docker base images: skip auto-merge (PR CI does not exercise the built image)",
+      "matchManagers": ["dockerfile"],
+      "automerge": false,
+      "addLabels": ["docker-base-image"]
+    },
+    {
+      "description": "Group GitHub Actions updates and pin to commit SHA for supply chain hardening",
+      "matchManagers": ["github-actions"],
+      "groupName": "github actions",
+      "pinDigests": true
     }
   ],
   "vulnerabilityAlerts": {
