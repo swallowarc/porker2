@@ -48,7 +48,7 @@ RUN CGO_ENABLED=0 GOARCH=amd64 GOOS=linux \
     go build -ldflags="-s -w" -trimpath -o server cmd/porker2/main.go
 
 # ===== Final Stage =====
-FROM nginx:alpine AS final
+FROM nginx:1.30.1-alpine AS final
 
 WORKDIR /app
 
