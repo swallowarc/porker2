@@ -55,6 +55,25 @@ $ make fe/run-for-debug
 
 http://localhost:53676/ にアクセスするとアプリが起動します。
 
+## 環境変数
+
+バックエンドが参照する環境変数の一覧です。`.envrc.example` をベースに `.envrc` を作成して上書きしてください。
+
+| キー | 必須 | 意味 | デフォルト値 |
+| --- | --- | --- | --- |
+| `ENV` |  | 実行環境の種別（`local` / `dev` / `prod`）。ロガーの出力形式などに影響します。 | `local` |
+| `CONNECT_HOST` |  | Connect RPC サーバの待ち受けホスト。空の場合は全インタフェースで待ち受けます。 | （空文字列） |
+| `CONNECT_PORT` |  | Connect RPC サーバの待ち受けポート。 | `8080` |
+| `CONNECT_READ_TIMEOUT_SEC` |  | HTTP リクエスト読み込みのタイムアウト秒数。 | `30` |
+| `CONNECT_WRITE_TIMEOUT_SEC` |  | HTTP レスポンス書き込みのタイムアウト秒数。長時間ストリーミングに合わせて長めに設定。 | `600` |
+| `CONNECT_IDLE_TIMEOUT_SEC` |  | Keep-Alive 接続のアイドルタイムアウト秒数。 | `900` |
+| `CONNECT_CORS_ALLOW_ORIGINS` | ✅ | CORS で許可するオリジンのカンマ区切りリスト（例: `http://localhost:53676`）。 | なし |
+| `REDIS_HOST_PORT` |  | Redis 接続先 `host:port`。 | `localhost:6379` |
+| `REDIS_PASSWORD` |  | Redis 認証パスワード。 | `password` |
+| `REDIS_DB` |  | 使用する Redis のデータベース番号。 | `0` |
+| `SESSION_COOKIE_DOMAIN` |  | セッション Cookie の `Domain` 属性。 | `localhost` |
+| `SESSION_COOKIE_SECURE` |  | セッション Cookie の `Secure` 属性。HTTPS 配信時は `true` にします。 | `false` |
+
 ## Development
 
 ### 1. protobufの変更
