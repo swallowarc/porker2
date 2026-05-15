@@ -1,11 +1,11 @@
 module github.com/swallowarc/porker2/backend
 
-go 1.26.1
+go 1.26.3
 
 require (
 	connectrpc.com/authn v0.2.0
 	connectrpc.com/connect v1.19.2
-	github.com/cenkalti/backoff/v4 v4.3.0
+	github.com/cenkalti/backoff/v5 v5.0.3
 	github.com/go-playground/validator/v10 v10.30.2
 	github.com/google/uuid v1.6.0
 	github.com/kelseyhightower/envconfig v1.4.0

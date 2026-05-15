@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/cenkalti/backoff/v4"
+	"github.com/cenkalti/backoff/v5"
 
 	"github.com/swallowarc/porker2/backend/internal/core/logger"
 	"github.com/swallowarc/porker2/backend/internal/core/merror"
@@ -57,21 +57,21 @@ func (r *pokerRepository) CreateRoom(ctx context.Context) (poker.RoomID, error) 
 }
 
 func (r *pokerRepository) UpdateRoomWithLock(ctx context.Context, roomID poker.RoomID, modifier port.RoomModifier) error {
-	bo := backoff.WithMaxRetries(backoff.NewExponentialBackOff(func(b *backoff.ExponentialBackOff) {
-		b.MaxElapsedTime = roomLockDuration
-	}), roomLockRetry)
-
 	lockKey := roomLockKey(roomID)
 
-	err := backoff.Retry(func() error {
+	_, err := backoff.Retry(ctx, func() (struct{}, error) {
 		set, err := r.mem.SetNX(ctx, lockKey, []byte{}, roomLockDuration)
 		if err != nil {
-			return backoff.Permanent(err)
+			return struct{}{}, backoff.Permanent(err)
 		} else if !set {
-			return merror.NewUnavailable("lock could not be acquired")
+			return struct{}{}, merror.NewUnavailable("lock could not be acquired")
 		}
-		return nil
-	}, bo)
+		return struct{}{}, nil
+	},
+		backoff.WithBackOff(backoff.NewExponentialBackOff()),
+		backoff.WithMaxTries(roomLockRetry),
+		backoff.WithMaxElapsedTime(roomLockDuration),
+	)
 	if err != nil {
 		return err
 	}
