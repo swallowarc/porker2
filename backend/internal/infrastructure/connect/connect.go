@@ -41,7 +41,7 @@ func NewServer(logger *slog.Logger, conf Config, controller pbconn.Porker2Servic
 		AllowedOrigins:   conf.CORSAllowOrigins,
 		AllowCredentials: true, // Necessary to use cookies
 		AllowedMethods:   []string{"POST"},
-		AllowedHeaders:   []string{"Content-Type", "x-grpc-web", "grpc-timeout", "x-user-agent"},
+		AllowedHeaders:   []string{"Content-Type", "Connect-Protocol-Version", "Connect-Timeout-Ms", "x-grpc-web", "grpc-timeout", "x-user-agent"},
 		ExposedHeaders:   []string{"grpc-status", "grpc-message", "grpc-status-details-bin"},
 	})
 
