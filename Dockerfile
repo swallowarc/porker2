@@ -74,7 +74,10 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:8081/health || exit 1
 
 # Expose ports
-EXPOSE 8081 8080
+# - 8081: HTTP/1.1 (health check, static assets, fallback)
+# - 8082: h2c (Envoy Gateway → nginx → grpc_pass → Connect server)
+# - 8080: Connect/gRPC backend (h2c, internal)
+EXPOSE 8081 8082 8080
 
 # Switch to non-root user
 USER appuser
