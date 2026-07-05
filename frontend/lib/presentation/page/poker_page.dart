@@ -84,6 +84,19 @@ class PokerPage extends HookConsumerWidget {
         enableDrawer: true,
         enableLogout: true,
         enableCopyRoomURL: true,
+        onLeave: () {
+          showDialog<void>(
+            context: context,
+            builder: (_) => TwoChoiceDialog(
+              title: 'Leave Room',
+              message: 'Do you want to leave this poker?',
+              onYes: () => invoke(
+                  context,
+                  () => ref.read(pokerProvider.notifier).leaveRoom(),
+                  (_) => GoRouter.of(context).go('/room')),
+            ),
+          );
+        },
       ),
       body: Row(
         children: [
@@ -172,22 +185,6 @@ class _Drawer extends HookConsumerWidget {
             value: pokerNotifier.isObserver(user.userID),
             onChanged: (bool value) {
               invoke(context, () => pokerNotifier.toggleObserverMode(value), (_) {});
-            },
-          ),
-          ListTile(
-            title: const Text('Leave room'),
-            subtitle: const Text('Exit this poker session', style: TextStyle(fontSize: 12)),
-            leading: const Icon(Icons.exit_to_app),
-            onTap: () {
-              showDialog<void>(
-                context: context,
-                builder: (_) => TwoChoiceDialog(
-                  title: 'Leave Room',
-                  message: 'Do you want to leave this poker?',
-                  onYes: () => invoke(context, () => pokerNotifier.leaveRoom(),
-                      (_) => GoRouter.of(context).go('/room')),
-                ),
-              );
             },
           ),
         ],
