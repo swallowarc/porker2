@@ -7,6 +7,9 @@ class BottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (MediaQuery.of(context).size.width < smallScreenBoundary) {
+      return const SizedBox.shrink();
+    }
     return BottomAppBar(
       color: Theme.of(context).scaffoldBackgroundColor,
       child: Row(
