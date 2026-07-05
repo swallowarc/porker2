@@ -13,6 +13,7 @@ class Porker2AppBar extends HookConsumerWidget implements PreferredSizeWidget {
   final bool enableDrawer;
   final bool enableLogout;
   final bool enableCopyRoomURL;
+  final VoidCallback? onLeave;
 
   const Porker2AppBar({
     super.key,
@@ -20,11 +21,13 @@ class Porker2AppBar extends HookConsumerWidget implements PreferredSizeWidget {
     required this.enableDrawer,
     required this.enableLogout,
     required this.enableCopyRoomURL,
+    this.onLeave,
   }) : super();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.read(userProvider.notifier);
+    final userName = ref.watch(userProvider).userName;
     final actions = <Widget>[];
 
     final bool isMediumScreen =
@@ -32,22 +35,38 @@ class Porker2AppBar extends HookConsumerWidget implements PreferredSizeWidget {
 
     if (enableLogout) {
       actions.add(
-        Tooltip(
-          message: 'Logout',
-          child: IconButton(
-            icon: const Icon(Icons.account_circle),
-            onPressed: () async {
-              showDialog<void>(
-                context: context,
-                builder: (_) => TwoChoiceDialog(
-                  title: 'Logout',
-                  message: 'Do you want to log out?',
-                  onYes: () => invoke(context, () => user.logout(),
-                      (_) => GoRouter.of(context).go('/')),
-                ),
-              );
-            },
-          ),
+        PopupMenuButton<String>(
+          icon: const Icon(Icons.account_circle),
+          tooltip: 'Account',
+          onSelected: (value) {
+            if (value != 'logout') {
+              return;
+            }
+            showDialog<void>(
+              context: context,
+              builder: (_) => TwoChoiceDialog(
+                title: 'Logout',
+                message: 'Do you want to log out?',
+                onYes: () => invoke(context, () => user.logout(),
+                    (_) => GoRouter.of(context).go('/')),
+              ),
+            );
+          },
+          itemBuilder: (context) => [
+            PopupMenuItem<String>(
+              enabled: false,
+              child: Text(userName),
+            ),
+            const PopupMenuDivider(),
+            const PopupMenuItem<String>(
+              value: 'logout',
+              child: ListTile(
+                leading: Icon(Icons.logout),
+                title: Text('Logout'),
+                contentPadding: EdgeInsets.zero,
+              ),
+            ),
+          ],
         ),
       );
     }
@@ -59,28 +78,48 @@ class Porker2AppBar extends HookConsumerWidget implements PreferredSizeWidget {
       ),
     );
 
-    return AppBar(
-      title: enableCopyRoomURL
-          ? Tooltip(
-              message: "Copy room URL",
-              child: MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: GestureDetector(
-                  onTap: () {
-                    final currentUrl = Uri.base.toString();
-                    Clipboard.setData(ClipboardData(text: currentUrl));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('URL copied to clipboard!'),
-                        backgroundColor: Colors.green,
-                      ),
-                    );
-                  },
-                  child: txt,
-                ),
+    final Widget titleContent = enableCopyRoomURL
+        ? Tooltip(
+            message: "Copy room URL",
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTap: () {
+                  final currentUrl = Uri.base.toString();
+                  Clipboard.setData(ClipboardData(text: currentUrl));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('URL copied to clipboard!'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                },
+                child: txt,
               ),
-            )
-          : txt,
+            ),
+          )
+        : txt;
+
+    return AppBar(
+      title: Row(
+        children: [
+          if (onLeave != null)
+            Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: TextButton.icon(
+                onPressed: onLeave,
+                icon: const Icon(Icons.exit_to_app),
+                label: const Text('Leave'),
+              ),
+            ),
+          Flexible(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: titleContent,
+            ),
+          ),
+        ],
+      ),
       actions: actions,
       automaticallyImplyLeading: false,
       leading: enableDrawer && isMediumScreen
