@@ -16,7 +16,13 @@ const List<Point> pointOrder = [
   Point.POINT_21,
 ];
 
+const List<Point> _extraPoints = [
+  Point.POINT_COFFEE,
+  Point.POINT_QUESTION,
+];
+
 const _pointListLength = 9;
+const double _fanLayoutMinWidth = 750;
 
 class HandCards extends HookConsumerWidget {
   const HandCards({super.key});
@@ -34,6 +40,29 @@ class HandCards extends HookConsumerWidget {
       return Container();
     }
 
+    HandCard buildCard(Point point, int delayMilliseconds) => HandCard(
+          point: point,
+          onTap: () {
+            if (!pokerNotifier.votable) {
+              return;
+            }
+            pokerNotifier
+                .castVote(myPoint == point ? Point.POINT_UNSPECIFIED : point);
+          },
+          delayMilliseconds: delayMilliseconds,
+          selected: myPoint == point,
+          displayMode: poker.displayMode,
+        );
+
+    return LayoutBuilder(
+      builder: (context, constraints) =>
+          constraints.maxWidth >= _fanLayoutMinWidth
+              ? _fanLayout(buildCard)
+              : _scrollLayout(buildCard),
+    );
+  }
+
+  Widget _fanLayout(HandCard Function(Point, int) buildCard) {
     return Center(
       child: Column(
         children: [
@@ -73,22 +102,7 @@ class HandCards extends HookConsumerWidget {
                       top: topOffset,
                       child: Transform.rotate(
                         angle: angle,
-                        child: HandCard(
-                          point: pointOrder[index],
-                          onTap: () {
-                            if (!pokerNotifier.votable) {
-                              return;
-                            }
-                            if (myPoint != pointOrder[index]) {
-                              pokerNotifier.castVote(pointOrder[index]);
-                            } else if (myPoint == pointOrder[index]) {
-                              pokerNotifier.castVote(Point.POINT_UNSPECIFIED);
-                            }
-                          },
-                          delayMilliseconds: index * 100,
-                          selected: myPoint == pointOrder[index],
-                          displayMode: poker.displayMode,
-                        ),
+                        child: buildCard(pointOrder[index], index * 100),
                       ),
                     );
                   }),
@@ -99,44 +113,36 @@ class HandCards extends HookConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              HandCard(
-                point: Point.POINT_COFFEE,
-                onTap: () {
-                  if (!pokerNotifier.votable) {
-                    return;
-                  }
-
-                  if (myPoint != Point.POINT_COFFEE) {
-                    pokerNotifier.castVote(Point.POINT_COFFEE);
-                  } else if (myPoint == Point.POINT_COFFEE) {
-                    pokerNotifier.castVote(Point.POINT_UNSPECIFIED);
-                  }
-                },
-                delayMilliseconds: 1000,
-                selected: myPoint == Point.POINT_COFFEE,
-                displayMode: poker.displayMode,
-              ),
+              buildCard(Point.POINT_COFFEE, 1000),
               const SizedBox(width: 20),
-              HandCard(
-                point: Point.POINT_QUESTION,
-                onTap: () {
-                  if (!pokerNotifier.votable) {
-                    return;
-                  }
-
-                  if (myPoint != Point.POINT_QUESTION) {
-                    pokerNotifier.castVote(Point.POINT_QUESTION);
-                  } else if (myPoint == Point.POINT_QUESTION) {
-                    pokerNotifier.castVote(Point.POINT_UNSPECIFIED);
-                  }
-                },
-                delayMilliseconds: 1100,
-                selected: myPoint == Point.POINT_QUESTION,
-                displayMode: poker.displayMode,
-              ),
+              buildCard(Point.POINT_QUESTION, 1100),
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _scrollLayout(HandCard Function(Point, int) buildCard) {
+    final allPoints = [...pointOrder, ..._extraPoints];
+
+    return SizedBox(
+      height: 180,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            for (var i = 0; i < allPoints.length; i++) ...[
+              if (i > 0) const SizedBox(width: 12),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: buildCard(allPoints[i], i * 100),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
