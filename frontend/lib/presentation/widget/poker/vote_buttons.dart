@@ -12,7 +12,7 @@ class VoteButtons extends HookConsumerWidget {
 
     return Center(
       child: Container(
-        width: 400,
+        constraints: const BoxConstraints(maxWidth: 400),
         alignment: Alignment.center,
         padding: const EdgeInsets.only(top: 30),
         child: Row(
