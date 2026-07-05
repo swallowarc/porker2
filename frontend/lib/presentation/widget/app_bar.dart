@@ -26,14 +26,14 @@ class Porker2AppBar extends HookConsumerWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.read(userProvider.notifier);
-    final userName = ref.watch(userProvider).userName;
     final actions = <Widget>[];
 
     final bool isMediumScreen =
         MediaQuery.of(context).size.width < mediumScreenBoundary;
 
     if (enableLogout) {
+      final user = ref.read(userProvider.notifier);
+      final userName = ref.watch(userProvider).userName;
       actions.add(
         PopupMenuButton<String>(
           icon: const Icon(Icons.account_circle),

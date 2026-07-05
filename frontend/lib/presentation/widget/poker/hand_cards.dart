@@ -21,7 +21,6 @@ const List<Point> _extraPoints = [
   Point.POINT_QUESTION,
 ];
 
-const _pointListLength = 9;
 const double _fanLayoutMinWidth = 750;
 
 class HandCards extends HookConsumerWidget {
@@ -72,8 +71,8 @@ class HandCards extends HookConsumerWidget {
             child: LayoutBuilder(
               builder: (context, constraints) {
                 return Stack(
-                  children: List.generate(_pointListLength, (index) {
-                    const indexCenter = _pointListLength ~/ 2;
+                  children: List.generate(pointOrder.length, (index) {
+                    final indexCenter = pointOrder.length ~/ 2;
                     final angle = (index - indexCenter) * 0.05;
                     final leftOffset = (index - indexCenter) * 70.0;
 

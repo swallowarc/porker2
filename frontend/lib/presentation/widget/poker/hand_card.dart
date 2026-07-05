@@ -57,6 +57,10 @@ class HandCardState extends State<HandCard> with TickerProviderStateMixin {
       curve: Curves.easeInOut,
     ));
 
+    if (widget.selected) {
+      _tapController.value = 1.0;
+    }
+
     Future.delayed(Duration(milliseconds: widget.delayMilliseconds), () {
       if (mounted) {
         _initialController.forward();
