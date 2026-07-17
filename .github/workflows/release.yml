@@ -31,9 +31,27 @@ jobs:
             gh run watch "$RUN_ID" --exit-status --interval 30
           fi
 
-      - name: Release tag
+      - name: Determine release version
         id: tag
-        run: echo "name=$(date -u +%Y%m%d%H%M%S)" >> "$GITHUB_OUTPUT"
+        run: |
+          LATEST=$(git ls-remote --tags origin 'v*' \
+            | awk -F'refs/tags/' '{print $2}' \
+            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
+            | sort -V | tail -n 1)
+          if [ -z "$LATEST" ]; then
+            NEXT="v1.0.0"
+          else
+            IFS=. read -r MAJOR MINOR PATCH <<< "${LATEST#v}"
+            NEXT="v${MAJOR}.${MINOR}.$((PATCH + 1))"
+          fi
+          VERSION="${NEXT#v}"
+          echo "Release version: ${LATEST:-none} -> ${NEXT}"
+          {
+            echo "name=${NEXT}"
+            echo "version=${VERSION}"
+            echo "minor=${VERSION%.*}"
+            echo "major=${VERSION%%.*}"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Short SHA
         id: sha
@@ -48,16 +66,21 @@ jobs:
       - name: Tag container images
         env:
           SHA_TAG: ${{ steps.sha.outputs.short }}
-          RELEASE_TAG: ${{ steps.tag.outputs.name }}
         run: |
-          docker pull "${{ env.DOCKER_IMAGE }}:${SHA_TAG}"
-          docker tag "${{ env.DOCKER_IMAGE }}:${SHA_TAG}" "${{ env.DOCKER_IMAGE }}:${RELEASE_TAG}"
-          docker push "${{ env.DOCKER_IMAGE }}:${RELEASE_TAG}"
+          # docker pull/tag/push だとマニフェストが runner のアーキ単体に潰れるため、
+          # imagetools create でマルチアーキのマニフェストリストごと再タグする
+          docker buildx imagetools create \
+            --tag "${{ env.DOCKER_IMAGE }}:${{ steps.tag.outputs.version }}" \
+            --tag "${{ env.DOCKER_IMAGE }}:${{ steps.tag.outputs.minor }}" \
+            --tag "${{ env.DOCKER_IMAGE }}:${{ steps.tag.outputs.major }}" \
+            "${{ env.DOCKER_IMAGE }}:${SHA_TAG}"
 
       - name: Create and push git tag
         env:
           RELEASE_TAG: ${{ steps.tag.outputs.name }}
         run: |
+          # GITHUB_TOKEN によるタグ push は他のワークフローを起動しない仕様のため、
+          # docker-build.yml の tags トリガー（手動タグ push 用）と二重実行にはならない
           git tag "$RELEASE_TAG"
           git push origin "$RELEASE_TAG"
 
@@ -71,7 +94,7 @@ jobs:
           body: |
             ## Docker Image
 
-            `${{ env.DOCKER_IMAGE }}:${{ steps.tag.outputs.name }}`
+            `${{ env.DOCKER_IMAGE }}:${{ steps.tag.outputs.version }}`
 
             マルチアーキテクチャサポート: `linux/amd64`, `linux/arm64`
 
@@ -87,7 +110,7 @@ jobs:
               -e REDIS_DB=0 \
               -e CONNECT_CORS_ALLOW_ORIGINS=http://localhost \
               -e SESSION_COOKIE_DOMAIN=localhost \
-              ${{ env.DOCKER_IMAGE }}:${{ steps.tag.outputs.name }}
+              ${{ env.DOCKER_IMAGE }}:${{ steps.tag.outputs.version }}
             ```
 
             ### 環境変数
