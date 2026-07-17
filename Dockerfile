@@ -1,6 +1,8 @@
 # ===== Flutter Dependencies Stage =====
 # Cache Flutter dependencies separately to avoid re-downloading on code changes
-FROM swallowarc/flutter-builder AS flutter_deps
+# Web assets are architecture-independent: build once on the native build
+# platform instead of once per target platform under QEMU
+FROM --platform=$BUILDPLATFORM swallowarc/flutter-builder AS flutter_deps
 
 WORKDIR /app
 
@@ -21,7 +23,8 @@ RUN flutter build web --release --no-pub
 
 # ===== Go Dependencies Stage =====
 # Cache Go modules separately
-FROM golang:1.26-alpine AS go_deps
+# Runs on the native build platform; the target binary is cross-compiled
+FROM --platform=$BUILDPLATFORM golang:1.26-alpine AS go_deps
 
 WORKDIR /app
 
@@ -41,10 +44,12 @@ WORKDIR /app
 COPY backend/ ./
 
 # Build with optimizations
-# - CGO_ENABLED=0 for static binary
+# - CGO_ENABLED=0 for static binary (also what makes cross-compilation safe)
+# - GOOS/GOARCH from BuildKit so each target platform gets a native binary
 # - ldflags -s -w to strip debug info and reduce binary size
 # - trimpath to remove file system paths from binary
-RUN CGO_ENABLED=0 GOARCH=amd64 GOOS=linux \
+ARG TARGETOS TARGETARCH
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH \
     go build -ldflags="-s -w" -trimpath -o server cmd/porker2/main.go
 
 # ===== Final Stage =====
