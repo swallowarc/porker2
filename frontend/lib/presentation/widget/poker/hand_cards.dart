@@ -125,22 +125,31 @@ class HandCards extends HookConsumerWidget {
   Widget _scrollLayout(HandCard Function(Point, int) buildCard) {
     final allPoints = [...pointOrder, ..._extraPoints];
 
+    // BaseCard の SizedBox(width: 100) と揃える。
+    const cardWidth = 100.0;
+    // 72 未満にすると "0.5" などの中央ラベルが右隣のカードに隠れる。
+    const cardStep = 72.0;
+    final stripWidth = cardWidth + (allPoints.length - 1) * cardStep;
+
     return SizedBox(
       height: 180,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            for (var i = 0; i < allPoints.length; i++) ...[
-              if (i > 0) const SizedBox(width: 12),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: buildCard(allPoints[i], i * 100),
-              ),
+        child: SizedBox(
+          width: stripWidth,
+          height: 180,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              for (var i = 0; i < allPoints.length; i++)
+                Positioned(
+                  left: i * cardStep,
+                  bottom: 10,
+                  child: buildCard(allPoints[i], i * 100),
+                ),
             ],
-          ],
+          ),
         ),
       ),
     );

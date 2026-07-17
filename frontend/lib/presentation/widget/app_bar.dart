@@ -31,6 +31,27 @@ class Porker2AppBar extends HookConsumerWidget implements PreferredSizeWidget {
     final bool isMediumScreen =
         MediaQuery.of(context).size.width < mediumScreenBoundary;
 
+    if (onLeave != null) {
+      final errorColor = Theme.of(context).colorScheme.error;
+      actions.add(
+        isMediumScreen
+            ? IconButton(
+                onPressed: onLeave,
+                icon: Icon(Icons.exit_to_app, color: errorColor),
+                tooltip: 'Leave room',
+              )
+            : Padding(
+                padding: const EdgeInsets.only(right: 4),
+                child: TextButton.icon(
+                  onPressed: onLeave,
+                  icon: const Icon(Icons.exit_to_app),
+                  label: const Text('Leave'),
+                  style: TextButton.styleFrom(foregroundColor: errorColor),
+                ),
+              ),
+      );
+    }
+
     if (enableLogout) {
       final user = ref.read(userProvider.notifier);
       final userName = ref.watch(userProvider).userName;
@@ -101,25 +122,11 @@ class Porker2AppBar extends HookConsumerWidget implements PreferredSizeWidget {
         : txt;
 
     return AppBar(
-      title: Row(
-        children: [
-          if (onLeave != null)
-            Padding(
-              padding: const EdgeInsets.only(right: 12),
-              child: TextButton.icon(
-                onPressed: onLeave,
-                icon: const Icon(Icons.exit_to_app),
-                label: const Text('Leave'),
-              ),
-            ),
-          Flexible(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: titleContent,
-            ),
-          ),
-        ],
+      title: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: titleContent,
       ),
+      centerTitle: true,
       actions: actions,
       automaticallyImplyLeading: false,
       leading: enableDrawer && isMediumScreen
