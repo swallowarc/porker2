@@ -5,7 +5,7 @@ import 'package:porker2fe/domain/point.dart';
 import 'package:sprintf/sprintf.dart';
 
 final Map<Point, Color> _pointColors = {
-  Point.POINT_COFFEE: Colors.teal.shade100,
+  Point.POINT_COFFEE: Colors.blueGrey.shade300,
   Point.POINT_0: Colors.grey.shade200,
   Point.POINT_0_5: Colors.lightBlue.shade100,
   Point.POINT_1: Colors.lightBlue.shade200,
