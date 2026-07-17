@@ -24,7 +24,7 @@ String pointFromPb(Point point) {
     case Point.POINT_QUESTION:
       return "?";
     case Point.POINT_COFFEE:
-      return "休";
+      return "☕";
     default:
       throw UnexpectedError("Invalid Point: $point");
   }
@@ -54,7 +54,7 @@ String pointFromPbDisplay(Point point, DisplayMode displayMode) {
       case Point.POINT_QUESTION:
         return "?";
       case Point.POINT_COFFEE:
-        return "休";
+        return "☕";
       default:
         throw UnexpectedError("Invalid Point: $point");
     }
