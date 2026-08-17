@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/cenkalti/backoff/v5"
+	"github.com/cenkalti/backoff/v7"
 
 	"github.com/swallowarc/porker2/backend/internal/core/logger"
 	"github.com/swallowarc/porker2/backend/internal/core/merror"
