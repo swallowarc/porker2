@@ -1,11 +1,8 @@
 package random
 
 import (
-	"math/rand"
-	"time"
+	"math/rand/v2"
 )
-
-var randSrc = rand.NewSource(time.Now().UnixNano())
 
 const (
 	rs6Letters       = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
@@ -22,10 +19,10 @@ func RandString6(n int) string {
 // RandString6ByParam 指定されたパターンと長さのランダムな文字列を生成.
 func RandString6ByParam(n int, pattern string) string {
 	b := make([]byte, n)
-	cache, remain := randSrc.Int63(), rs6LetterIdxMax
+	cache, remain := rand.Int64(), rs6LetterIdxMax
 	for i := n - 1; i >= 0; {
 		if remain == 0 {
-			cache, remain = randSrc.Int63(), rs6LetterIdxMax
+			cache, remain = rand.Int64(), rs6LetterIdxMax
 		}
 		idx := int(cache & rs6LetterIdxMask)
 		if idx < len(pattern) {
