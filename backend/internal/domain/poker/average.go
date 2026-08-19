@@ -22,17 +22,28 @@ func (p Point) Value() (float64, bool) {
 }
 
 // AveragePoint は投票者のポイントの平均値を返す。
-// オブザーバーは平均の計算対象から除外する。
+// オブザーバー、および数値を持たないポイント（未投票 / Coffee / Question）は
+// 平均の計算対象から除外する。計算対象が 1 件も無い場合は 0 を返す。
 func (c *RoomCondition) AveragePoint() float64 {
 	sum := 0.0
+	count := 0
 	for _, b := range c.Ballots {
 		if b.IsObserver() {
 			continue
 		}
 
-		v, _ := b.Point.Value()
+		v, ok := b.Point.Value()
+		if !ok {
+			continue
+		}
+
 		sum += v
+		count++
 	}
 
-	return sum / float64(len(c.Ballots))
+	if count == 0 {
+		return 0
+	}
+
+	return sum / float64(count)
 }
