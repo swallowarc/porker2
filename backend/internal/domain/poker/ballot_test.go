@@ -51,9 +51,10 @@ func TestBallotIsObserver(t *testing.T) {
 		role UserRole
 		want bool
 	}{
-		"未指定":    {role: UserRoleUnspecified, want: false},
-		"投票者":    {role: UserRoleVoter, want: false},
-		"オブザーバー": {role: UserRoleObserver, want: true},
+		"未指定":      {role: UserRoleUnspecified, want: false},
+		"一覧に無いロール": {role: UserRole(9), want: false},
+		"投票者":      {role: UserRoleVoter, want: false},
+		"オブザーバー":   {role: UserRoleObserver, want: true},
 	}
 
 	for name, tt := range tests {
