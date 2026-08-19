@@ -1,7 +1,7 @@
 package poker
 
 import (
-	"sort"
+	"slices"
 )
 
 type (
@@ -18,38 +18,26 @@ const (
 	TShirtSizeXXL TShirtSize = "XXL"
 )
 
-// tshirtCache はポイントから T シャツサイズへの変換結果のキャッシュ。
-// 変換は表示のたびに呼ばれるため、計算結果を再利用する。
-var tshirtCache = map[float64]TShirtSize{}
-
 // ToTShirtSize はポイントの数値を T シャツサイズに変換する。
 func ToTShirtSize(point float64) TShirtSize {
-	if s, ok := tshirtCache[point]; ok {
-		return s
-	}
-
-	var size TShirtSize
 	switch {
 	case point <= 0.5:
-		size = TShirtSizeXS
+		return TShirtSizeXS
 	case point <= 2:
-		size = TShirtSizeS
-	case point < 5:
-		size = TShirtSizeM
+		return TShirtSizeS
+	case point <= 5:
+		return TShirtSizeM
 	case point <= 8:
-		size = TShirtSizeL
+		return TShirtSizeL
 	case point <= 13:
-		size = TShirtSizeXL
+		return TShirtSizeXL
 	default:
-		size = TShirtSizeXXL
+		return TShirtSizeXXL
 	}
-
-	tshirtCache[point] = size
-
-	return size
 }
 
 // MedianPoint は投票者のポイントの中央値を返す。
+// 計算対象が偶数件の場合は中央 2 件の平均を返す。
 // オブザーバー、および数値を持たないポイントは計算対象から除外する。
 func (c *RoomCondition) MedianPoint() float64 {
 	values := make([]float64, 0, len(c.Ballots))
@@ -70,9 +58,14 @@ func (c *RoomCondition) MedianPoint() float64 {
 		return 0
 	}
 
-	sort.Float64s(values)
+	slices.Sort(values)
 
-	return values[len(values)/2]
+	mid := len(values) / 2
+	if len(values)%2 == 0 {
+		return (values[mid-1] + values[mid]) / 2
+	}
+
+	return values[mid]
 }
 
 // AverageTShirtSize は投票者のポイント平均を T シャツサイズで返す。

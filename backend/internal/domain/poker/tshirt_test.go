@@ -18,6 +18,8 @@ func TestToTShirtSize(t *testing.T) {
 		"1 は S":     {point: 1, want: poker.TShirtSizeS},
 		"2 は S":     {point: 2, want: poker.TShirtSizeS},
 		"3 は M":     {point: 3, want: poker.TShirtSizeM},
+		"5 は M":     {point: 5, want: poker.TShirtSizeM},
+		"5.1 は L":   {point: 5.1, want: poker.TShirtSizeL},
 		"8 は L":     {point: 8, want: poker.TShirtSizeL},
 		"13 は XL":   {point: 13, want: poker.TShirtSizeXL},
 		"21 は XXL":  {point: 21, want: poker.TShirtSizeXXL},
@@ -40,6 +42,34 @@ func TestRoomCondition_MedianPoint(t *testing.T) {
 		c.Vote("user1", poker.Point8)
 		c.Vote("user2", poker.Point2)
 		c.Vote("user3", poker.Point5)
+
+		assert.InDelta(t, 5.0, c.MedianPoint(), 0.0001)
+	})
+
+	t.Run("投票者が偶数人の場合、中央 2 件の平均を返す", func(t *testing.T) {
+		c := poker.NewRoomCondition()
+		assert.NoError(t, c.Join("user1", "user1"))
+		assert.NoError(t, c.Join("user2", "user2"))
+		assert.NoError(t, c.Join("user3", "user3"))
+		assert.NoError(t, c.Join("user4", "user4"))
+		c.Vote("user1", poker.Point8)
+		c.Vote("user2", poker.Point2)
+		c.Vote("user3", poker.Point5)
+		c.Vote("user4", poker.Point13)
+
+		assert.InDelta(t, 6.5, c.MedianPoint(), 0.0001)
+	})
+
+	t.Run("オブザーバーと非数値ポイントは計算対象から除外する", func(t *testing.T) {
+		c := poker.NewRoomCondition()
+		assert.NoError(t, c.Join("user1", "user1"))
+		assert.NoError(t, c.Join("user2", "user2"))
+		assert.NoError(t, c.Join("user3", "user3"))
+		assert.NoError(t, c.Join("observer", "observer"))
+		c.ToggleObserverMode("observer", true)
+		c.Vote("user1", poker.Point8)
+		c.Vote("user2", poker.Point2)
+		c.Vote("user3", poker.PointCoffee)
 
 		assert.InDelta(t, 5.0, c.MedianPoint(), 0.0001)
 	})
