@@ -1,30 +1,25 @@
-// This is a basic Flutter widget test.
+// Smoke test that boots the real Porker2 app via ProviderScope.
 //
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+// Purpose: verify that the root widget builds without throwing during the
+// initial frame. Uses the real application entry point so that misconfigured
+// providers, missing initializations (e.g. URL strategy), or router setup
+// issues surface immediately.
+//
+// References:
+//   - frontend/lib/main.dart
+//   - frontend/lib/presentation/router/router.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'package:porker2fe/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const Porker2());
-
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+  testWidgets('Porker2 smoke test', (WidgetTester tester) async {
+    await tester.pumpWidget(const ProviderScope(child: Porker2()));
     await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.byType(MaterialApp), findsOneWidget);
   });
 }

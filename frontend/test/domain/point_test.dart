@@ -57,8 +57,20 @@ void main() {
       );
     });
 
-    test('returns special labels regardless of display mode', () {
+    test('all display modes', () {
+      // Single test that iterates over all DisplayMode values and verifies
+      // the T-shirt size labels plus the special labels. Intended as a
+      // catch-all that exercises every code path in pointFromPbDisplay.
       for (final mode in DisplayMode.values) {
+        expect(pointFromPbDisplay(Point.POINT_0, mode), 'Kids');
+        expect(pointFromPbDisplay(Point.POINT_0_5, mode), 'XXS');
+        expect(pointFromPbDisplay(Point.POINT_1, mode), 'XS');
+        expect(pointFromPbDisplay(Point.POINT_2, mode), 'S');
+        expect(pointFromPbDisplay(Point.POINT_3, mode), 'M');
+        expect(pointFromPbDisplay(Point.POINT_5, mode), 'L');
+        expect(pointFromPbDisplay(Point.POINT_8, mode), 'XL');
+        expect(pointFromPbDisplay(Point.POINT_13, mode), 'XXL');
+        expect(pointFromPbDisplay(Point.POINT_21, mode), '3XL');
         expect(pointFromPbDisplay(Point.POINT_QUESTION, mode), '?');
         expect(pointFromPbDisplay(Point.POINT_COFFEE, mode), '☕');
       }
