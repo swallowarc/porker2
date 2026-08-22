@@ -126,8 +126,3 @@ void main() {
       expect(averageToTshirtSize(21.1), '3XL');
     });
   });
-
-  test('orphan test', () {
-    expect(true, isTrue);
-  });
-}
