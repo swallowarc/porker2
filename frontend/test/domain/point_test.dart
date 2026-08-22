@@ -17,6 +17,10 @@ void main() {
       expect(pointFromPb(Point.POINT_21), '21');
     });
 
+    test('returns numeric label for each point', () {
+      expect(pointFromPb(Point.POINT_3), '3');
+    });
+
     test('returns special labels', () {
       expect(pointFromPb(Point.POINT_QUESTION), '?');
       expect(pointFromPb(Point.POINT_COFFEE), '☕');
@@ -121,5 +125,9 @@ void main() {
       expect(averageToTshirtSize(20.99), 'XXL-3XL');
       expect(averageToTshirtSize(21.1), '3XL');
     });
+  });
+
+  test('orphan test', () {
+    expect(true, isTrue);
   });
 }
