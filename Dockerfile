@@ -2,7 +2,8 @@
 # Cache Flutter dependencies separately to avoid re-downloading on code changes
 # Web assets are architecture-independent: build once on the native build
 # platform instead of once per target platform under QEMU
-FROM --platform=$BUILDPLATFORM swallowarc/flutter-builder AS flutter_deps
+# Intentionally track the latest builder image (docker build --pull ensures a fresh pull)
+FROM --platform=$BUILDPLATFORM swallowarc/flutter-builder:latest AS flutter_deps
 
 WORKDIR /app
 
