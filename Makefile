@@ -32,7 +32,7 @@ build_backend:
 
 # Build the Docker image
 docker_build:
-	docker build --platform linux/amd64 -t $(DOCKER_IMAGE) -f $(DOCKERFILE) .
+	docker build --pull --platform linux/amd64 -t $(DOCKER_IMAGE) -f $(DOCKERFILE) .
 
 # Clean up the build artifacts
 clean:
