@@ -27,6 +27,11 @@ linter:
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
 analyzer:
+  errors:
+    # Dart 3.13 でアナライザプラグインの新システム移行案内が警告として出るようになった。
+    # custom_lint 自体に新システム対応版が出ていないため、移行完了まで抑圧する。
+    # （新システム移行後はこの指定も plugins: custom_lint も不要になる）
+    analysis_options_deprecated_plugins: ignore
   exclude:
     - build/**
     - android/**
