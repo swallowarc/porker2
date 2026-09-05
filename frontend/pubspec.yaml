@@ -61,7 +61,7 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
   build_runner: ^2.4.15
-  freezed: ^3.1.0
+  freezed: ^4.0.0
   custom_lint: ^0.8.1
   riverpod_lint: ^3.1.0
   go_router_builder: ^4.2.1
