@@ -62,7 +62,6 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   build_runner: ^2.4.15
   freezed: ^4.0.0
-  riverpod_lint: ^3.1.9
   go_router_builder: ^4.2.1
 
 # For information on the generic Dart part of this file, see the

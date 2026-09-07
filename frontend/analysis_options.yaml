@@ -38,6 +38,10 @@ analyzer:
 
 # riverpod_lint は custom_lint ではなく analysis_server_plugin 上に実装されているため、
 # `analyzer.plugins` ではなくトップレベルの `plugins` セクションで有効化する。
-# バージョンは pubspec.yaml の dev_dependencies と揃えること。
+# プラグインは analysis_options.yaml の記述のみで解決されるため、pubspec.yaml への追加は不要。
 plugins:
-  riverpod_lint: ^3.1.9
+  riverpod_lint:
+    version: ^3.1.9
+    diagnostics:
+      # Notifier に算出値の getter を公開するのは本プロジェクトで意図的に採用している構成のため無効化する。
+      avoid_public_notifier_properties: false
