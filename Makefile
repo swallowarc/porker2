@@ -70,10 +70,10 @@ mock/gen: mock/clean
 	cd $(BACKEND_DIR) && $(GOGENERATE) ./internal/usecase/port/...
 
 fe/lint:
-	cd $(FRONTEND_DIR) && dart run custom_lint
+	cd $(FRONTEND_DIR) && dart analyze
 
 fe/build-runner:
-	cd $(FRONTEND_DIR) && flutter pub run build_runner build --delete-conflicting-outputs
+	cd $(FRONTEND_DIR) && dart run build_runner build
 
 fe/run-for-debug:
 	cd $(FRONTEND_DIR) && flutter run -d chrome --web-port=$(FRONTEND_DEBUG_PORT) --dart-define-from-file=env_local.json

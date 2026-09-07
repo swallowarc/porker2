@@ -8,8 +8,11 @@ part of 'router.dart';
 
 List<RouteBase> get $appRoutes => [$loginRoute, $roomSelectRoute, $pokerRoute];
 
-RouteBase get $loginRoute =>
-    GoRouteData.$route(path: '/', factory: $LoginRoute._fromState);
+RouteBase get $loginRoute => GoRouteData.$route(
+  path: '/',
+  hasOverriddenOnExit: false,
+  factory: $LoginRoute._fromState,
+);
 
 mixin $LoginRoute on GoRouteData {
   static LoginRoute _fromState(GoRouterState state) => LoginRoute();
@@ -31,8 +34,11 @@ mixin $LoginRoute on GoRouteData {
   void replace(BuildContext context) => context.replace(location);
 }
 
-RouteBase get $roomSelectRoute =>
-    GoRouteData.$route(path: '/room', factory: $RoomSelectRoute._fromState);
+RouteBase get $roomSelectRoute => GoRouteData.$route(
+  path: '/room',
+  hasOverriddenOnExit: false,
+  factory: $RoomSelectRoute._fromState,
+);
 
 mixin $RoomSelectRoute on GoRouteData {
   static RoomSelectRoute _fromState(GoRouterState state) => RoomSelectRoute();
@@ -54,8 +60,11 @@ mixin $RoomSelectRoute on GoRouteData {
   void replace(BuildContext context) => context.replace(location);
 }
 
-RouteBase get $pokerRoute =>
-    GoRouteData.$route(path: '/poker', factory: $PokerRoute._fromState);
+RouteBase get $pokerRoute => GoRouteData.$route(
+  path: '/poker',
+  hasOverriddenOnExit: false,
+  factory: $PokerRoute._fromState,
+);
 
 mixin $PokerRoute on GoRouteData {
   static PokerRoute _fromState(GoRouterState state) =>

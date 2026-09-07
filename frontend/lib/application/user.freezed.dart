@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'user.dart';
@@ -9,6 +9,7 @@ part of 'user.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -25,16 +26,21 @@ $UserStateCopyWith<UserState> get copyWith => _$UserStateCopyWithImpl<UserState>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserState&&(identical(other.userID, userID) || other.userID == userID)&&(identical(other.userName, userName) || other.userName == userName));
+  final _this = this as UserState;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserState&&(identical(other.userID, _this.userID) || other.userID == _this.userID)&&(identical(other.userName, _this.userName) || other.userName == _this.userName));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,userID,userName);
+int get hashCode {
+  final _this = this as UserState;
+  return Object.hash(runtimeType,_this.userID,_this.userName);
+}
 
 @override
 String toString() {
-  return 'UserState(userID: $userID, userName: $userName)';
+  final _this = this as UserState;
+  return 'UserState(userID: ${_this.userID}, userName: ${_this.userName})';
 }
 
 
@@ -63,9 +69,9 @@ class _$UserStateCopyWithImpl<$Res>
 /// Create a copy of UserState
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? userID = null,Object? userName = null,}) {
-  return _then(_self.copyWith(
-userID: null == userID ? _self.userID : userID // ignore: cast_nullable_to_non_nullable
-as String,userName: null == userName ? _self.userName : userName // ignore: cast_nullable_to_non_nullable
+  return _then(UserState(
+null == userID ? _self.userID : userID // ignore: cast_nullable_to_non_nullable
+as String,null == userName ? _self.userName : userName // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }
@@ -223,16 +229,18 @@ _$UserStateCopyWith<_UserState> get copyWith => __$UserStateCopyWithImpl<_UserSt
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserState&&(identical(other.userID, userID) || other.userID == userID)&&(identical(other.userName, userName) || other.userName == userName));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserState&&(identical(other.userID, userID) || other.userID == userID)&&(identical(other.userName, userName) || other.userName == userName));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,userID,userName);
+int get hashCode {
+    return Object.hash(runtimeType,userID,userName);
+}
 
 @override
 String toString() {
-  return 'UserState(userID: $userID, userName: $userName)';
+    return 'UserState(userID: $userID, userName: $userName)';
 }
 
 

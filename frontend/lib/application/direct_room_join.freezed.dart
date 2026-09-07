@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'direct_room_join.dart';
@@ -9,6 +9,7 @@ part of 'direct_room_join.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -25,16 +26,21 @@ $DirectRoomJoinStateCopyWith<DirectRoomJoinState> get copyWith => _$DirectRoomJo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DirectRoomJoinState&&(identical(other.presetRoomID, presetRoomID) || other.presetRoomID == presetRoomID));
+  final _this = this as DirectRoomJoinState;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DirectRoomJoinState&&(identical(other.presetRoomID, _this.presetRoomID) || other.presetRoomID == _this.presetRoomID));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,presetRoomID);
+int get hashCode {
+  final _this = this as DirectRoomJoinState;
+  return Object.hash(runtimeType,_this.presetRoomID);
+}
 
 @override
 String toString() {
-  return 'DirectRoomJoinState(presetRoomID: $presetRoomID)';
+  final _this = this as DirectRoomJoinState;
+  return 'DirectRoomJoinState(presetRoomID: ${_this.presetRoomID})';
 }
 
 
@@ -63,8 +69,8 @@ class _$DirectRoomJoinStateCopyWithImpl<$Res>
 /// Create a copy of DirectRoomJoinState
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? presetRoomID = null,}) {
-  return _then(_self.copyWith(
-presetRoomID: null == presetRoomID ? _self.presetRoomID : presetRoomID // ignore: cast_nullable_to_non_nullable
+  return _then(DirectRoomJoinState(
+null == presetRoomID ? _self.presetRoomID : presetRoomID // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }
@@ -221,16 +227,18 @@ _$DirectRoomJoinStateCopyWith<_DirectRoomJoinState> get copyWith => __$DirectRoo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DirectRoomJoinState&&(identical(other.presetRoomID, presetRoomID) || other.presetRoomID == presetRoomID));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DirectRoomJoinState&&(identical(other.presetRoomID, presetRoomID) || other.presetRoomID == presetRoomID));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,presetRoomID);
+int get hashCode {
+    return Object.hash(runtimeType,presetRoomID);
+}
 
 @override
 String toString() {
-  return 'DirectRoomJoinState(presetRoomID: $presetRoomID)';
+    return 'DirectRoomJoinState(presetRoomID: $presetRoomID)';
 }
 
 
