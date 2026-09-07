@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'poker.dart';
@@ -9,6 +9,7 @@ part of 'poker.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
@@ -25,16 +26,21 @@ $PokerStateCopyWith<PokerState> get copyWith => _$PokerStateCopyWithImpl<PokerSt
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PokerState&&(identical(other.roomID, roomID) || other.roomID == roomID)&&(identical(other.adminUserID, adminUserID) || other.adminUserID == adminUserID)&&const DeepCollectionEquality().equals(other.ballots, ballots)&&(identical(other.voteState, voteState) || other.voteState == voteState)&&(identical(other.autoOpen, autoOpen) || other.autoOpen == autoOpen)&&(identical(other.displayMode, displayMode) || other.displayMode == displayMode)&&(identical(other.observerCount, observerCount) || other.observerCount == observerCount));
+  final _this = this as PokerState;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PokerState&&(identical(other.roomID, _this.roomID) || other.roomID == _this.roomID)&&(identical(other.adminUserID, _this.adminUserID) || other.adminUserID == _this.adminUserID)&&const DeepCollectionEquality().equals(other.ballots, _this.ballots)&&(identical(other.voteState, _this.voteState) || other.voteState == _this.voteState)&&(identical(other.autoOpen, _this.autoOpen) || other.autoOpen == _this.autoOpen)&&(identical(other.displayMode, _this.displayMode) || other.displayMode == _this.displayMode)&&(identical(other.observerCount, _this.observerCount) || other.observerCount == _this.observerCount));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,roomID,adminUserID,const DeepCollectionEquality().hash(ballots),voteState,autoOpen,displayMode,observerCount);
+int get hashCode {
+  final _this = this as PokerState;
+  return Object.hash(runtimeType,_this.roomID,_this.adminUserID,const DeepCollectionEquality().hash(_this.ballots),_this.voteState,_this.autoOpen,_this.displayMode,_this.observerCount);
+}
 
 @override
 String toString() {
-  return 'PokerState(roomID: $roomID, adminUserID: $adminUserID, ballots: $ballots, voteState: $voteState, autoOpen: $autoOpen, displayMode: $displayMode, observerCount: $observerCount)';
+  final _this = this as PokerState;
+  return 'PokerState(roomID: ${_this.roomID}, adminUserID: ${_this.adminUserID}, ballots: ${_this.ballots}, voteState: ${_this.voteState}, autoOpen: ${_this.autoOpen}, displayMode: ${_this.displayMode}, observerCount: ${_this.observerCount})';
 }
 
 
@@ -63,14 +69,14 @@ class _$PokerStateCopyWithImpl<$Res>
 /// Create a copy of PokerState
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? roomID = null,Object? adminUserID = null,Object? ballots = null,Object? voteState = null,Object? autoOpen = null,Object? displayMode = null,Object? observerCount = null,}) {
-  return _then(_self.copyWith(
-roomID: null == roomID ? _self.roomID : roomID // ignore: cast_nullable_to_non_nullable
-as String,adminUserID: null == adminUserID ? _self.adminUserID : adminUserID // ignore: cast_nullable_to_non_nullable
-as String,ballots: null == ballots ? _self.ballots : ballots // ignore: cast_nullable_to_non_nullable
-as List<Ballot>,voteState: null == voteState ? _self.voteState : voteState // ignore: cast_nullable_to_non_nullable
-as VoteState,autoOpen: null == autoOpen ? _self.autoOpen : autoOpen // ignore: cast_nullable_to_non_nullable
-as bool,displayMode: null == displayMode ? _self.displayMode : displayMode // ignore: cast_nullable_to_non_nullable
-as DisplayMode,observerCount: null == observerCount ? _self.observerCount : observerCount // ignore: cast_nullable_to_non_nullable
+  return _then(PokerState(
+null == roomID ? _self.roomID : roomID // ignore: cast_nullable_to_non_nullable
+as String,null == adminUserID ? _self.adminUserID : adminUserID // ignore: cast_nullable_to_non_nullable
+as String,null == ballots ? _self.ballots : ballots // ignore: cast_nullable_to_non_nullable
+as List<Ballot>,null == voteState ? _self.voteState : voteState // ignore: cast_nullable_to_non_nullable
+as VoteState,null == autoOpen ? _self.autoOpen : autoOpen // ignore: cast_nullable_to_non_nullable
+as bool,null == displayMode ? _self.displayMode : displayMode // ignore: cast_nullable_to_non_nullable
+as DisplayMode,null == observerCount ? _self.observerCount : observerCount // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }
@@ -212,7 +218,7 @@ return $default(_that.roomID,_that.adminUserID,_that.ballots,_that.voteState,_th
 
 
 class _PokerState implements PokerState {
-  const _PokerState(this.roomID, this.adminUserID, final  List<Ballot> ballots, this.voteState, this.autoOpen, this.displayMode, this.observerCount): _ballots = ballots;
+  const _PokerState(this.roomID, this.adminUserID,  List<Ballot> ballots, this.voteState, this.autoOpen, this.displayMode, this.observerCount): _ballots = ballots;
   
 
 @override final  String roomID;
@@ -239,16 +245,18 @@ _$PokerStateCopyWith<_PokerState> get copyWith => __$PokerStateCopyWithImpl<_Pok
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PokerState&&(identical(other.roomID, roomID) || other.roomID == roomID)&&(identical(other.adminUserID, adminUserID) || other.adminUserID == adminUserID)&&const DeepCollectionEquality().equals(other._ballots, _ballots)&&(identical(other.voteState, voteState) || other.voteState == voteState)&&(identical(other.autoOpen, autoOpen) || other.autoOpen == autoOpen)&&(identical(other.displayMode, displayMode) || other.displayMode == displayMode)&&(identical(other.observerCount, observerCount) || other.observerCount == observerCount));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _PokerState&&(identical(other.roomID, roomID) || other.roomID == roomID)&&(identical(other.adminUserID, adminUserID) || other.adminUserID == adminUserID)&&const DeepCollectionEquality().equals(other.ballots, _ballots)&&(identical(other.voteState, voteState) || other.voteState == voteState)&&(identical(other.autoOpen, autoOpen) || other.autoOpen == autoOpen)&&(identical(other.displayMode, displayMode) || other.displayMode == displayMode)&&(identical(other.observerCount, observerCount) || other.observerCount == observerCount));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,roomID,adminUserID,const DeepCollectionEquality().hash(_ballots),voteState,autoOpen,displayMode,observerCount);
+int get hashCode {
+    return Object.hash(runtimeType,roomID,adminUserID,const DeepCollectionEquality().hash(_ballots),voteState,autoOpen,displayMode,observerCount);
+}
 
 @override
 String toString() {
-  return 'PokerState(roomID: $roomID, adminUserID: $adminUserID, ballots: $ballots, voteState: $voteState, autoOpen: $autoOpen, displayMode: $displayMode, observerCount: $observerCount)';
+    return 'PokerState(roomID: $roomID, adminUserID: $adminUserID, ballots: $ballots, voteState: $voteState, autoOpen: $autoOpen, displayMode: $displayMode, observerCount: $observerCount)';
 }
 
 
