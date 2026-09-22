@@ -4,7 +4,7 @@ go 1.26.3
 
 require (
 	connectrpc.com/authn v0.2.0
-	connectrpc.com/connect v1.20.0
+	connectrpc.com/connect v1.21.0
 	github.com/cenkalti/backoff/v7 v7.0.0
 	github.com/go-playground/validator/v10 v10.30.4
 	github.com/google/uuid v1.6.0
