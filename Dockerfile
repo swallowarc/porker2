@@ -25,7 +25,7 @@ RUN flutter build web --release --no-pub
 # ===== Go Dependencies Stage =====
 # Cache Go modules separately
 # Runs on the native build platform; the target binary is cross-compiled
-FROM --platform=$BUILDPLATFORM golang:1.26-alpine AS go_deps
+FROM --platform=$BUILDPLATFORM golang:1.27-alpine AS go_deps
 
 WORKDIR /app
 
