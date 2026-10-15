@@ -91,6 +91,7 @@ jobs:
           name: Release ${{ steps.tag.outputs.name }}
           draft: false
           prerelease: false
+          generate_release_notes: true
           body: |
             ## Docker Image
 
