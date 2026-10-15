@@ -1,8 +1,9 @@
-import 'package:grpc/grpc_web.dart';
+import 'package:connectrpc/connect.dart';
 import 'package:porker2fe/core/error/retry.dart';
 import 'package:porker2fe/core/logger/logger.dart';
 import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pb.dart';
-import 'package:porker2fe/infrastructure/generated/pb/porker/v2/service.pbgrpc.dart';
+import 'package:porker2fe/infrastructure/generated/pb/porker/v2/service.connect.client.dart';
+import 'package:porker2fe/infrastructure/generated/pb/porker/v2/service.pb.dart';
 import 'package:porker2fe/domain/room.dart';
 import 'package:porker2fe/domain/user.dart';
 import 'package:porker2fe/application/port/port.dart';
@@ -18,8 +19,8 @@ class Porker2ServiceImpl extends Porker2Service {
       final res = await _client.login(LoginRequest()
         ..userName = userName);
       return (userID: res.userId); // tokenはcookieに保存される
-    } on GrpcError catch (e) {
-      throw (e.code == StatusCode.alreadyExists) ? alreadyUsedNameError : e;
+    } on ConnectException catch (e) {
+      throw (e.code == Code.alreadyExists) ? alreadyUsedNameError : e;
     }
   }
 
@@ -46,8 +47,8 @@ class Porker2ServiceImpl extends Porker2Service {
       await _client.checkRoom(CheckRoomRequest()
         ..roomId = roomID);
     } catch (e) {
-      if (e is GrpcError) {
-        if (e.code == StatusCode.notFound) {
+      if (e is ConnectException) {
+        if (e.code == Code.notFound) {
           throw roomNotFoundError;
         }
       }
@@ -70,13 +71,14 @@ class Porker2ServiceImpl extends Porker2Service {
         if (shouldRetry(e)) {
           // server側のWriteTimeoutを超えた場合などを想定しリトライ
           logger.i('Stream retryable error', error: e);
+          await Future.delayed(retryInterval);
           continue;
         }
 
         subscribing = false;
         logger.e('Stream error', error: e, stackTrace: stackTrace);
 
-        if (e is GrpcError && e.code == StatusCode.notFound) {
+        if (e is ConnectException && e.code == Code.notFound) {
           throw roomNotFoundError;
         }
       }

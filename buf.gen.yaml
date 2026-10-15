@@ -8,5 +8,5 @@ plugins:
     opt: paths=source_relative
   - local: protoc-gen-dart
     out: frontend/lib/infrastructure/generated/pb
-    opt:
-      - grpc
+  - local: protoc-gen-connect-dart
+    out: frontend/lib/infrastructure/generated/pb

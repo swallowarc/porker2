@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
-import 'package:grpc/grpc.dart';
+import 'package:connectrpc/connect.dart';
 import 'package:porker2fe/core/error/error.dart';
 import 'package:porker2fe/core/logger/logger.dart';
 
@@ -32,9 +32,9 @@ Future<void> invoke<T>(BuildContext context,
       message = e.message;
     }
 
-    if (e is GrpcError) {
+    if (e is ConnectException) {
       switch (e.code) {
-        case StatusCode.unauthenticated:
+        case Code.unauthenticated:
           logger.e(e.toString());
           if (context.mounted) {
             GoRouter.of(context).go('/');

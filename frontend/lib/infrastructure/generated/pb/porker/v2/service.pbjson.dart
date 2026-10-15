@@ -15,6 +15,8 @@ import 'dart:convert' as $convert;
 import 'dart:core' as $core;
 import 'dart:typed_data' as $typed_data;
 
+import 'domain.pbjson.dart' as $0;
+
 @$core.Deprecated('Use loginRequestDescriptor instead')
 const LoginRequest$json = {
   '1': 'LoginRequest',
@@ -326,3 +328,129 @@ const ToggleObserverModeResponse$json = {
 /// Descriptor for `ToggleObserverModeResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List toggleObserverModeResponseDescriptor =
     $convert.base64Decode('ChpUb2dnbGVPYnNlcnZlck1vZGVSZXNwb25zZQ==');
+
+const $core.Map<$core.String, $core.dynamic> Porker2ServiceBase$json = {
+  '1': 'Porker2Service',
+  '2': [
+    {
+      '1': 'Login',
+      '2': '.porker.v2.LoginRequest',
+      '3': '.porker.v2.LoginResponse'
+    },
+    {
+      '1': 'Logout',
+      '2': '.porker.v2.LogoutRequest',
+      '3': '.porker.v2.LogoutResponse'
+    },
+    {
+      '1': 'VerifyUser',
+      '2': '.porker.v2.VerifyUserRequest',
+      '3': '.porker.v2.VerifyUserResponse'
+    },
+    {
+      '1': 'CreateRoom',
+      '2': '.porker.v2.CreateRoomRequest',
+      '3': '.porker.v2.CreateRoomResponse'
+    },
+    {
+      '1': 'CheckRoom',
+      '2': '.porker.v2.CheckRoomRequest',
+      '3': '.porker.v2.CheckRoomResponse'
+    },
+    {
+      '1': 'JoinRoom',
+      '2': '.porker.v2.JoinRoomRequest',
+      '3': '.porker.v2.JoinRoomResponse',
+      '6': true
+    },
+    {
+      '1': 'LeaveRoom',
+      '2': '.porker.v2.LeaveRoomRequest',
+      '3': '.porker.v2.LeaveRoomResponse'
+    },
+    {
+      '1': 'CastVote',
+      '2': '.porker.v2.CastVoteRequest',
+      '3': '.porker.v2.CastVoteResponse'
+    },
+    {
+      '1': 'ShowVotes',
+      '2': '.porker.v2.ShowVotesRequest',
+      '3': '.porker.v2.ShowVotesResponse'
+    },
+    {
+      '1': 'ResetVotes',
+      '2': '.porker.v2.ResetVotesRequest',
+      '3': '.porker.v2.ResetVotesResponse'
+    },
+    {
+      '1': 'KickUser',
+      '2': '.porker.v2.KickUserRequest',
+      '3': '.porker.v2.KickUserResponse'
+    },
+    {
+      '1': 'UpdateRoom',
+      '2': '.porker.v2.UpdateRoomRequest',
+      '3': '.porker.v2.UpdateRoomResponse'
+    },
+    {
+      '1': 'ToggleObserverMode',
+      '2': '.porker.v2.ToggleObserverModeRequest',
+      '3': '.porker.v2.ToggleObserverModeResponse'
+    },
+  ],
+};
+
+@$core.Deprecated('Use porker2ServiceDescriptor instead')
+const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>>
+    Porker2ServiceBase$messageJson = {
+  '.porker.v2.LoginRequest': LoginRequest$json,
+  '.porker.v2.LoginResponse': LoginResponse$json,
+  '.porker.v2.LogoutRequest': LogoutRequest$json,
+  '.porker.v2.LogoutResponse': LogoutResponse$json,
+  '.porker.v2.VerifyUserRequest': VerifyUserRequest$json,
+  '.porker.v2.VerifyUserResponse': VerifyUserResponse$json,
+  '.porker.v2.CreateRoomRequest': CreateRoomRequest$json,
+  '.porker.v2.CreateRoomResponse': CreateRoomResponse$json,
+  '.porker.v2.CheckRoomRequest': CheckRoomRequest$json,
+  '.porker.v2.CheckRoomResponse': CheckRoomResponse$json,
+  '.porker.v2.JoinRoomRequest': JoinRoomRequest$json,
+  '.porker.v2.JoinRoomResponse': JoinRoomResponse$json,
+  '.porker.v2.RoomCondition': $0.RoomCondition$json,
+  '.porker.v2.Ballot': $0.Ballot$json,
+  '.porker.v2.LeaveRoomRequest': LeaveRoomRequest$json,
+  '.porker.v2.LeaveRoomResponse': LeaveRoomResponse$json,
+  '.porker.v2.CastVoteRequest': CastVoteRequest$json,
+  '.porker.v2.CastVoteResponse': CastVoteResponse$json,
+  '.porker.v2.ShowVotesRequest': ShowVotesRequest$json,
+  '.porker.v2.ShowVotesResponse': ShowVotesResponse$json,
+  '.porker.v2.ResetVotesRequest': ResetVotesRequest$json,
+  '.porker.v2.ResetVotesResponse': ResetVotesResponse$json,
+  '.porker.v2.KickUserRequest': KickUserRequest$json,
+  '.porker.v2.KickUserResponse': KickUserResponse$json,
+  '.porker.v2.UpdateRoomRequest': UpdateRoomRequest$json,
+  '.porker.v2.UpdateRoomResponse': UpdateRoomResponse$json,
+  '.porker.v2.ToggleObserverModeRequest': ToggleObserverModeRequest$json,
+  '.porker.v2.ToggleObserverModeResponse': ToggleObserverModeResponse$json,
+};
+
+/// Descriptor for `Porker2Service`. Decode as a `google.protobuf.ServiceDescriptorProto`.
+final $typed_data.Uint8List porker2ServiceDescriptor = $convert.base64Decode(
+    'Cg5Qb3JrZXIyU2VydmljZRI6CgVMb2dpbhIXLnBvcmtlci52Mi5Mb2dpblJlcXVlc3QaGC5wb3'
+    'JrZXIudjIuTG9naW5SZXNwb25zZRI9CgZMb2dvdXQSGC5wb3JrZXIudjIuTG9nb3V0UmVxdWVz'
+    'dBoZLnBvcmtlci52Mi5Mb2dvdXRSZXNwb25zZRJJCgpWZXJpZnlVc2VyEhwucG9ya2VyLnYyLl'
+    'ZlcmlmeVVzZXJSZXF1ZXN0Gh0ucG9ya2VyLnYyLlZlcmlmeVVzZXJSZXNwb25zZRJJCgpDcmVh'
+    'dGVSb29tEhwucG9ya2VyLnYyLkNyZWF0ZVJvb21SZXF1ZXN0Gh0ucG9ya2VyLnYyLkNyZWF0ZV'
+    'Jvb21SZXNwb25zZRJGCglDaGVja1Jvb20SGy5wb3JrZXIudjIuQ2hlY2tSb29tUmVxdWVzdBoc'
+    'LnBvcmtlci52Mi5DaGVja1Jvb21SZXNwb25zZRJFCghKb2luUm9vbRIaLnBvcmtlci52Mi5Kb2'
+    'luUm9vbVJlcXVlc3QaGy5wb3JrZXIudjIuSm9pblJvb21SZXNwb25zZTABEkYKCUxlYXZlUm9v'
+    'bRIbLnBvcmtlci52Mi5MZWF2ZVJvb21SZXF1ZXN0GhwucG9ya2VyLnYyLkxlYXZlUm9vbVJlc3'
+    'BvbnNlEkMKCENhc3RWb3RlEhoucG9ya2VyLnYyLkNhc3RWb3RlUmVxdWVzdBobLnBvcmtlci52'
+    'Mi5DYXN0Vm90ZVJlc3BvbnNlEkYKCVNob3dWb3RlcxIbLnBvcmtlci52Mi5TaG93Vm90ZXNSZX'
+    'F1ZXN0GhwucG9ya2VyLnYyLlNob3dWb3Rlc1Jlc3BvbnNlEkkKClJlc2V0Vm90ZXMSHC5wb3Jr'
+    'ZXIudjIuUmVzZXRWb3Rlc1JlcXVlc3QaHS5wb3JrZXIudjIuUmVzZXRWb3Rlc1Jlc3BvbnNlEk'
+    'MKCEtpY2tVc2VyEhoucG9ya2VyLnYyLktpY2tVc2VyUmVxdWVzdBobLnBvcmtlci52Mi5LaWNr'
+    'VXNlclJlc3BvbnNlEkkKClVwZGF0ZVJvb20SHC5wb3JrZXIudjIuVXBkYXRlUm9vbVJlcXVlc3'
+    'QaHS5wb3JrZXIudjIuVXBkYXRlUm9vbVJlc3BvbnNlEmEKElRvZ2dsZU9ic2VydmVyTW9kZRIk'
+    'LnBvcmtlci52Mi5Ub2dnbGVPYnNlcnZlck1vZGVSZXF1ZXN0GiUucG9ya2VyLnYyLlRvZ2dsZU'
+    '9ic2VydmVyTW9kZVJlc3BvbnNl');

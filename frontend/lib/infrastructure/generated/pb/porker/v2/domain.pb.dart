@@ -27,7 +27,7 @@ class Ballot extends $pb.GeneratedMessage {
     Point? point,
     UserRole? role,
   }) {
-    final result = create();
+    final result = Ballot._();
     if (userName != null) result.userName = userName;
     if (userId != null) result.userId = userId;
     if (point != null) result.point = point;
@@ -39,15 +39,15 @@ class Ballot extends $pb.GeneratedMessage {
 
   factory Ballot.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      Ballot()..mergeFromBuffer(data, registry);
   factory Ballot.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      Ballot()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'Ballot',
       package: const $pb.PackageName(_omitMessageNames ? '' : 'porker.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: Ballot.$_createMessage)
     ..aOS(1, _omitFieldNames ? '' : 'userName')
     ..aOS(2, _omitFieldNames ? '' : 'userId')
     ..aE<Point>(3, _omitFieldNames ? '' : 'point', enumValues: Point.values)
@@ -65,12 +65,14 @@ class Ballot extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated('Use Ballot() / Ballot.new instead')
   static Ballot create() => Ballot._();
+  static $pb.GeneratedMessage $_createMessage() => Ballot._();
   @$core.override
-  Ballot createEmptyInstance() => create();
+  Ballot createEmptyInstance() => Ballot._();
   @$core.pragma('dart2js:noInline')
-  static Ballot getDefault() =>
-      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Ballot>(create);
+  static Ballot getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<Ballot>(Ballot.$_createMessage);
   static Ballot? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -120,7 +122,7 @@ class RoomCondition extends $pb.GeneratedMessage {
     DisplayMode? displayMode,
     $core.int? observerCount,
   }) {
-    final result = create();
+    final result = RoomCondition._();
     if (roomId != null) result.roomId = roomId;
     if (adminUserId != null) result.adminUserId = adminUserId;
     if (voteState != null) result.voteState = voteState;
@@ -135,21 +137,21 @@ class RoomCondition extends $pb.GeneratedMessage {
 
   factory RoomCondition.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      RoomCondition()..mergeFromBuffer(data, registry);
   factory RoomCondition.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      RoomCondition()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'RoomCondition',
       package: const $pb.PackageName(_omitMessageNames ? '' : 'porker.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: RoomCondition.$_createMessage)
     ..aOS(1, _omitFieldNames ? '' : 'roomId')
     ..aOS(2, _omitFieldNames ? '' : 'adminUserId')
     ..aE<VoteState>(3, _omitFieldNames ? '' : 'voteState',
         enumValues: VoteState.values)
     ..pPM<Ballot>(4, _omitFieldNames ? '' : 'ballots',
-        subBuilder: Ballot.create)
+        subBuilder: Ballot.$_createMessage)
     ..aOB(5, _omitFieldNames ? '' : 'autoOpen')
     ..aE<DisplayMode>(6, _omitFieldNames ? '' : 'displayMode',
         enumValues: DisplayMode.values)
@@ -167,12 +169,15 @@ class RoomCondition extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated('Use RoomCondition() / RoomCondition.new instead')
   static RoomCondition create() => RoomCondition._();
+  static $pb.GeneratedMessage $_createMessage() => RoomCondition._();
   @$core.override
-  RoomCondition createEmptyInstance() => create();
+  RoomCondition createEmptyInstance() => RoomCondition._();
   @$core.pragma('dart2js:noInline')
-  static RoomCondition getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<RoomCondition>(create);
+  static RoomCondition getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RoomCondition>(
+          RoomCondition.$_createMessage);
   static RoomCondition? _defaultInstance;
 
   @$pb.TagNumber(1)

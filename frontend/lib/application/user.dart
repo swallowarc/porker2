@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:grpc/grpc.dart';
+import 'package:connectrpc/connect.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/core/logger/logger.dart';
 import 'package:porker2fe/core/provider/providers.dart';
@@ -56,7 +56,7 @@ class User extends Notifier<UserState> {
       );
       return true;
     } catch (e) {
-      if (e is GrpcError && e.code == StatusCode.unauthenticated) {
+      if (e is ConnectException && e.code == Code.unauthenticated) {
         return false;
       } else {
         logger.e(e.toString());
