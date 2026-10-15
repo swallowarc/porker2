@@ -11,7 +11,8 @@
 
 - connectとは
   - https://connectrpc.com/
-  - protobufから生成したハンドラでgRPC/gRPC-web/RestAPIでリクエストを受信可能なサーバを実装できるライブラリ
+  - protobufから生成したハンドラで Connect / gRPC / gRPC-Web の各プロトコルのリクエストを受信可能なサーバを実装できるライブラリ
+  - 本アプリではバックエンドを connect-go、フロントエンドを connect-dart で実装し、Connect プロトコルで通信している
 
 ## Setup
 
