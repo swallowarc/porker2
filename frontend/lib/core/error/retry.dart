@@ -13,7 +13,7 @@ bool shouldRetry(Object? e) {
     return retryCodes.contains(e.code);
   }
   // fetch の通信断（server側のWriteTimeoutなど）は ConnectException に包まれず、
-  // ブラウザの TypeError("network error") がそのまま届くためリトライする。
-  // Dart の Error は実装の不具合なのでリトライしない
-  return e != null && e is! Error;
+  // ブラウザの TypeError("network error") が JS の値のまま届く。
+  // JS の値は Dart の Error にも Exception にも該当しないので、それだけをリトライする
+  return e != null && e is! Error && e is! Exception;
 }
