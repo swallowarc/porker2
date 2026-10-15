@@ -113,14 +113,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.4"
-  chipmunk2d_physics_ffi:
-    dependency: transitive
-    description:
-      name: chipmunk2d_physics_ffi
-      sha256: cf481ddc34f870f964b78b6acb28768667516eb91625d9c0b99fc82ef0eda663
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.4"
   clock:
     dependency: transitive
     description:
@@ -389,14 +381,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.4.3"
-  http:
-    dependency: transitive
-    description:
-      name: http
-      sha256: "87721a4a50b19c7f1d49001e51409bddc46303966ce89a65af4f4e6004896412"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.6.0"
   http2:
     dependency: transitive
     description:
@@ -549,14 +533,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.17.6"
-  newton_particles:
-    dependency: "direct main"
-    description:
-      name: newton_particles
-      sha256: eb7af090af184ed37b4d7af9a7d21e8b7e45cfc02be6544c41be0eba4ad06e45
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.4.1"
   objective_c:
     dependency: transitive
     description:
