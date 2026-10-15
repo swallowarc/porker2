@@ -1,7 +1,10 @@
-import 'package:grpc/grpc_web.dart';
+import 'package:connectrpc/connect.dart';
+import 'package:connectrpc/protobuf.dart';
+import 'package:connectrpc/protocol/connect.dart' as protocol;
+import 'package:connectrpc/web.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/core/env/env.dart';
-import 'package:porker2fe/infrastructure/generated/pb/porker/v2/service.pbgrpc.dart';
+import 'package:porker2fe/infrastructure/generated/pb/porker/v2/service.connect.client.dart';
 import 'package:porker2fe/infrastructure/adapter/local_storage.dart';
 import 'package:porker2fe/infrastructure/adapter/porker2_service.dart';
 import 'package:porker2fe/application/port/port.dart';
@@ -14,11 +17,14 @@ final envProvider = Provider<Env>((ref) => Env());
 
 final porker2ServiceApiProvider = Provider<Porker2ServiceClient>((ref) {
   final env = ref.read(envProvider);
-  final channel = GrpcWebClientChannel.xhr(Uri.parse(env.backendURI));
-  ref.onDispose(() => channel.shutdown());
+  final Transport transport = protocol.Transport(
+    baseUrl: env.backendURI,
+    codec: const ProtoCodec(),
+    // tokenはcookieで送受信するため、クロスオリジンでもcookieを含める
+    httpClient: createHttpClient(credentials: 'include'),
+  );
 
-  return Porker2ServiceClient(channel,
-      options: WebCallOptions(withCredentials: true));
+  return Porker2ServiceClient(transport);
 });
 
 /// adapter
