@@ -48,7 +48,6 @@ dependencies:
   logger: ^2.6.1
   shared_preferences: ^2.2.3
   sprintf: ^7.0.0
-  newton_particles: ^0.4.1
   material_ui: ^1.7.0
 
 dev_dependencies:

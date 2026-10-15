@@ -61,7 +61,8 @@ class PokerPage extends HookConsumerWidget {
 
     final body = Stack(
       children: [
-        ref.read(pokerProvider.notifier).isUnanimity ? const FireWorks() : Container(),
+        if (ref.read(pokerProvider.notifier).isUnanimity)
+          const Positioned.fill(child: FireWorks()),
         const Center(
           child: SingleChildScrollView(
             child: Column(
