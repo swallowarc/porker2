@@ -7,6 +7,7 @@ import (
 	"connectrpc.com/authn"
 	"connectrpc.com/connect/v2"
 
+	"github.com/swallowarc/porker2/backend/internal/core/logger"
 	"github.com/swallowarc/porker2/backend/internal/core/merror"
 	"github.com/swallowarc/porker2/backend/internal/domain/user"
 	"github.com/swallowarc/porker2/backend/internal/usecase/port"
@@ -85,6 +86,8 @@ func (m *manager) UserIDFromCtx(ctx context.Context) user.ID {
 func (m *manager) SetCookie(ctx context.Context, token string) {
 	info, ok := connect.CallInfoForServerContext(ctx)
 	if !ok {
+		// 本番経路では必ず call info が載る。載っていない場合は Cookie を発行できないので痕跡を残す。
+		logger.FromCtx(ctx).Warn("call info not found in context; skip setting session cookie")
 		return
 	}
 
