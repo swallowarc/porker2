@@ -5,448 +5,557 @@
 package porkerv2connect
 
 import (
-	connect "connectrpc.com/connect"
+	connect "connectrpc.com/connect/v2"
 	context "context"
-	errors "errors"
 	v2 "github.com/swallowarc/porker2/backend/internal/interface/pb/porker/v2"
-	http "net/http"
-	strings "strings"
+	sync "sync"
 )
-
-// This is a compile-time assertion to ensure that this generated file and the connect package are
-// compatible. If you get a compiler error that this constant is not defined, this code was
-// generated with a version of connect newer than the one compiled into your binary. You can fix the
-// problem by either regenerating this code with an older version of connect or updating the connect
-// version compiled into your binary.
-const _ = connect.IsAtLeastVersion1_13_0
 
 const (
 	// Porker2ServiceName is the fully-qualified name of the Porker2Service service.
 	Porker2ServiceName = "porker.v2.Porker2Service"
 )
 
-// These constants are the fully-qualified names of the RPCs defined in this package. They're
-// exposed at runtime as Spec.Procedure and as the final two segments of the HTTP route.
+// These constants are the procedure names of the RPCs defined in this package. They're exposed at
+// runtime as Spec.Procedure and as the final two segments of the HTTP route.
 //
 // Note that these are different from the fully-qualified method names used by
 // google.golang.org/protobuf/reflect/protoreflect. To convert from these constants to
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
-	// Porker2ServiceLoginProcedure is the fully-qualified name of the Porker2Service's Login RPC.
+	// Porker2ServiceLoginProcedure is the procedure name of the Porker2Service's Login RPC.
 	Porker2ServiceLoginProcedure = "/porker.v2.Porker2Service/Login"
-	// Porker2ServiceLogoutProcedure is the fully-qualified name of the Porker2Service's Logout RPC.
+	// Porker2ServiceLogoutProcedure is the procedure name of the Porker2Service's Logout RPC.
 	Porker2ServiceLogoutProcedure = "/porker.v2.Porker2Service/Logout"
-	// Porker2ServiceVerifyUserProcedure is the fully-qualified name of the Porker2Service's VerifyUser
-	// RPC.
+	// Porker2ServiceVerifyUserProcedure is the procedure name of the Porker2Service's VerifyUser RPC.
 	Porker2ServiceVerifyUserProcedure = "/porker.v2.Porker2Service/VerifyUser"
-	// Porker2ServiceCreateRoomProcedure is the fully-qualified name of the Porker2Service's CreateRoom
-	// RPC.
+	// Porker2ServiceCreateRoomProcedure is the procedure name of the Porker2Service's CreateRoom RPC.
 	Porker2ServiceCreateRoomProcedure = "/porker.v2.Porker2Service/CreateRoom"
-	// Porker2ServiceCheckRoomProcedure is the fully-qualified name of the Porker2Service's CheckRoom
-	// RPC.
+	// Porker2ServiceCheckRoomProcedure is the procedure name of the Porker2Service's CheckRoom RPC.
 	Porker2ServiceCheckRoomProcedure = "/porker.v2.Porker2Service/CheckRoom"
-	// Porker2ServiceJoinRoomProcedure is the fully-qualified name of the Porker2Service's JoinRoom RPC.
+	// Porker2ServiceJoinRoomProcedure is the procedure name of the Porker2Service's JoinRoom RPC.
 	Porker2ServiceJoinRoomProcedure = "/porker.v2.Porker2Service/JoinRoom"
-	// Porker2ServiceLeaveRoomProcedure is the fully-qualified name of the Porker2Service's LeaveRoom
-	// RPC.
+	// Porker2ServiceLeaveRoomProcedure is the procedure name of the Porker2Service's LeaveRoom RPC.
 	Porker2ServiceLeaveRoomProcedure = "/porker.v2.Porker2Service/LeaveRoom"
-	// Porker2ServiceCastVoteProcedure is the fully-qualified name of the Porker2Service's CastVote RPC.
+	// Porker2ServiceCastVoteProcedure is the procedure name of the Porker2Service's CastVote RPC.
 	Porker2ServiceCastVoteProcedure = "/porker.v2.Porker2Service/CastVote"
-	// Porker2ServiceShowVotesProcedure is the fully-qualified name of the Porker2Service's ShowVotes
-	// RPC.
+	// Porker2ServiceShowVotesProcedure is the procedure name of the Porker2Service's ShowVotes RPC.
 	Porker2ServiceShowVotesProcedure = "/porker.v2.Porker2Service/ShowVotes"
-	// Porker2ServiceResetVotesProcedure is the fully-qualified name of the Porker2Service's ResetVotes
-	// RPC.
+	// Porker2ServiceResetVotesProcedure is the procedure name of the Porker2Service's ResetVotes RPC.
 	Porker2ServiceResetVotesProcedure = "/porker.v2.Porker2Service/ResetVotes"
-	// Porker2ServiceKickUserProcedure is the fully-qualified name of the Porker2Service's KickUser RPC.
+	// Porker2ServiceKickUserProcedure is the procedure name of the Porker2Service's KickUser RPC.
 	Porker2ServiceKickUserProcedure = "/porker.v2.Porker2Service/KickUser"
-	// Porker2ServiceUpdateRoomProcedure is the fully-qualified name of the Porker2Service's UpdateRoom
-	// RPC.
+	// Porker2ServiceUpdateRoomProcedure is the procedure name of the Porker2Service's UpdateRoom RPC.
 	Porker2ServiceUpdateRoomProcedure = "/porker.v2.Porker2Service/UpdateRoom"
-	// Porker2ServiceToggleObserverModeProcedure is the fully-qualified name of the Porker2Service's
+	// Porker2ServiceToggleObserverModeProcedure is the procedure name of the Porker2Service's
 	// ToggleObserverMode RPC.
 	Porker2ServiceToggleObserverModeProcedure = "/porker.v2.Porker2Service/ToggleObserverMode"
 )
 
+var (
+	porker2ServiceLoginSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v2.File_porker_v2_service_proto.Services().ByName("Porker2Service").Methods().ByName("Login"),
+			Procedure:  Porker2ServiceLoginProcedure,
+		}
+	})
+	porker2ServiceLogoutSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v2.File_porker_v2_service_proto.Services().ByName("Porker2Service").Methods().ByName("Logout"),
+			Procedure:  Porker2ServiceLogoutProcedure,
+		}
+	})
+	porker2ServiceVerifyUserSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v2.File_porker_v2_service_proto.Services().ByName("Porker2Service").Methods().ByName("VerifyUser"),
+			Procedure:  Porker2ServiceVerifyUserProcedure,
+		}
+	})
+	porker2ServiceCreateRoomSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v2.File_porker_v2_service_proto.Services().ByName("Porker2Service").Methods().ByName("CreateRoom"),
+			Procedure:  Porker2ServiceCreateRoomProcedure,
+		}
+	})
+	porker2ServiceCheckRoomSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v2.File_porker_v2_service_proto.Services().ByName("Porker2Service").Methods().ByName("CheckRoom"),
+			Procedure:  Porker2ServiceCheckRoomProcedure,
+		}
+	})
+	porker2ServiceJoinRoomSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeServer,
+			Schema:     v2.File_porker_v2_service_proto.Services().ByName("Porker2Service").Methods().ByName("JoinRoom"),
+			Procedure:  Porker2ServiceJoinRoomProcedure,
+		}
+	})
+	porker2ServiceLeaveRoomSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v2.File_porker_v2_service_proto.Services().ByName("Porker2Service").Methods().ByName("LeaveRoom"),
+			Procedure:  Porker2ServiceLeaveRoomProcedure,
+		}
+	})
+	porker2ServiceCastVoteSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v2.File_porker_v2_service_proto.Services().ByName("Porker2Service").Methods().ByName("CastVote"),
+			Procedure:  Porker2ServiceCastVoteProcedure,
+		}
+	})
+	porker2ServiceShowVotesSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v2.File_porker_v2_service_proto.Services().ByName("Porker2Service").Methods().ByName("ShowVotes"),
+			Procedure:  Porker2ServiceShowVotesProcedure,
+		}
+	})
+	porker2ServiceResetVotesSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v2.File_porker_v2_service_proto.Services().ByName("Porker2Service").Methods().ByName("ResetVotes"),
+			Procedure:  Porker2ServiceResetVotesProcedure,
+		}
+	})
+	porker2ServiceKickUserSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v2.File_porker_v2_service_proto.Services().ByName("Porker2Service").Methods().ByName("KickUser"),
+			Procedure:  Porker2ServiceKickUserProcedure,
+		}
+	})
+	porker2ServiceUpdateRoomSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v2.File_porker_v2_service_proto.Services().ByName("Porker2Service").Methods().ByName("UpdateRoom"),
+			Procedure:  Porker2ServiceUpdateRoomProcedure,
+		}
+	})
+	porker2ServiceToggleObserverModeSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v2.File_porker_v2_service_proto.Services().ByName("Porker2Service").Methods().ByName("ToggleObserverMode"),
+			Procedure:  Porker2ServiceToggleObserverModeProcedure,
+		}
+	})
+)
+
 // Porker2ServiceClient is a client for the porker.v2.Porker2Service service.
 type Porker2ServiceClient interface {
-	Login(context.Context, *connect.Request[v2.LoginRequest]) (*connect.Response[v2.LoginResponse], error)
-	Logout(context.Context, *connect.Request[v2.LogoutRequest]) (*connect.Response[v2.LogoutResponse], error)
-	VerifyUser(context.Context, *connect.Request[v2.VerifyUserRequest]) (*connect.Response[v2.VerifyUserResponse], error)
-	CreateRoom(context.Context, *connect.Request[v2.CreateRoomRequest]) (*connect.Response[v2.CreateRoomResponse], error)
-	CheckRoom(context.Context, *connect.Request[v2.CheckRoomRequest]) (*connect.Response[v2.CheckRoomResponse], error)
-	JoinRoom(context.Context, *connect.Request[v2.JoinRoomRequest]) (*connect.ServerStreamForClient[v2.JoinRoomResponse], error)
-	LeaveRoom(context.Context, *connect.Request[v2.LeaveRoomRequest]) (*connect.Response[v2.LeaveRoomResponse], error)
-	CastVote(context.Context, *connect.Request[v2.CastVoteRequest]) (*connect.Response[v2.CastVoteResponse], error)
-	ShowVotes(context.Context, *connect.Request[v2.ShowVotesRequest]) (*connect.Response[v2.ShowVotesResponse], error)
-	ResetVotes(context.Context, *connect.Request[v2.ResetVotesRequest]) (*connect.Response[v2.ResetVotesResponse], error)
-	KickUser(context.Context, *connect.Request[v2.KickUserRequest]) (*connect.Response[v2.KickUserResponse], error)
-	UpdateRoom(context.Context, *connect.Request[v2.UpdateRoomRequest]) (*connect.Response[v2.UpdateRoomResponse], error)
-	ToggleObserverMode(context.Context, *connect.Request[v2.ToggleObserverModeRequest]) (*connect.Response[v2.ToggleObserverModeResponse], error)
+	Login(context.Context, *v2.LoginRequest) (*v2.LoginResponse, error)
+	Logout(context.Context, *v2.LogoutRequest) (*v2.LogoutResponse, error)
+	VerifyUser(context.Context, *v2.VerifyUserRequest) (*v2.VerifyUserResponse, error)
+	CreateRoom(context.Context, *v2.CreateRoomRequest) (*v2.CreateRoomResponse, error)
+	CheckRoom(context.Context, *v2.CheckRoomRequest) (*v2.CheckRoomResponse, error)
+	JoinRoom(context.Context, *v2.JoinRoomRequest) (Porker2ServiceJoinRoomClientStream, error)
+	LeaveRoom(context.Context, *v2.LeaveRoomRequest) (*v2.LeaveRoomResponse, error)
+	CastVote(context.Context, *v2.CastVoteRequest) (*v2.CastVoteResponse, error)
+	ShowVotes(context.Context, *v2.ShowVotesRequest) (*v2.ShowVotesResponse, error)
+	ResetVotes(context.Context, *v2.ResetVotesRequest) (*v2.ResetVotesResponse, error)
+	KickUser(context.Context, *v2.KickUserRequest) (*v2.KickUserResponse, error)
+	UpdateRoom(context.Context, *v2.UpdateRoomRequest) (*v2.UpdateRoomResponse, error)
+	ToggleObserverMode(context.Context, *v2.ToggleObserverModeRequest) (*v2.ToggleObserverModeResponse, error)
 }
 
-// NewPorker2ServiceClient constructs a client for the porker.v2.Porker2Service service. By default,
-// it uses the Connect protocol with the binary Protobuf Codec, asks for gzipped responses, and
-// sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply the connect.WithGRPC()
-// or connect.WithGRPCWeb() options.
-//
-// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
-// http://api.acme.com or https://acme.com/grpc).
-func NewPorker2ServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) Porker2ServiceClient {
-	baseURL = strings.TrimRight(baseURL, "/")
-	porker2ServiceMethods := v2.File_porker_v2_service_proto.Services().ByName("Porker2Service").Methods()
-	return &porker2ServiceClient{
-		login: connect.NewClient[v2.LoginRequest, v2.LoginResponse](
-			httpClient,
-			baseURL+Porker2ServiceLoginProcedure,
-			connect.WithSchema(porker2ServiceMethods.ByName("Login")),
-			connect.WithClientOptions(opts...),
-		),
-		logout: connect.NewClient[v2.LogoutRequest, v2.LogoutResponse](
-			httpClient,
-			baseURL+Porker2ServiceLogoutProcedure,
-			connect.WithSchema(porker2ServiceMethods.ByName("Logout")),
-			connect.WithClientOptions(opts...),
-		),
-		verifyUser: connect.NewClient[v2.VerifyUserRequest, v2.VerifyUserResponse](
-			httpClient,
-			baseURL+Porker2ServiceVerifyUserProcedure,
-			connect.WithSchema(porker2ServiceMethods.ByName("VerifyUser")),
-			connect.WithClientOptions(opts...),
-		),
-		createRoom: connect.NewClient[v2.CreateRoomRequest, v2.CreateRoomResponse](
-			httpClient,
-			baseURL+Porker2ServiceCreateRoomProcedure,
-			connect.WithSchema(porker2ServiceMethods.ByName("CreateRoom")),
-			connect.WithClientOptions(opts...),
-		),
-		checkRoom: connect.NewClient[v2.CheckRoomRequest, v2.CheckRoomResponse](
-			httpClient,
-			baseURL+Porker2ServiceCheckRoomProcedure,
-			connect.WithSchema(porker2ServiceMethods.ByName("CheckRoom")),
-			connect.WithClientOptions(opts...),
-		),
-		joinRoom: connect.NewClient[v2.JoinRoomRequest, v2.JoinRoomResponse](
-			httpClient,
-			baseURL+Porker2ServiceJoinRoomProcedure,
-			connect.WithSchema(porker2ServiceMethods.ByName("JoinRoom")),
-			connect.WithClientOptions(opts...),
-		),
-		leaveRoom: connect.NewClient[v2.LeaveRoomRequest, v2.LeaveRoomResponse](
-			httpClient,
-			baseURL+Porker2ServiceLeaveRoomProcedure,
-			connect.WithSchema(porker2ServiceMethods.ByName("LeaveRoom")),
-			connect.WithClientOptions(opts...),
-		),
-		castVote: connect.NewClient[v2.CastVoteRequest, v2.CastVoteResponse](
-			httpClient,
-			baseURL+Porker2ServiceCastVoteProcedure,
-			connect.WithSchema(porker2ServiceMethods.ByName("CastVote")),
-			connect.WithClientOptions(opts...),
-		),
-		showVotes: connect.NewClient[v2.ShowVotesRequest, v2.ShowVotesResponse](
-			httpClient,
-			baseURL+Porker2ServiceShowVotesProcedure,
-			connect.WithSchema(porker2ServiceMethods.ByName("ShowVotes")),
-			connect.WithClientOptions(opts...),
-		),
-		resetVotes: connect.NewClient[v2.ResetVotesRequest, v2.ResetVotesResponse](
-			httpClient,
-			baseURL+Porker2ServiceResetVotesProcedure,
-			connect.WithSchema(porker2ServiceMethods.ByName("ResetVotes")),
-			connect.WithClientOptions(opts...),
-		),
-		kickUser: connect.NewClient[v2.KickUserRequest, v2.KickUserResponse](
-			httpClient,
-			baseURL+Porker2ServiceKickUserProcedure,
-			connect.WithSchema(porker2ServiceMethods.ByName("KickUser")),
-			connect.WithClientOptions(opts...),
-		),
-		updateRoom: connect.NewClient[v2.UpdateRoomRequest, v2.UpdateRoomResponse](
-			httpClient,
-			baseURL+Porker2ServiceUpdateRoomProcedure,
-			connect.WithSchema(porker2ServiceMethods.ByName("UpdateRoom")),
-			connect.WithClientOptions(opts...),
-		),
-		toggleObserverMode: connect.NewClient[v2.ToggleObserverModeRequest, v2.ToggleObserverModeResponse](
-			httpClient,
-			baseURL+Porker2ServiceToggleObserverModeProcedure,
-			connect.WithSchema(porker2ServiceMethods.ByName("ToggleObserverMode")),
-			connect.WithClientOptions(opts...),
-		),
+// NewPorker2ServiceClient constructs a client for the porker.v2.Porker2Service service. Multiple
+// service clients may share a single connect.Client.
+func NewPorker2ServiceClient(client *connect.Client) Porker2ServiceClient {
+	return &porker2ServiceClient{client: client}
+}
+
+// Porker2ServiceJoinRoomClientStream is the client stream for the Porker2Service's JoinRoom RPC.
+type Porker2ServiceJoinRoomClientStream struct {
+	stream connect.ClientStream
+}
+
+// Receive returns the next response message from the server.
+func (s Porker2ServiceJoinRoomClientStream) Receive() (*v2.JoinRoomResponse, error) {
+	var res v2.JoinRoomResponse
+	if err := s.stream.Receive(&res); err != nil {
+		return nil, err
 	}
+	return &res, nil
 }
 
-// porker2ServiceClient implements Porker2ServiceClient.
-type porker2ServiceClient struct {
-	login              *connect.Client[v2.LoginRequest, v2.LoginResponse]
-	logout             *connect.Client[v2.LogoutRequest, v2.LogoutResponse]
-	verifyUser         *connect.Client[v2.VerifyUserRequest, v2.VerifyUserResponse]
-	createRoom         *connect.Client[v2.CreateRoomRequest, v2.CreateRoomResponse]
-	checkRoom          *connect.Client[v2.CheckRoomRequest, v2.CheckRoomResponse]
-	joinRoom           *connect.Client[v2.JoinRoomRequest, v2.JoinRoomResponse]
-	leaveRoom          *connect.Client[v2.LeaveRoomRequest, v2.LeaveRoomResponse]
-	castVote           *connect.Client[v2.CastVoteRequest, v2.CastVoteResponse]
-	showVotes          *connect.Client[v2.ShowVotesRequest, v2.ShowVotesResponse]
-	resetVotes         *connect.Client[v2.ResetVotesRequest, v2.ResetVotesResponse]
-	kickUser           *connect.Client[v2.KickUserRequest, v2.KickUserResponse]
-	updateRoom         *connect.Client[v2.UpdateRoomRequest, v2.UpdateRoomResponse]
-	toggleObserverMode *connect.Client[v2.ToggleObserverModeRequest, v2.ToggleObserverModeResponse]
-}
-
-// Login calls porker.v2.Porker2Service.Login.
-func (c *porker2ServiceClient) Login(ctx context.Context, req *connect.Request[v2.LoginRequest]) (*connect.Response[v2.LoginResponse], error) {
-	return c.login.CallUnary(ctx, req)
-}
-
-// Logout calls porker.v2.Porker2Service.Logout.
-func (c *porker2ServiceClient) Logout(ctx context.Context, req *connect.Request[v2.LogoutRequest]) (*connect.Response[v2.LogoutResponse], error) {
-	return c.logout.CallUnary(ctx, req)
-}
-
-// VerifyUser calls porker.v2.Porker2Service.VerifyUser.
-func (c *porker2ServiceClient) VerifyUser(ctx context.Context, req *connect.Request[v2.VerifyUserRequest]) (*connect.Response[v2.VerifyUserResponse], error) {
-	return c.verifyUser.CallUnary(ctx, req)
-}
-
-// CreateRoom calls porker.v2.Porker2Service.CreateRoom.
-func (c *porker2ServiceClient) CreateRoom(ctx context.Context, req *connect.Request[v2.CreateRoomRequest]) (*connect.Response[v2.CreateRoomResponse], error) {
-	return c.createRoom.CallUnary(ctx, req)
-}
-
-// CheckRoom calls porker.v2.Porker2Service.CheckRoom.
-func (c *porker2ServiceClient) CheckRoom(ctx context.Context, req *connect.Request[v2.CheckRoomRequest]) (*connect.Response[v2.CheckRoomResponse], error) {
-	return c.checkRoom.CallUnary(ctx, req)
-}
-
-// JoinRoom calls porker.v2.Porker2Service.JoinRoom.
-func (c *porker2ServiceClient) JoinRoom(ctx context.Context, req *connect.Request[v2.JoinRoomRequest]) (*connect.ServerStreamForClient[v2.JoinRoomResponse], error) {
-	return c.joinRoom.CallServerStream(ctx, req)
-}
-
-// LeaveRoom calls porker.v2.Porker2Service.LeaveRoom.
-func (c *porker2ServiceClient) LeaveRoom(ctx context.Context, req *connect.Request[v2.LeaveRoomRequest]) (*connect.Response[v2.LeaveRoomResponse], error) {
-	return c.leaveRoom.CallUnary(ctx, req)
-}
-
-// CastVote calls porker.v2.Porker2Service.CastVote.
-func (c *porker2ServiceClient) CastVote(ctx context.Context, req *connect.Request[v2.CastVoteRequest]) (*connect.Response[v2.CastVoteResponse], error) {
-	return c.castVote.CallUnary(ctx, req)
-}
-
-// ShowVotes calls porker.v2.Porker2Service.ShowVotes.
-func (c *porker2ServiceClient) ShowVotes(ctx context.Context, req *connect.Request[v2.ShowVotesRequest]) (*connect.Response[v2.ShowVotesResponse], error) {
-	return c.showVotes.CallUnary(ctx, req)
-}
-
-// ResetVotes calls porker.v2.Porker2Service.ResetVotes.
-func (c *porker2ServiceClient) ResetVotes(ctx context.Context, req *connect.Request[v2.ResetVotesRequest]) (*connect.Response[v2.ResetVotesResponse], error) {
-	return c.resetVotes.CallUnary(ctx, req)
-}
-
-// KickUser calls porker.v2.Porker2Service.KickUser.
-func (c *porker2ServiceClient) KickUser(ctx context.Context, req *connect.Request[v2.KickUserRequest]) (*connect.Response[v2.KickUserResponse], error) {
-	return c.kickUser.CallUnary(ctx, req)
-}
-
-// UpdateRoom calls porker.v2.Porker2Service.UpdateRoom.
-func (c *porker2ServiceClient) UpdateRoom(ctx context.Context, req *connect.Request[v2.UpdateRoomRequest]) (*connect.Response[v2.UpdateRoomResponse], error) {
-	return c.updateRoom.CallUnary(ctx, req)
-}
-
-// ToggleObserverMode calls porker.v2.Porker2Service.ToggleObserverMode.
-func (c *porker2ServiceClient) ToggleObserverMode(ctx context.Context, req *connect.Request[v2.ToggleObserverModeRequest]) (*connect.Response[v2.ToggleObserverModeResponse], error) {
-	return c.toggleObserverMode.CallUnary(ctx, req)
+// Close releases the stream's resources. It is idempotent and is typically deferred to clean up a
+// stream abandoned before io.EOF.
+func (s Porker2ServiceJoinRoomClientStream) Close() error {
+	return s.stream.Close()
 }
 
 // Porker2ServiceHandler is an implementation of the porker.v2.Porker2Service service.
 type Porker2ServiceHandler interface {
-	Login(context.Context, *connect.Request[v2.LoginRequest]) (*connect.Response[v2.LoginResponse], error)
-	Logout(context.Context, *connect.Request[v2.LogoutRequest]) (*connect.Response[v2.LogoutResponse], error)
-	VerifyUser(context.Context, *connect.Request[v2.VerifyUserRequest]) (*connect.Response[v2.VerifyUserResponse], error)
-	CreateRoom(context.Context, *connect.Request[v2.CreateRoomRequest]) (*connect.Response[v2.CreateRoomResponse], error)
-	CheckRoom(context.Context, *connect.Request[v2.CheckRoomRequest]) (*connect.Response[v2.CheckRoomResponse], error)
-	JoinRoom(context.Context, *connect.Request[v2.JoinRoomRequest], *connect.ServerStream[v2.JoinRoomResponse]) error
-	LeaveRoom(context.Context, *connect.Request[v2.LeaveRoomRequest]) (*connect.Response[v2.LeaveRoomResponse], error)
-	CastVote(context.Context, *connect.Request[v2.CastVoteRequest]) (*connect.Response[v2.CastVoteResponse], error)
-	ShowVotes(context.Context, *connect.Request[v2.ShowVotesRequest]) (*connect.Response[v2.ShowVotesResponse], error)
-	ResetVotes(context.Context, *connect.Request[v2.ResetVotesRequest]) (*connect.Response[v2.ResetVotesResponse], error)
-	KickUser(context.Context, *connect.Request[v2.KickUserRequest]) (*connect.Response[v2.KickUserResponse], error)
-	UpdateRoom(context.Context, *connect.Request[v2.UpdateRoomRequest]) (*connect.Response[v2.UpdateRoomResponse], error)
-	ToggleObserverMode(context.Context, *connect.Request[v2.ToggleObserverModeRequest]) (*connect.Response[v2.ToggleObserverModeResponse], error)
+	Login(context.Context, *v2.LoginRequest) (*v2.LoginResponse, error)
+	Logout(context.Context, *v2.LogoutRequest) (*v2.LogoutResponse, error)
+	VerifyUser(context.Context, *v2.VerifyUserRequest) (*v2.VerifyUserResponse, error)
+	CreateRoom(context.Context, *v2.CreateRoomRequest) (*v2.CreateRoomResponse, error)
+	CheckRoom(context.Context, *v2.CheckRoomRequest) (*v2.CheckRoomResponse, error)
+	JoinRoom(context.Context, *v2.JoinRoomRequest, Porker2ServiceJoinRoomServerStream) error
+	LeaveRoom(context.Context, *v2.LeaveRoomRequest) (*v2.LeaveRoomResponse, error)
+	CastVote(context.Context, *v2.CastVoteRequest) (*v2.CastVoteResponse, error)
+	ShowVotes(context.Context, *v2.ShowVotesRequest) (*v2.ShowVotesResponse, error)
+	ResetVotes(context.Context, *v2.ResetVotesRequest) (*v2.ResetVotesResponse, error)
+	KickUser(context.Context, *v2.KickUserRequest) (*v2.KickUserResponse, error)
+	UpdateRoom(context.Context, *v2.UpdateRoomRequest) (*v2.UpdateRoomResponse, error)
+	ToggleObserverMode(context.Context, *v2.ToggleObserverModeRequest) (*v2.ToggleObserverModeResponse, error)
 }
 
-// NewPorker2ServiceHandler builds an HTTP handler from the service implementation. It returns the
-// path on which to mount the handler and the handler itself.
-//
-// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
-// and JSON codecs. They also support gzip compression.
-func NewPorker2ServiceHandler(svc Porker2ServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	porker2ServiceMethods := v2.File_porker_v2_service_proto.Services().ByName("Porker2Service").Methods()
-	porker2ServiceLoginHandler := connect.NewUnaryHandler(
-		Porker2ServiceLoginProcedure,
-		svc.Login,
-		connect.WithSchema(porker2ServiceMethods.ByName("Login")),
-		connect.WithHandlerOptions(opts...),
+// RegisterPorker2ServiceHandler registers svc as the porker.v2.Porker2Service implementation on
+// server.
+func RegisterPorker2ServiceHandler(server *connect.Server, svc Porker2ServiceHandler) {
+	adapter := porker2ServiceHandler{svc: svc}
+	server.Register(
+		connect.Method{Spec: porker2ServiceLoginSpec(), Handler: adapter.login},
+		connect.Method{Spec: porker2ServiceLogoutSpec(), Handler: adapter.logout},
+		connect.Method{Spec: porker2ServiceVerifyUserSpec(), Handler: adapter.verifyUser},
+		connect.Method{Spec: porker2ServiceCreateRoomSpec(), Handler: adapter.createRoom},
+		connect.Method{Spec: porker2ServiceCheckRoomSpec(), Handler: adapter.checkRoom},
+		connect.Method{Spec: porker2ServiceJoinRoomSpec(), Handler: adapter.joinRoom},
+		connect.Method{Spec: porker2ServiceLeaveRoomSpec(), Handler: adapter.leaveRoom},
+		connect.Method{Spec: porker2ServiceCastVoteSpec(), Handler: adapter.castVote},
+		connect.Method{Spec: porker2ServiceShowVotesSpec(), Handler: adapter.showVotes},
+		connect.Method{Spec: porker2ServiceResetVotesSpec(), Handler: adapter.resetVotes},
+		connect.Method{Spec: porker2ServiceKickUserSpec(), Handler: adapter.kickUser},
+		connect.Method{Spec: porker2ServiceUpdateRoomSpec(), Handler: adapter.updateRoom},
+		connect.Method{Spec: porker2ServiceToggleObserverModeSpec(), Handler: adapter.toggleObserverMode},
 	)
-	porker2ServiceLogoutHandler := connect.NewUnaryHandler(
-		Porker2ServiceLogoutProcedure,
-		svc.Logout,
-		connect.WithSchema(porker2ServiceMethods.ByName("Logout")),
-		connect.WithHandlerOptions(opts...),
-	)
-	porker2ServiceVerifyUserHandler := connect.NewUnaryHandler(
-		Porker2ServiceVerifyUserProcedure,
-		svc.VerifyUser,
-		connect.WithSchema(porker2ServiceMethods.ByName("VerifyUser")),
-		connect.WithHandlerOptions(opts...),
-	)
-	porker2ServiceCreateRoomHandler := connect.NewUnaryHandler(
-		Porker2ServiceCreateRoomProcedure,
-		svc.CreateRoom,
-		connect.WithSchema(porker2ServiceMethods.ByName("CreateRoom")),
-		connect.WithHandlerOptions(opts...),
-	)
-	porker2ServiceCheckRoomHandler := connect.NewUnaryHandler(
-		Porker2ServiceCheckRoomProcedure,
-		svc.CheckRoom,
-		connect.WithSchema(porker2ServiceMethods.ByName("CheckRoom")),
-		connect.WithHandlerOptions(opts...),
-	)
-	porker2ServiceJoinRoomHandler := connect.NewServerStreamHandler(
-		Porker2ServiceJoinRoomProcedure,
-		svc.JoinRoom,
-		connect.WithSchema(porker2ServiceMethods.ByName("JoinRoom")),
-		connect.WithHandlerOptions(opts...),
-	)
-	porker2ServiceLeaveRoomHandler := connect.NewUnaryHandler(
-		Porker2ServiceLeaveRoomProcedure,
-		svc.LeaveRoom,
-		connect.WithSchema(porker2ServiceMethods.ByName("LeaveRoom")),
-		connect.WithHandlerOptions(opts...),
-	)
-	porker2ServiceCastVoteHandler := connect.NewUnaryHandler(
-		Porker2ServiceCastVoteProcedure,
-		svc.CastVote,
-		connect.WithSchema(porker2ServiceMethods.ByName("CastVote")),
-		connect.WithHandlerOptions(opts...),
-	)
-	porker2ServiceShowVotesHandler := connect.NewUnaryHandler(
-		Porker2ServiceShowVotesProcedure,
-		svc.ShowVotes,
-		connect.WithSchema(porker2ServiceMethods.ByName("ShowVotes")),
-		connect.WithHandlerOptions(opts...),
-	)
-	porker2ServiceResetVotesHandler := connect.NewUnaryHandler(
-		Porker2ServiceResetVotesProcedure,
-		svc.ResetVotes,
-		connect.WithSchema(porker2ServiceMethods.ByName("ResetVotes")),
-		connect.WithHandlerOptions(opts...),
-	)
-	porker2ServiceKickUserHandler := connect.NewUnaryHandler(
-		Porker2ServiceKickUserProcedure,
-		svc.KickUser,
-		connect.WithSchema(porker2ServiceMethods.ByName("KickUser")),
-		connect.WithHandlerOptions(opts...),
-	)
-	porker2ServiceUpdateRoomHandler := connect.NewUnaryHandler(
-		Porker2ServiceUpdateRoomProcedure,
-		svc.UpdateRoom,
-		connect.WithSchema(porker2ServiceMethods.ByName("UpdateRoom")),
-		connect.WithHandlerOptions(opts...),
-	)
-	porker2ServiceToggleObserverModeHandler := connect.NewUnaryHandler(
-		Porker2ServiceToggleObserverModeProcedure,
-		svc.ToggleObserverMode,
-		connect.WithSchema(porker2ServiceMethods.ByName("ToggleObserverMode")),
-		connect.WithHandlerOptions(opts...),
-	)
-	return "/porker.v2.Porker2Service/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch r.URL.Path {
-		case Porker2ServiceLoginProcedure:
-			porker2ServiceLoginHandler.ServeHTTP(w, r)
-		case Porker2ServiceLogoutProcedure:
-			porker2ServiceLogoutHandler.ServeHTTP(w, r)
-		case Porker2ServiceVerifyUserProcedure:
-			porker2ServiceVerifyUserHandler.ServeHTTP(w, r)
-		case Porker2ServiceCreateRoomProcedure:
-			porker2ServiceCreateRoomHandler.ServeHTTP(w, r)
-		case Porker2ServiceCheckRoomProcedure:
-			porker2ServiceCheckRoomHandler.ServeHTTP(w, r)
-		case Porker2ServiceJoinRoomProcedure:
-			porker2ServiceJoinRoomHandler.ServeHTTP(w, r)
-		case Porker2ServiceLeaveRoomProcedure:
-			porker2ServiceLeaveRoomHandler.ServeHTTP(w, r)
-		case Porker2ServiceCastVoteProcedure:
-			porker2ServiceCastVoteHandler.ServeHTTP(w, r)
-		case Porker2ServiceShowVotesProcedure:
-			porker2ServiceShowVotesHandler.ServeHTTP(w, r)
-		case Porker2ServiceResetVotesProcedure:
-			porker2ServiceResetVotesHandler.ServeHTTP(w, r)
-		case Porker2ServiceKickUserProcedure:
-			porker2ServiceKickUserHandler.ServeHTTP(w, r)
-		case Porker2ServiceUpdateRoomProcedure:
-			porker2ServiceUpdateRoomHandler.ServeHTTP(w, r)
-		case Porker2ServiceToggleObserverModeProcedure:
-			porker2ServiceToggleObserverModeHandler.ServeHTTP(w, r)
-		default:
-			http.NotFound(w, r)
-		}
-	})
+}
+
+// Porker2ServiceJoinRoomServerStream is the server stream for the Porker2Service's JoinRoom RPC.
+type Porker2ServiceJoinRoomServerStream struct {
+	stream connect.ServerStream
+}
+
+// SendHeaders flushes the response headers without a message. The first Send does this implicitly.
+func (s Porker2ServiceJoinRoomServerStream) SendHeaders() error {
+	return s.stream.SendHeaders()
+}
+
+// Send sends a response message to the client.
+func (s Porker2ServiceJoinRoomServerStream) Send(res *v2.JoinRoomResponse) error {
+	return s.stream.Send(res)
 }
 
 // UnimplementedPorker2ServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedPorker2ServiceHandler struct{}
 
-func (UnimplementedPorker2ServiceHandler) Login(context.Context, *connect.Request[v2.LoginRequest]) (*connect.Response[v2.LoginResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("porker.v2.Porker2Service.Login is not implemented"))
+func (UnimplementedPorker2ServiceHandler) Login(context.Context, *v2.LoginRequest) (*v2.LoginResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "porker.v2.Porker2Service.Login is not implemented")
 }
 
-func (UnimplementedPorker2ServiceHandler) Logout(context.Context, *connect.Request[v2.LogoutRequest]) (*connect.Response[v2.LogoutResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("porker.v2.Porker2Service.Logout is not implemented"))
+func (UnimplementedPorker2ServiceHandler) Logout(context.Context, *v2.LogoutRequest) (*v2.LogoutResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "porker.v2.Porker2Service.Logout is not implemented")
 }
 
-func (UnimplementedPorker2ServiceHandler) VerifyUser(context.Context, *connect.Request[v2.VerifyUserRequest]) (*connect.Response[v2.VerifyUserResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("porker.v2.Porker2Service.VerifyUser is not implemented"))
+func (UnimplementedPorker2ServiceHandler) VerifyUser(context.Context, *v2.VerifyUserRequest) (*v2.VerifyUserResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "porker.v2.Porker2Service.VerifyUser is not implemented")
 }
 
-func (UnimplementedPorker2ServiceHandler) CreateRoom(context.Context, *connect.Request[v2.CreateRoomRequest]) (*connect.Response[v2.CreateRoomResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("porker.v2.Porker2Service.CreateRoom is not implemented"))
+func (UnimplementedPorker2ServiceHandler) CreateRoom(context.Context, *v2.CreateRoomRequest) (*v2.CreateRoomResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "porker.v2.Porker2Service.CreateRoom is not implemented")
 }
 
-func (UnimplementedPorker2ServiceHandler) CheckRoom(context.Context, *connect.Request[v2.CheckRoomRequest]) (*connect.Response[v2.CheckRoomResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("porker.v2.Porker2Service.CheckRoom is not implemented"))
+func (UnimplementedPorker2ServiceHandler) CheckRoom(context.Context, *v2.CheckRoomRequest) (*v2.CheckRoomResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "porker.v2.Porker2Service.CheckRoom is not implemented")
 }
 
-func (UnimplementedPorker2ServiceHandler) JoinRoom(context.Context, *connect.Request[v2.JoinRoomRequest], *connect.ServerStream[v2.JoinRoomResponse]) error {
-	return connect.NewError(connect.CodeUnimplemented, errors.New("porker.v2.Porker2Service.JoinRoom is not implemented"))
+func (UnimplementedPorker2ServiceHandler) JoinRoom(context.Context, *v2.JoinRoomRequest, Porker2ServiceJoinRoomServerStream) error {
+	return connect.NewError(connect.CodeUnimplemented, "porker.v2.Porker2Service.JoinRoom is not implemented")
 }
 
-func (UnimplementedPorker2ServiceHandler) LeaveRoom(context.Context, *connect.Request[v2.LeaveRoomRequest]) (*connect.Response[v2.LeaveRoomResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("porker.v2.Porker2Service.LeaveRoom is not implemented"))
+func (UnimplementedPorker2ServiceHandler) LeaveRoom(context.Context, *v2.LeaveRoomRequest) (*v2.LeaveRoomResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "porker.v2.Porker2Service.LeaveRoom is not implemented")
 }
 
-func (UnimplementedPorker2ServiceHandler) CastVote(context.Context, *connect.Request[v2.CastVoteRequest]) (*connect.Response[v2.CastVoteResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("porker.v2.Porker2Service.CastVote is not implemented"))
+func (UnimplementedPorker2ServiceHandler) CastVote(context.Context, *v2.CastVoteRequest) (*v2.CastVoteResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "porker.v2.Porker2Service.CastVote is not implemented")
 }
 
-func (UnimplementedPorker2ServiceHandler) ShowVotes(context.Context, *connect.Request[v2.ShowVotesRequest]) (*connect.Response[v2.ShowVotesResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("porker.v2.Porker2Service.ShowVotes is not implemented"))
+func (UnimplementedPorker2ServiceHandler) ShowVotes(context.Context, *v2.ShowVotesRequest) (*v2.ShowVotesResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "porker.v2.Porker2Service.ShowVotes is not implemented")
 }
 
-func (UnimplementedPorker2ServiceHandler) ResetVotes(context.Context, *connect.Request[v2.ResetVotesRequest]) (*connect.Response[v2.ResetVotesResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("porker.v2.Porker2Service.ResetVotes is not implemented"))
+func (UnimplementedPorker2ServiceHandler) ResetVotes(context.Context, *v2.ResetVotesRequest) (*v2.ResetVotesResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "porker.v2.Porker2Service.ResetVotes is not implemented")
 }
 
-func (UnimplementedPorker2ServiceHandler) KickUser(context.Context, *connect.Request[v2.KickUserRequest]) (*connect.Response[v2.KickUserResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("porker.v2.Porker2Service.KickUser is not implemented"))
+func (UnimplementedPorker2ServiceHandler) KickUser(context.Context, *v2.KickUserRequest) (*v2.KickUserResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "porker.v2.Porker2Service.KickUser is not implemented")
 }
 
-func (UnimplementedPorker2ServiceHandler) UpdateRoom(context.Context, *connect.Request[v2.UpdateRoomRequest]) (*connect.Response[v2.UpdateRoomResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("porker.v2.Porker2Service.UpdateRoom is not implemented"))
+func (UnimplementedPorker2ServiceHandler) UpdateRoom(context.Context, *v2.UpdateRoomRequest) (*v2.UpdateRoomResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "porker.v2.Porker2Service.UpdateRoom is not implemented")
 }
 
-func (UnimplementedPorker2ServiceHandler) ToggleObserverMode(context.Context, *connect.Request[v2.ToggleObserverModeRequest]) (*connect.Response[v2.ToggleObserverModeResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("porker.v2.Porker2Service.ToggleObserverMode is not implemented"))
+func (UnimplementedPorker2ServiceHandler) ToggleObserverMode(context.Context, *v2.ToggleObserverModeRequest) (*v2.ToggleObserverModeResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "porker.v2.Porker2Service.ToggleObserverMode is not implemented")
+}
+
+type porker2ServiceClient struct {
+	client *connect.Client
+}
+
+func (c *porker2ServiceClient) Login(ctx context.Context, req *v2.LoginRequest) (*v2.LoginResponse, error) {
+	var res v2.LoginResponse
+	if err := c.client.CallUnary(ctx, porker2ServiceLoginSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *porker2ServiceClient) Logout(ctx context.Context, req *v2.LogoutRequest) (*v2.LogoutResponse, error) {
+	var res v2.LogoutResponse
+	if err := c.client.CallUnary(ctx, porker2ServiceLogoutSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *porker2ServiceClient) VerifyUser(ctx context.Context, req *v2.VerifyUserRequest) (*v2.VerifyUserResponse, error) {
+	var res v2.VerifyUserResponse
+	if err := c.client.CallUnary(ctx, porker2ServiceVerifyUserSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *porker2ServiceClient) CreateRoom(ctx context.Context, req *v2.CreateRoomRequest) (*v2.CreateRoomResponse, error) {
+	var res v2.CreateRoomResponse
+	if err := c.client.CallUnary(ctx, porker2ServiceCreateRoomSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *porker2ServiceClient) CheckRoom(ctx context.Context, req *v2.CheckRoomRequest) (*v2.CheckRoomResponse, error) {
+	var res v2.CheckRoomResponse
+	if err := c.client.CallUnary(ctx, porker2ServiceCheckRoomSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *porker2ServiceClient) JoinRoom(ctx context.Context, req *v2.JoinRoomRequest) (Porker2ServiceJoinRoomClientStream, error) {
+	stream, err := c.client.CallServerStream(ctx, porker2ServiceJoinRoomSpec(), req)
+	if err != nil {
+		return Porker2ServiceJoinRoomClientStream{}, err
+	}
+	return Porker2ServiceJoinRoomClientStream{stream: stream}, nil
+}
+
+func (c *porker2ServiceClient) LeaveRoom(ctx context.Context, req *v2.LeaveRoomRequest) (*v2.LeaveRoomResponse, error) {
+	var res v2.LeaveRoomResponse
+	if err := c.client.CallUnary(ctx, porker2ServiceLeaveRoomSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *porker2ServiceClient) CastVote(ctx context.Context, req *v2.CastVoteRequest) (*v2.CastVoteResponse, error) {
+	var res v2.CastVoteResponse
+	if err := c.client.CallUnary(ctx, porker2ServiceCastVoteSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *porker2ServiceClient) ShowVotes(ctx context.Context, req *v2.ShowVotesRequest) (*v2.ShowVotesResponse, error) {
+	var res v2.ShowVotesResponse
+	if err := c.client.CallUnary(ctx, porker2ServiceShowVotesSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *porker2ServiceClient) ResetVotes(ctx context.Context, req *v2.ResetVotesRequest) (*v2.ResetVotesResponse, error) {
+	var res v2.ResetVotesResponse
+	if err := c.client.CallUnary(ctx, porker2ServiceResetVotesSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *porker2ServiceClient) KickUser(ctx context.Context, req *v2.KickUserRequest) (*v2.KickUserResponse, error) {
+	var res v2.KickUserResponse
+	if err := c.client.CallUnary(ctx, porker2ServiceKickUserSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *porker2ServiceClient) UpdateRoom(ctx context.Context, req *v2.UpdateRoomRequest) (*v2.UpdateRoomResponse, error) {
+	var res v2.UpdateRoomResponse
+	if err := c.client.CallUnary(ctx, porker2ServiceUpdateRoomSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *porker2ServiceClient) ToggleObserverMode(ctx context.Context, req *v2.ToggleObserverModeRequest) (*v2.ToggleObserverModeResponse, error) {
+	var res v2.ToggleObserverModeResponse
+	if err := c.client.CallUnary(ctx, porker2ServiceToggleObserverModeSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+type porker2ServiceHandler struct{ svc Porker2ServiceHandler }
+
+func (h porker2ServiceHandler) login(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v2.LoginRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.Login(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h porker2ServiceHandler) logout(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v2.LogoutRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.Logout(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h porker2ServiceHandler) verifyUser(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v2.VerifyUserRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.VerifyUser(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h porker2ServiceHandler) createRoom(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v2.CreateRoomRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.CreateRoom(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h porker2ServiceHandler) checkRoom(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v2.CheckRoomRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.CheckRoom(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h porker2ServiceHandler) joinRoom(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v2.JoinRoomRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	return h.svc.JoinRoom(ctx, &req, Porker2ServiceJoinRoomServerStream{stream: stream})
+}
+
+func (h porker2ServiceHandler) leaveRoom(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v2.LeaveRoomRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.LeaveRoom(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h porker2ServiceHandler) castVote(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v2.CastVoteRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.CastVote(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h porker2ServiceHandler) showVotes(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v2.ShowVotesRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ShowVotes(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h porker2ServiceHandler) resetVotes(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v2.ResetVotesRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ResetVotes(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h porker2ServiceHandler) kickUser(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v2.KickUserRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.KickUser(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h porker2ServiceHandler) updateRoom(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v2.UpdateRoomRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.UpdateRoom(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h porker2ServiceHandler) toggleObserverMode(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v2.ToggleObserverModeRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ToggleObserverMode(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
 }

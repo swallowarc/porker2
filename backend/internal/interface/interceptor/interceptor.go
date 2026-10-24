@@ -4,7 +4,7 @@ import (
 	"log/slog"
 	"strings"
 
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
 )
 
 type (
@@ -19,7 +19,7 @@ func NewFactory(logger *slog.Logger) *Factory {
 	}
 }
 
-func (f *Factory) LogInterceptor() connect.Interceptor {
+func (f *Factory) LogInterceptor() connect.ServerInterceptor {
 	return NewLogInterceptor(f.logger)
 }
 

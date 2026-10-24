@@ -9,7 +9,8 @@ import (
 	"time"
 
 	"connectrpc.com/authn"
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
+	"connectrpc.com/connect/v2/connecthttp"
 	"github.com/rs/cors"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
@@ -27,10 +28,10 @@ type (
 )
 
 func NewServer(logger *slog.Logger, conf Config, controller pbconn.Porker2ServiceHandler, session session.Manager, f *interceptor.Factory) *Server {
-	opt := connect.WithInterceptors(f.LogInterceptor())
-
 	mux := http.NewServeMux()
-	mux.Handle(pbconn.NewPorker2ServiceHandler(controller, opt))
+	server := connect.NewServer(f.LogInterceptor())
+	pbconn.RegisterPorker2ServiceHandler(server, controller)
+	connecthttp.Mount(mux, server)
 
 	md := authn.NewMiddleware(session.VerifyToken)
 

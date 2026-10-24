@@ -4,72 +4,42 @@ import (
 	"context"
 	"log/slog"
 
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
 	"github.com/google/uuid"
 
 	"github.com/swallowarc/porker2/backend/internal/core/logger"
 )
 
-type (
-	LogInterceptor struct {
-		l *slog.Logger
-	}
-)
+// NewLogInterceptor は RPC 単位のロガー (rpc_name, request_id 付き) を context に載せ、
+// 呼び出し結果をログ出力する ServerInterceptor を返す。
+func NewLogInterceptor(l *slog.Logger) connect.ServerInterceptor {
+	return func(next connect.ServerFunc) connect.ServerFunc {
+		return func(ctx context.Context, spec connect.Spec, stream connect.ServerStream) error {
+			ctx = logger.SetLogger(ctx, l.With(
+				slog.String("rpc_name", getRPCNameFromSpec(spec)),
+				slog.String("request_id", uuid.NewString()),
+			))
 
-func NewLogInterceptor(l *slog.Logger) connect.Interceptor {
-	return &LogInterceptor{
-		l: l,
-	}
-}
+			if spec.StreamType == connect.StreamTypeUnary {
+				err := next(ctx, spec, stream)
+				if err != nil {
+					logger.FromCtx(ctx).Error("failed to call unary", slog.Any("error", err))
+				} else {
+					logger.FromCtx(ctx).Info("success to call unary")
+				}
+				return err
+			}
 
-func (i *LogInterceptor) WrapUnary(next connect.UnaryFunc) connect.UnaryFunc {
-	return func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
-		ctx = logger.SetLogger(ctx, i.l.With(
-			slog.String("rpc_name", getRPCNameFromSpec(req.Spec())),
-			slog.String("request_id", uuid.NewString()),
-		))
+			logger.FromCtx(ctx).Info("success to connect streaming")
 
-		res, err := next(ctx, req)
-		if err != nil {
-			logger.FromCtx(ctx).Error("failed to call unary", slog.Any("error", err))
-		} else {
-			logger.FromCtx(ctx).Info("success to call unary")
+			if err := next(ctx, spec, stream); err != nil {
+				logger.FromCtx(ctx).Error("failed to streaming", slog.Any("error", err))
+				return err
+			}
+
+			logger.FromCtx(ctx).Info("success to disconnect streaming")
+
+			return nil
 		}
-
-		return res, err
-	}
-}
-
-func (*LogInterceptor) WrapStreamingClient(next connect.StreamingClientFunc) connect.StreamingClientFunc {
-	return func(
-		ctx context.Context,
-		spec connect.Spec,
-	) connect.StreamingClientConn {
-		conn := next(ctx, spec)
-		return conn
-	}
-}
-
-func (i *LogInterceptor) WrapStreamingHandler(next connect.StreamingHandlerFunc) connect.StreamingHandlerFunc {
-	return func(
-		ctx context.Context,
-		conn connect.StreamingHandlerConn,
-	) error {
-		ctx = logger.SetLogger(ctx, i.l.With(
-			slog.String("rpc_name", getRPCNameFromSpec(conn.Spec())),
-			slog.String("request_id", uuid.NewString()),
-		))
-
-		logger.FromCtx(ctx).Info("success to connect streaming")
-
-		err := next(ctx, conn)
-		if err != nil {
-			logger.FromCtx(ctx).Error("failed to streaming", slog.Any("error", err))
-			return err
-		}
-
-		logger.FromCtx(ctx).Info("success to disconnect streaming")
-
-		return err
 	}
 }

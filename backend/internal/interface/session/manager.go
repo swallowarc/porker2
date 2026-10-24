@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"connectrpc.com/authn"
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
 
 	"github.com/swallowarc/porker2/backend/internal/core/merror"
 	"github.com/swallowarc/porker2/backend/internal/domain/user"
@@ -24,8 +24,8 @@ type (
 	Manager interface {
 		VerifyToken(ctx context.Context, req *http.Request) (any, error)
 		UserIDFromCtx(ctx context.Context) user.ID
-		SetCookie(res connect.AnyResponse, token string)
-		RefreshCookie(ctx context.Context, res connect.AnyResponse)
+		SetCookie(ctx context.Context, token string)
+		RefreshCookie(ctx context.Context)
 	}
 
 	manager struct {
@@ -82,7 +82,12 @@ func (m *manager) UserIDFromCtx(ctx context.Context) user.ID {
 	return ssn.UserID
 }
 
-func (m *manager) SetCookie(res connect.AnyResponse, token string) {
+func (m *manager) SetCookie(ctx context.Context, token string) {
+	info, ok := connect.CallInfoForServerContext(ctx)
+	if !ok {
+		return
+	}
+
 	cookie := &http.Cookie{
 		Name:     CookieKey,
 		Value:    token,
@@ -93,15 +98,15 @@ func (m *manager) SetCookie(res connect.AnyResponse, token string) {
 		HttpOnly: false,
 		SameSite: http.SameSiteLaxMode,
 	}
-	res.Header().Set("Set-Cookie", cookie.String())
+	info.ResponseHeader().Set("Set-Cookie", cookie.String())
 }
 
-func (m *manager) RefreshCookie(ctx context.Context, res connect.AnyResponse) {
+func (m *manager) RefreshCookie(ctx context.Context) {
 	info := authn.GetInfo(ctx)
 	ssn, ok := info.(session)
 	if !ok {
 		return
 	}
 
-	m.SetCookie(res, ssn.Token)
+	m.SetCookie(ctx, ssn.Token)
 }
