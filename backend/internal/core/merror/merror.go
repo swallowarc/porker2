@@ -4,7 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
+	"connectrpc.com/connect/v2/connectproto"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 )
 
@@ -13,7 +14,7 @@ func ViolationTypeFromError(e error) string {
 	if errors.As(e, &connErr) {
 		details := connErr.Details()
 		for _, detail := range details {
-			pb, err := detail.Value()
+			pb, err := connectproto.UnmarshalErrorDetail(detail)
 			if err != nil {
 				continue
 			}
@@ -34,7 +35,7 @@ func CodeFromError(err error) connect.Code {
 }
 
 func NewNotFound(messageFormat string, args ...any) error {
-	return connect.NewError(connect.CodeNotFound, fmt.Errorf(messageFormat, args...))
+	return connect.Errorf(connect.CodeNotFound, messageFormat, args...)
 }
 
 func IsNotFound(err error) bool {
@@ -42,7 +43,7 @@ func IsNotFound(err error) bool {
 }
 
 func NewFailedPrecondition(violationType string, messageFormat string, args ...any) error {
-	ret := connect.NewError(connect.CodeFailedPrecondition, fmt.Errorf(messageFormat, args...))
+	ret := connect.Errorf(connect.CodeFailedPrecondition, messageFormat, args...)
 
 	if violationType == "" {
 		return ret
@@ -51,11 +52,11 @@ func NewFailedPrecondition(violationType string, messageFormat string, args ...a
 	edt := &errdetails.PreconditionFailure_Violation{
 		Type: violationType,
 	}
-	detail, err := connect.NewErrorDetail(edt)
+	detail, err := connectproto.NewErrorDetail(edt)
 	if err != nil {
 		return err
 	}
-	ret.AddDetail(detail)
+	ret = ret.WithDetail(detail)
 
 	return ret
 }
@@ -81,21 +82,21 @@ func (f *FieldViolation) toProto() *errdetails.BadRequest_FieldViolation {
 }
 
 func NewPermissionDenied(messageFormat string, args ...any) error {
-	return connect.NewError(connect.CodePermissionDenied, fmt.Errorf(messageFormat, args...))
+	return connect.Errorf(connect.CodePermissionDenied, messageFormat, args...)
 }
 
 func NewInvalidArgument(fvs FieldViolations, messageFormat string, args ...any) error {
-	ret := connect.NewError(connect.CodeInvalidArgument, fmt.Errorf(messageFormat, args...))
+	ret := connect.Errorf(connect.CodeInvalidArgument, messageFormat, args...)
 	if len(fvs) == 0 {
 		return ret
 	}
 
 	for _, fv := range fvs {
-		detail, err := connect.NewErrorDetail(fv.toProto())
+		detail, err := connectproto.NewErrorDetail(fv.toProto())
 		if err != nil {
 			return err
 		}
-		ret.AddDetail(detail)
+		ret = ret.WithDetail(detail)
 	}
 
 	return ret
@@ -106,11 +107,11 @@ func IsInvalidArgument(err error) bool {
 }
 
 func NewInternal(messageFormat string, args ...any) error {
-	return connect.NewError(connect.CodeInternal, fmt.Errorf(messageFormat, args...))
+	return connect.Errorf(connect.CodeInternal, messageFormat, args...)
 }
 
 func WrapInternal(err error, messageFormat string, args ...any) error {
-	return connect.NewError(connect.CodeInternal, fmt.Errorf("%s: %w", fmt.Sprintf(messageFormat, args...), err))
+	return connect.Errorf(connect.CodeInternal, "%s: %v", fmt.Sprintf(messageFormat, args...), err).WithCause(err)
 }
 
 func IsInternal(err error) bool {
@@ -118,11 +119,11 @@ func IsInternal(err error) bool {
 }
 
 func NewUnauthenticated(messageFormat string, args ...any) error {
-	return connect.NewError(connect.CodeUnauthenticated, fmt.Errorf(messageFormat, args...))
+	return connect.Errorf(connect.CodeUnauthenticated, messageFormat, args...)
 }
 
 func NewAlreadyExists(messageFormat string, args ...any) error {
-	return connect.NewError(connect.CodeAlreadyExists, fmt.Errorf(messageFormat, args...))
+	return connect.Errorf(connect.CodeAlreadyExists, messageFormat, args...)
 }
 
 func IsAlreadyExists(err error) bool {
@@ -130,7 +131,7 @@ func IsAlreadyExists(err error) bool {
 }
 
 func NewUnavailable(messageFormat string, args ...any) error {
-	return connect.NewError(connect.CodeUnavailable, fmt.Errorf(messageFormat, args...))
+	return connect.Errorf(connect.CodeUnavailable, messageFormat, args...)
 }
 
 func IsCanceled(err error) bool {
@@ -138,5 +139,5 @@ func IsCanceled(err error) bool {
 }
 
 func NewCanceled(messageFormat string, args ...any) error {
-	return connect.NewError(connect.CodeCanceled, fmt.Errorf(messageFormat, args...))
+	return connect.Errorf(connect.CodeCanceled, messageFormat, args...)
 }
