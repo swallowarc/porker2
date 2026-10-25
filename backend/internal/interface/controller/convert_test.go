@@ -16,8 +16,8 @@ func TestRequestFields_Valid(t *testing.T) {
 	var f requestFields
 	uid := user.NewID()
 
-	assert.Equal(t, poker.RoomID("12345"), f.roomID("12345"))
-	assert.Equal(t, user.Name("alice"), f.userName("alice"))
+	assert.Equal(t, poker.MustRoomID("12345"), f.roomID("12345"))
+	assert.Equal(t, user.MustName("alice"), f.userName("alice"))
 	assert.Equal(t, uid, f.userID("target_user_id", uid.String()))
 	assert.Equal(t, poker.Point5, f.point(pb.Point_POINT_5))
 	assert.Equal(t, poker.PointUnspecified, f.point(pb.Point_POINT_UNSPECIFIED), "未投票に戻す操作として許容")

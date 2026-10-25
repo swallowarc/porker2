@@ -56,7 +56,7 @@ func TestPokerRepository_CreateRoom(t *testing.T) {
 }
 
 func TestPokerRepository_GetRoom(t *testing.T) {
-	roomID := poker.RoomID("12345")
+	roomID := poker.MustRoomID("12345")
 
 	t.Run("存在しない部屋は NotFound", func(t *testing.T) {
 		mem := mock_gateway.NewMockMemDBClient(gomock.NewController(t))
@@ -79,8 +79,8 @@ func TestPokerRepository_GetRoom(t *testing.T) {
 func TestRoomModel_RoundTrip(t *testing.T) {
 	room := poker.NewRoom()
 	u1 := user.NewID()
-	require.NoError(t, room.Join(u1, user.Name("alice")))
-	require.NoError(t, room.Join(user.NewID(), user.Name("bob")))
+	require.NoError(t, room.Join(u1, user.MustName("alice")))
+	require.NoError(t, room.Join(user.NewID(), user.MustName("bob")))
 	room.Vote(u1, poker.Point5)
 	room.UpdateSetting(false, poker.DisplayModeTShirt)
 
@@ -106,7 +106,7 @@ func TestRoomModel_LegacyJSONIsReadable(t *testing.T) {
 
 	room, err := decodeRoom(legacy)
 	require.NoError(t, err)
-	assert.Equal(t, poker.RoomID("12345"), room.RoomID())
+	assert.Equal(t, poker.MustRoomID("12345"), room.RoomID())
 	assert.Equal(t, u1, room.AdminUserID())
 	assert.Equal(t, int32(1), room.ObserverCount(), "observer_count は無視され ballots から導出される")
 	assert.True(t, room.Ballots()[0].IsObserver())

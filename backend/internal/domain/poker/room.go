@@ -33,7 +33,7 @@ type Room struct {
 func NewRoom() *Room {
 	return &Room{
 		roomID:      newRoomID(),
-		adminUserID: "",
+		adminUserID: user.ID{},
 		voteState:   VoteStateHide,
 		ballots:     []*Ballot{},
 		autoOpen:    true,
@@ -127,7 +127,7 @@ func (c *Room) Leave(userID user.ID) {
 	}
 
 	if c.adminUserID == userID {
-		c.adminUserID = ""
+		c.adminUserID = user.ID{}
 		if len(c.ballots) > 0 {
 			c.adminUserID = c.ballots[0].userID
 		}

@@ -14,7 +14,7 @@ import (
 	mock_gateway "github.com/swallowarc/porker2/backend/internal/test/mock/gateway"
 )
 
-var testUserID = user.ID("0f2d6c9e-4b1a-4c3d-9e8f-123456789abc")
+var testUserID = user.MustParseID("0f2d6c9e-4b1a-4c3d-9e8f-123456789abc")
 
 func TestUserRepository_NotFoundIsPreserved(t *testing.T) {
 	// usecase 層は merror.IsNotFound で分岐するので、repository は NotFound を Internal に包んではいけない。
@@ -32,7 +32,7 @@ func TestUserRepository_NotFoundIsPreserved(t *testing.T) {
 		mem := mock_gateway.NewMockMemDBClient(gomock.NewController(t))
 		mem.EXPECT().Get(gomock.Any(), userIDKey(testUserID)).Return("", notFound)
 
-		err := NewUserRepository(mem).UpdateRoomID(context.Background(), testUserID, poker.RoomID("12345"))
+		err := NewUserRepository(mem).UpdateRoomID(context.Background(), testUserID, poker.MustRoomID("12345"))
 		assert.True(t, merror.IsNotFound(err), "got: %v", err)
 	})
 
@@ -78,9 +78,9 @@ func TestUserRepository_GetByID(t *testing.T) {
 
 		name, token, roomID, err := NewUserRepository(mem).GetByID(context.Background(), testUserID)
 		require.NoError(t, err)
-		assert.Equal(t, user.Name("alice"), name)
+		assert.Equal(t, user.MustName("alice"), name)
 		assert.Equal(t, "tk", token)
-		assert.Equal(t, poker.RoomID("12345"), roomID)
+		assert.Equal(t, poker.MustRoomID("12345"), roomID)
 	})
 
 	t.Run("未参加 (room_id 省略) はゼロ値の RoomID", func(t *testing.T) {
@@ -107,5 +107,5 @@ func TestUserRepository_UpdateRoomID_ClearsWithZeroValue(t *testing.T) {
 			return nil
 		})
 
-	assert.NoError(t, NewUserRepository(mem).UpdateRoomID(context.Background(), testUserID, poker.RoomID("")))
+	assert.NoError(t, NewUserRepository(mem).UpdateRoomID(context.Background(), testUserID, poker.RoomID{}))
 }

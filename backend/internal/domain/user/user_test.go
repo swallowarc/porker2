@@ -13,12 +13,13 @@ func TestNewName(t *testing.T) {
 		n, err := NewName(raw)
 		assert.NoError(t, err, raw)
 		assert.Equal(t, raw, n.String())
-		assert.Equal(t, Name(raw), n)
+		assert.Equal(t, MustName(raw), n)
 	}
 	for _, raw := range []string{"", "01234567890", "あ", "a b", "a.b", "a@b"} {
 		_, err := NewName(raw)
 		assert.True(t, merror.IsInvalidArgument(err), "raw=%q err=%v", raw, err)
 	}
+	assert.Panics(t, func() { MustName("") })
 }
 
 func TestParseID(t *testing.T) {
@@ -28,12 +29,13 @@ func TestParseID(t *testing.T) {
 	parsed, err := ParseID(id.String())
 	assert.NoError(t, err)
 	assert.Equal(t, id, parsed)
-	assert.Equal(t, id, ID(id.String()))
+	assert.Equal(t, id, MustParseID(id.String()))
 
 	for _, raw := range []string{"", "not-uuid", "0f2d6c9e-4b1a-4c3d-9e8f"} {
 		_, err := ParseID(raw)
 		assert.True(t, merror.IsInvalidArgument(err), "raw=%q err=%v", raw, err)
 	}
 
-	assert.True(t, ID("").IsZero())
+	assert.True(t, ID{}.IsZero())
+	assert.Panics(t, func() { MustParseID("x") })
 }
