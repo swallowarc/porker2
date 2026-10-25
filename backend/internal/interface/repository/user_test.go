@@ -14,7 +14,7 @@ import (
 	mock_gateway "github.com/swallowarc/porker2/backend/internal/test/mock/gateway"
 )
 
-const testUserID = user.ID("0f2d6c9e-4b1a-4c3d-9e8f-123456789abc")
+var testUserID = user.ID("0f2d6c9e-4b1a-4c3d-9e8f-123456789abc")
 
 func TestUserRepository_NotFoundIsPreserved(t *testing.T) {
 	// usecase 層は merror.IsNotFound で分岐するので、repository は NotFound を Internal に包んではいけない。
@@ -61,10 +61,18 @@ func TestUserRepository_GetByID(t *testing.T) {
 		assert.True(t, merror.IsInternal(err), "got: %v", err)
 	})
 
+	t.Run("事前条件を満たさない値は Internal (ドメイン型に復元できない)", func(t *testing.T) {
+		mem := mock_gateway.NewMockMemDBClient(gomock.NewController(t))
+		mem.EXPECT().Get(gomock.Any(), userIDKey(testUserID)).
+			Return(`{"id":"`+testUserID.String()+`","name":"alice","token":"tk","room_id":"abc"}`, nil)
+
+		_, _, _, err := NewUserRepository(mem).GetByID(context.Background(), testUserID)
+		assert.True(t, merror.IsInternal(err), "got: %v", err)
+	})
+
 	t.Run("正常系", func(t *testing.T) {
 		mem := mock_gateway.NewMockMemDBClient(gomock.NewController(t))
-		u := &userModel{ID: testUserID, Name: "alice", Token: "tk", RoomID: "12345"}
-		j, err := u.jsonMarshalUserInfo()
+		j, err := encodeUser(&userModel{ID: testUserID.String(), Name: "alice", Token: "tk", RoomID: "12345"})
 		require.NoError(t, err)
 		mem.EXPECT().Get(gomock.Any(), userIDKey(testUserID)).Return(j, nil)
 
@@ -74,4 +82,30 @@ func TestUserRepository_GetByID(t *testing.T) {
 		assert.Equal(t, "tk", token)
 		assert.Equal(t, poker.RoomID("12345"), roomID)
 	})
+
+	t.Run("未参加 (room_id 省略) はゼロ値の RoomID", func(t *testing.T) {
+		mem := mock_gateway.NewMockMemDBClient(gomock.NewController(t))
+		mem.EXPECT().Get(gomock.Any(), userIDKey(testUserID)).
+			Return(`{"id":"`+testUserID.String()+`","name":"alice","token":"tk"}`, nil)
+
+		_, _, roomID, err := NewUserRepository(mem).GetByID(context.Background(), testUserID)
+		require.NoError(t, err)
+		assert.True(t, roomID.IsZero())
+	})
+}
+
+func TestUserRepository_UpdateRoomID_ClearsWithZeroValue(t *testing.T) {
+	mem := mock_gateway.NewMockMemDBClient(gomock.NewController(t))
+	j, err := encodeUser(&userModel{ID: testUserID.String(), Name: "alice", Token: "tk", RoomID: "12345"})
+	require.NoError(t, err)
+	mem.EXPECT().Get(gomock.Any(), userIDKey(testUserID)).Return(j, nil)
+	mem.EXPECT().Set(gomock.Any(), userIDKey(testUserID), gomock.Any(), user.SessionLifetimeDuration).
+		DoAndReturn(func(_ context.Context, _ string, v any, _ any) error {
+			m, err := decodeUser(v.(string))
+			require.NoError(t, err)
+			assert.Equal(t, "", m.RoomID, "ゼロ値の RoomID は room_id を空にする")
+			return nil
+		})
+
+	assert.NoError(t, NewUserRepository(mem).UpdateRoomID(context.Background(), testUserID, poker.RoomID("")))
 }

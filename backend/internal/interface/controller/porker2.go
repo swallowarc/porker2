@@ -118,13 +118,13 @@ func (p *porker2) JoinRoom(ctx context.Context, r *pb.JoinRoomRequest, stream pb
 		return err
 	}
 
-	fn := func(ctx context.Context, rc *poker.Room) (bool, error) {
+	fn := func(ctx context.Context, room *poker.Room) (bool, error) {
 		if err := stream.Send(&pb.JoinRoomResponse{
-			Condition: roomToProto(rc),
+			Condition: roomToProto(room),
 		}); err != nil {
 			return false, err
 		}
-		logger.FromCtx(ctx).Debug("room condition sent", slog.String("room_id", rc.RoomID.String()))
+		logger.FromCtx(ctx).Debug("room condition sent", slog.String("room_id", room.RoomID().String()))
 		return true, nil
 	}
 

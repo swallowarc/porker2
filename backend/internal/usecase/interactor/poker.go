@@ -60,7 +60,7 @@ func (i *pokerInteractor) JoinRoom(ctx context.Context, userID user.ID, roomID p
 		return asSessionError(err)
 	}
 
-	if joinedRoomID != "" && joinedRoomID != roomID {
+	if !joinedRoomID.IsZero() && joinedRoomID != roomID {
 		logger.FromCtx(ctx).Info("leave the room because the user is already in other room",
 			slog.String("user_id", userID.String()),
 			slog.String("room_id", joinedRoomID.String()),
@@ -85,7 +85,7 @@ func (i *pokerInteractor) JoinRoom(ctx context.Context, userID user.ID, roomID p
 
 	if err := i.pokerRepo.SubscribeRoom(ctx, roomID, func(ctx context.Context, c *poker.Room) (bool, error) {
 		if !c.IsUserIn(userID) {
-			logger.FromCtx(ctx).Info("stop subscribing room condition (user is not in the room)")
+			logger.FromCtx(ctx).Info("stop subscribing room (user is not in the room)")
 			return false, nil
 		}
 		return fn(ctx, c)
@@ -103,12 +103,12 @@ func (i *pokerInteractor) LeaveRoom(ctx context.Context, userID user.ID) error {
 		return asSessionError(err)
 	}
 	// If the user is not in any room, do nothing.
-	if joinedRoomID == "" {
+	if joinedRoomID.IsZero() {
 		return nil
 	}
 
 	err = i.pokerRepo.UpdateRoomWithLock(ctx, joinedRoomID, func(ctx context.Context, c *poker.Room) error {
-		if err := i.userRepo.UpdateRoomID(ctx, userID, poker.RoomID("")); err != nil {
+		if err := i.userRepo.UpdateRoomID(ctx, userID, ""); err != nil {
 			return err
 		}
 		c.Leave(userID)
@@ -129,7 +129,7 @@ func (i *pokerInteractor) LeaveRoom(ctx context.Context, userID user.ID) error {
 		slog.String("room_id", joinedRoomID.String()),
 	)
 
-	return asSessionError(i.userRepo.UpdateRoomID(ctx, userID, poker.RoomID("")))
+	return asSessionError(i.userRepo.UpdateRoomID(ctx, userID, ""))
 }
 
 func (i *pokerInteractor) CastVote(ctx context.Context, userID user.ID, roomID poker.RoomID, point poker.Point) error {

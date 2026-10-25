@@ -13,7 +13,7 @@ const (
 )
 
 // ID は UUID 形式のユーザー識別子。
-// 新規発行は NewID、外部入力からの復元は ParseID を使うこと。
+// 新規発行は NewID、外部入力からの復元は ParseID を使う。ゼロ値は「ユーザー不在」を表す (IsZero)。
 type ID string
 
 func NewID() ID {
@@ -30,4 +30,8 @@ func ParseID(raw string) (ID, error) {
 
 func (s ID) String() string {
 	return string(s)
+}
+
+func (s ID) IsZero() bool {
+	return s == ""
 }

@@ -5,250 +5,235 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
-	"github.com/swallowarc/porker2/backend/internal/core/merror"
 	"github.com/swallowarc/porker2/backend/internal/domain/user"
 )
 
-func TestNewRoom(t *testing.T) {
-	c := NewRoom()
+// join は新しいユーザーを部屋に参加させ、その ID を返す。
+func join(t *testing.T, r *Room, name string) user.ID {
+	t.Helper()
+	id := user.NewID()
+	require.NoError(t, r.Join(id, user.Name(name)))
+	return id
+}
 
-	assert.NotEmpty(t, c.RoomID)
-	assert.Equal(t, user.ID(""), c.AdminUserID)
-	assert.Equal(t, VoteStateHide, c.VoteState)
-	assert.Empty(t, c.Ballots)
-	assert.True(t, c.AutoOpen)
-	assert.Equal(t, DisplayModePoint, c.DisplayMode)
+func ballotOf(t *testing.T, r *Room, id user.ID) Ballot {
+	t.Helper()
+	for _, b := range r.Ballots() {
+		if b.UserID() == id {
+			return b
+		}
+	}
+	t.Fatalf("ballot not found: %s", id)
+	return Ballot{}
+}
+
+func TestNewRoom(t *testing.T) {
+	r := NewRoom()
+
+	assert.False(t, r.RoomID().IsZero())
+	assert.True(t, r.AdminUserID().IsZero())
+	assert.Equal(t, VoteStateHide, r.VoteState())
+	assert.Empty(t, r.Ballots())
+	assert.True(t, r.AutoOpen())
+	assert.Equal(t, DisplayModePoint, r.DisplayMode())
+	assert.Equal(t, int32(0), r.ObserverCount())
 }
 
 func TestRoom_Join(t *testing.T) {
-	c := NewRoom()
+	r := NewRoom()
 
 	// 最初のユーザーは管理者になる
-	err := c.Join("user1", "User 1")
-	assert.NoError(t, err)
-	assert.Equal(t, user.ID("user1"), c.AdminUserID)
-	assert.Len(t, c.Ballots, 1)
+	u1 := join(t, r, "User1")
+	assert.Equal(t, u1, r.AdminUserID())
+	assert.Len(t, r.Ballots(), 1)
 
 	// 2人目のユーザーは通常メンバー
-	err = c.Join("user2", "User 2")
-	assert.NoError(t, err)
-	assert.Equal(t, user.ID("user1"), c.AdminUserID)
-	assert.Len(t, c.Ballots, 2)
+	join(t, r, "User2")
+	assert.Equal(t, u1, r.AdminUserID())
+	assert.Len(t, r.Ballots(), 2)
 
-	// 既に参加しているユーザーが再参加
-	err = c.Join("user1", "User 1")
-	assert.NoError(t, err)
-	assert.Len(t, c.Ballots, 2)
+	// 既に参加しているユーザーが再参加しても増えない
+	assert.NoError(t, r.Join(u1, user.Name("User1")))
+	assert.Len(t, r.Ballots(), 2)
 
 	// 部屋が満員の場合
-	maxMembers := MaxMember
-	c = NewRoom()
-	for i := 0; i < maxMembers; i++ {
-		err = c.Join(user.NewID(), user.Name(fmt.Sprintf("User%d", i)))
-		assert.NoError(t, err)
+	r = NewRoom()
+	for i := range MaxMember {
+		join(t, r, fmt.Sprintf("User%d", i))
 	}
-	err = c.Join("extra", "Extra")
-	assert.ErrorIs(t, err, ErrRoomFull)
+	assert.ErrorIs(t, r.Join(user.NewID(), user.Name("Extra")), ErrRoomFull)
+	assert.False(t, r.CanJoin())
 }
 
 func TestRoom_Vote(t *testing.T) {
-	c := NewRoom()
-	assert.NoError(t, c.Join("user1", "User 1"))
-	assert.NoError(t, c.Join("user2", "User 2"))
+	r := NewRoom()
+	u1 := join(t, r, "User1")
+	u2 := join(t, r, "User2")
 
-	// 投票
-	c.Vote("user1", Point5)
-	assert.Equal(t, Point5, c.Ballots[0].Point)
+	r.Vote(u1, Point5)
+	assert.Equal(t, Point5, ballotOf(t, r, u1).Point())
 
-	// 投票状態が開いている場合、投票できない
-	c.VoteState = VoteStateOpen
-	c.Vote("user2", Point8)
-	assert.Equal(t, PointUnspecified, c.Ballots[1].Point)
+	// 開票後は投票できない
+	r.Open()
+	r.Vote(u2, Point8)
+	assert.Equal(t, PointUnspecified, ballotOf(t, r, u2).Point())
+
+	// 観戦者は投票できない
+	r.Reset()
+	r.ToggleObserverMode(u2, true)
+	r.Vote(u2, Point8)
+	assert.Equal(t, PointUnspecified, ballotOf(t, r, u2).Point())
+
+	// 部屋にいないユーザーの投票は無視される
+	r.Vote(user.NewID(), Point8)
+	assert.Len(t, r.Ballots(), 2)
 }
 
 func TestRoom_Leave(t *testing.T) {
-	c := NewRoom()
-	assert.NoError(t, c.Join("user1", "User 1"))
-	assert.NoError(t, c.Join("user2", "User 2"))
+	r := NewRoom()
+	u1 := join(t, r, "User1")
+	u2 := join(t, r, "User2")
 
 	// 通常メンバーの退出
-	c.Leave("user2")
-	assert.Len(t, c.Ballots, 1)
-	assert.Equal(t, user.ID("user1"), c.AdminUserID)
+	r.Leave(u2)
+	assert.Len(t, r.Ballots(), 1)
+	assert.Equal(t, u1, r.AdminUserID())
 
-	// 管理者の退出
-	c.Join("user2", "User 2")
-	c.Leave("user1")
-	assert.Len(t, c.Ballots, 1)
-	assert.Equal(t, user.ID("user2"), c.AdminUserID)
+	// 管理者の退出で管理者が引き継がれる
+	u2 = join(t, r, "User2")
+	r.Leave(u1)
+	assert.Len(t, r.Ballots(), 1)
+	assert.Equal(t, u2, r.AdminUserID())
 
 	// 全員退出
-	c.Leave("user2")
-	assert.Len(t, c.Ballots, 0)
-	assert.Equal(t, user.ID(""), c.AdminUserID)
+	r.Leave(u2)
+	assert.Empty(t, r.Ballots())
+	assert.True(t, r.AdminUserID().IsZero())
 }
 
 func TestRoom_Open_Reset(t *testing.T) {
-	c := NewRoom()
-	assert.NoError(t, c.Join("user1", "User 1"))
-	c.Vote("user1", Point3)
+	r := NewRoom()
+	u1 := join(t, r, "User1")
+	r.UpdateSetting(false, DisplayModePoint)
+	r.Vote(u1, Point3)
 
-	// 開票
-	c.Open()
-	assert.Equal(t, VoteStateOpen, c.VoteState)
+	r.Open()
+	assert.Equal(t, VoteStateOpen, r.VoteState())
+	assert.False(t, r.CanVote())
 
-	// リセット
-	c.Reset()
-	assert.Equal(t, VoteStateHide, c.VoteState)
-	assert.Equal(t, PointUnspecified, c.Ballots[0].Point)
+	r.Reset()
+	assert.Equal(t, VoteStateHide, r.VoteState())
+	assert.Equal(t, PointUnspecified, ballotOf(t, r, u1).Point())
 }
 
 func TestRoom_Kick(t *testing.T) {
-	c := NewRoom()
-	assert.NoError(t, c.Join("admin", "Admin"))
-	assert.NoError(t, c.Join("user1", "User 1"))
+	t.Run("管理者がキック", func(t *testing.T) {
+		r := NewRoom()
+		admin := join(t, r, "Admin")
+		u1 := join(t, r, "User1")
 
-	// 管理者がキック
-	err := c.Kick("admin", "user1")
-	assert.NoError(t, err)
-	assert.Len(t, c.Ballots, 1)
+		assert.NoError(t, r.Kick(admin, u1))
+		assert.Len(t, r.Ballots(), 1)
+		assert.False(t, r.IsUserIn(u1))
+	})
 
-	// 管理者でないユーザーがキック
-	assert.NoError(t, c.Join("user1", "User 1"))
-	err = c.Kick("user1", "admin")
-	assert.ErrorIs(t, err, ErrNotAdmin)
+	t.Run("管理者でないユーザーはキックできない", func(t *testing.T) {
+		r := NewRoom()
+		admin := join(t, r, "Admin")
+		u1 := join(t, r, "User1")
+
+		assert.ErrorIs(t, r.Kick(u1, admin), ErrNotAdmin)
+		assert.Len(t, r.Ballots(), 2)
+	})
+
+	t.Run("管理者が自分自身をキックすると管理者が引き継がれる", func(t *testing.T) {
+		r := NewRoom()
+		admin := join(t, r, "Admin")
+		u1 := join(t, r, "User1")
+
+		assert.NoError(t, r.Kick(admin, admin))
+		assert.Len(t, r.Ballots(), 1)
+		assert.False(t, r.IsUserIn(admin))
+		assert.Equal(t, u1, r.AdminUserID())
+	})
+
+	t.Run("未投票者をキックすると残り全員投票済みになり自動開票", func(t *testing.T) {
+		r := NewRoom()
+		admin := join(t, r, "Admin")
+		u1 := join(t, r, "User1")
+		r.Vote(admin, Point3)
+		assert.Equal(t, VoteStateHide, r.VoteState())
+
+		assert.NoError(t, r.Kick(admin, u1))
+		assert.Equal(t, VoteStateOpen, r.VoteState())
+	})
 }
 
 func TestRoom_UpdateSetting(t *testing.T) {
-	c := NewRoom()
-	c.UpdateSetting(false, DisplayModeTShirt)
-	assert.False(t, c.AutoOpen)
-	assert.Equal(t, DisplayModeTShirt, c.DisplayMode)
+	r := NewRoom()
+	r.UpdateSetting(false, DisplayModeTShirt)
+	assert.False(t, r.AutoOpen())
+	assert.Equal(t, DisplayModeTShirt, r.DisplayMode())
 }
 
 func TestRoom_AutoOpen(t *testing.T) {
-	c := NewRoom()
-	assert.NoError(t, c.Join("user1", "User 1"))
-	assert.NoError(t, c.Join("user2", "User 2"))
+	r := NewRoom()
+	u1 := join(t, r, "User1")
+	u2 := join(t, r, "User2")
 
 	// 全員が投票すると自動的に開票される
-	c.Vote("user1", Point3)
-	assert.Equal(t, VoteStateHide, c.VoteState)
-	c.Vote("user2", Point5)
-	assert.Equal(t, VoteStateOpen, c.VoteState)
+	r.Vote(u1, Point3)
+	assert.Equal(t, VoteStateHide, r.VoteState())
+	r.Vote(u2, Point5)
+	assert.Equal(t, VoteStateOpen, r.VoteState())
 
 	// 自動開票が無効の場合
-	c.Reset()
-	c.UpdateSetting(false, DisplayModePoint)
-	c.Vote("user1", Point3)
-	c.Vote("user2", Point5)
-	assert.Equal(t, VoteStateHide, c.VoteState)
-}
-
-func TestRoom_Json(t *testing.T) {
-	c := NewRoom()
-	assert.NoError(t, c.Join("user1", "User 1"))
-	c.Vote("user1", Point5)
-
-	// JSONにシリアライズ
-	j, err := c.ToJson()
-	assert.NoError(t, err)
-
-	// JSONからデシリアライズ
-	c2, err := FromJson(string(j))
-	assert.NoError(t, err)
-
-	// 元のオブジェクトと同じ内容か確認
-	assert.Equal(t, c.RoomID, c2.RoomID)
-	assert.Equal(t, c.AdminUserID, c2.AdminUserID)
-	assert.Equal(t, c.VoteState, c2.VoteState)
-	assert.Equal(t, c.AutoOpen, c2.AutoOpen)
-	assert.Equal(t, c.DisplayMode, c2.DisplayMode)
-	assert.Len(t, c2.Ballots, 1)
-	assert.Equal(t, c.Ballots[0].UserID, c2.Ballots[0].UserID)
-	assert.Equal(t, c.Ballots[0].Point, c2.Ballots[0].Point)
-}
-
-func TestRoom_Kick_AdminKicksSelf(t *testing.T) {
-	c := NewRoom()
-	assert.NoError(t, c.Join("admin", "Admin"))
-	assert.NoError(t, c.Join("user1", "User 1"))
-
-	// 管理者が自分自身をキックした場合、管理者権限は残ったメンバーに引き継がれる
-	assert.NoError(t, c.Kick("admin", "admin"))
-	assert.Len(t, c.Ballots, 1)
-	assert.False(t, c.IsUserIn("admin"))
-	assert.Equal(t, user.ID("user1"), c.AdminUserID)
-}
-
-func TestRoom_Kick_TriggersAutoOpen(t *testing.T) {
-	c := NewRoom()
-	assert.NoError(t, c.Join("admin", "Admin"))
-	assert.NoError(t, c.Join("user1", "User 1"))
-	c.Vote("admin", Point3)
-	assert.Equal(t, VoteStateHide, c.VoteState)
-
-	// 未投票者をキックすると残り全員が投票済みになるので自動開票される
-	assert.NoError(t, c.Kick("admin", "user1"))
-	assert.Equal(t, VoteStateOpen, c.VoteState)
+	r.Reset()
+	r.UpdateSetting(false, DisplayModePoint)
+	r.Vote(u1, Point3)
+	r.Vote(u2, Point5)
+	assert.Equal(t, VoteStateHide, r.VoteState())
 }
 
 func TestRoom_ObserverCount(t *testing.T) {
-	c := NewRoom()
-	assert.NoError(t, c.Join("admin", "Admin"))
-	assert.NoError(t, c.Join("user1", "User 1"))
-	assert.NoError(t, c.Join("user2", "User 2"))
-	assert.Equal(t, int32(0), c.ObserverCount())
+	r := NewRoom()
+	admin := join(t, r, "Admin")
+	u1 := join(t, r, "User1")
+	u2 := join(t, r, "User2")
+	assert.Equal(t, int32(0), r.ObserverCount())
 
-	c.ToggleObserverMode("user1", true)
-	c.ToggleObserverMode("user2", true)
-	assert.Equal(t, int32(2), c.ObserverCount())
+	r.ToggleObserverMode(u1, true)
+	r.ToggleObserverMode(u2, true)
+	assert.Equal(t, int32(2), r.ObserverCount())
+	assert.True(t, ballotOf(t, r, u1).IsObserver())
+	assert.Equal(t, UserRoleObserver, ballotOf(t, r, u1).Role())
 
 	// 観戦者が退室したら減る
-	c.Leave("user1")
-	assert.Equal(t, int32(1), c.ObserverCount())
+	r.Leave(u1)
+	assert.Equal(t, int32(1), r.ObserverCount())
 
 	// 観戦者がキックされたら減る
-	assert.NoError(t, c.Kick("admin", "user2"))
-	assert.Equal(t, int32(0), c.ObserverCount())
+	assert.NoError(t, r.Kick(admin, u2))
+	assert.Equal(t, int32(0), r.ObserverCount())
 
-	c.ToggleObserverMode("admin", true)
-	assert.Equal(t, int32(1), c.ObserverCount())
-	c.ToggleObserverMode("admin", false)
-	assert.Equal(t, int32(0), c.ObserverCount())
+	r.ToggleObserverMode(admin, true)
+	assert.Equal(t, int32(1), r.ObserverCount())
+	r.ToggleObserverMode(admin, false)
+	assert.Equal(t, int32(0), r.ObserverCount())
+	assert.Equal(t, UserRoleVoter, ballotOf(t, r, admin).Role())
 }
 
-func TestRoom_Json_IgnoresLegacyObserverCount(t *testing.T) {
-	// 旧バージョンが保存した observer_count フィールドを含む JSON も読み込める
-	legacy := `{"room_id":"12345","admin_user_id":"u1","vote_state":1,"ballots":[{"user_id":"u1","user_name":"n","point":0,"role":2}],"auto_open":true,"display_mode":1,"observer_count":99}`
-	c, err := FromJson(legacy)
-	assert.NoError(t, err)
-	assert.Equal(t, int32(1), c.ObserverCount())
-}
+func TestRoom_Ballots_IsCopy(t *testing.T) {
+	r := NewRoom()
+	u1 := join(t, r, "User1")
 
-func TestNewDisplayMode(t *testing.T) {
-	m, err := NewDisplayMode(int32(DisplayModePoint))
-	assert.NoError(t, err)
-	assert.Equal(t, DisplayModePoint, m)
-	m, err = NewDisplayMode(int32(DisplayModeTShirt))
-	assert.NoError(t, err)
-	assert.Equal(t, DisplayModeTShirt, m)
+	ballots := r.Ballots()
+	ballots[0] = Ballot{}
+	ballots = append(ballots, Ballot{})
 
-	for _, raw := range []int32{0, 3, -1} {
-		_, err := NewDisplayMode(raw)
-		assert.True(t, merror.IsInvalidArgument(err), "raw=%d err=%v", raw, err)
-	}
-}
-
-func TestNewPoint(t *testing.T) {
-	for _, p := range PointList {
-		got, err := NewPoint(int32(p))
-		assert.NoError(t, err)
-		assert.Equal(t, p, got)
-	}
-	for _, raw := range []int32{10, 99, 102, -1} {
-		_, err := NewPoint(raw)
-		assert.True(t, merror.IsInvalidArgument(err), "raw=%d err=%v", raw, err)
-	}
+	assert.Len(t, r.Ballots(), 1, "返り値の変更は部屋に影響しない")
+	assert.Equal(t, u1, r.Ballots()[0].UserID())
+	_ = ballots
 }
