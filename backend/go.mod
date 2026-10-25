@@ -1,6 +1,6 @@
 module github.com/swallowarc/porker2/backend
 
-go 1.26.3
+go 1.27.3
 
 require (
 	connectrpc.com/authn v0.2.0

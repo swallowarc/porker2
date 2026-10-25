@@ -111,6 +111,10 @@ func (p *porker2) CreateRoom(ctx context.Context, _ *connect.Request[pb.CreateRo
 }
 
 func (p *porker2) CheckRoom(ctx context.Context, r *connect.Request[pb.CheckRoomRequest]) (*connect.Response[pb.CheckRoomResponse], error) {
+	if err := p.v.VarWithMessage(r.Msg.RoomId, validator.TagRoomID, "invalid argument"); err != nil {
+		return nil, err
+	}
+
 	if err := p.pokerItr.CheckRoom(ctx, p.session.UserIDFromCtx(ctx), roomIDFromProto(r.Msg.RoomId)); err != nil {
 		return nil, err
 	}
@@ -221,12 +225,13 @@ func (p *porker2) KickUser(ctx context.Context, r *connect.Request[pb.KickUserRe
 	roomID := roomIDFromProto(r.Msg.RoomId)
 	targetUserID := userIDFromProto(r.Msg.TargetUserId)
 
+	// NOTE: go-playground/validator は非公開フィールドを検証しないので、フィールドは必ず公開する。
 	vs := struct {
-		roomID       poker.RoomID `validate:"room_id"`
-		targetUserID user.ID      `validate:"user_id"`
+		RoomID       poker.RoomID `validate:"room_id"`
+		TargetUserID user.ID      `validate:"user_id"`
 	}{
-		roomID:       roomID,
-		targetUserID: targetUserID,
+		RoomID:       roomID,
+		TargetUserID: targetUserID,
 	}
 	if err := p.v.StructWithMessage(vs, "invalid argument"); err != nil {
 		return nil, err
@@ -243,8 +248,21 @@ func (p *porker2) KickUser(ctx context.Context, r *connect.Request[pb.KickUserRe
 }
 
 func (p *porker2) UpdateRoom(ctx context.Context, r *connect.Request[pb.UpdateRoomRequest]) (*connect.Response[pb.UpdateRoomResponse], error) {
+	roomID := roomIDFromProto(r.Msg.RoomId)
 	displayMode := poker.DisplayMode(r.Msg.DisplayMode)
-	if err := p.pokerItr.Update(ctx, p.session.UserIDFromCtx(ctx), roomIDFromProto(r.Msg.RoomId), r.Msg.AutoOpen, displayMode); err != nil {
+
+	vs := struct {
+		RoomID      poker.RoomID      `validate:"room_id"`
+		DisplayMode poker.DisplayMode `validate:"display_mode"`
+	}{
+		RoomID:      roomID,
+		DisplayMode: displayMode,
+	}
+	if err := p.v.StructWithMessage(vs, "invalid argument"); err != nil {
+		return nil, err
+	}
+
+	if err := p.pokerItr.Update(ctx, p.session.UserIDFromCtx(ctx), roomID, r.Msg.AutoOpen, displayMode); err != nil {
 		return nil, err
 	}
 

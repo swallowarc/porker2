@@ -63,6 +63,10 @@ func (m *manager) VerifyToken(ctx context.Context, req *http.Request) (any, erro
 	}
 
 	if err := m.repo.ResetLifetime(ctx, userID); err != nil {
+		if merror.IsNotFound(err) {
+			// token は残っているが user データが消えている (TTL のずれ等)。認証失敗として扱う。
+			return nil, authn.Errorf("unable to authenticate")
+		}
 		return nil, merror.WrapInternal(err, "error: failed to reset lifetime")
 	}
 
@@ -90,7 +94,7 @@ func (m *manager) SetCookie(res connect.AnyResponse, token string) {
 		Domain:   m.conf.CookieDomain,
 		MaxAge:   user.SessionLifetimeMinutes * 60,
 		Secure:   m.conf.CookieSecure,
-		HttpOnly: false,
+		HttpOnly: true, // フロントエンドは cookie を直接読まない (ブラウザが自動送信する) ので JS から隔離する
 		SameSite: http.SameSiteLaxMode,
 	}
 	res.Header().Set("Set-Cookie", cookie.String())

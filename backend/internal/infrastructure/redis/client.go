@@ -143,7 +143,7 @@ func (c *redisClient) ReadStream(ctx context.Context, streamKey, messageKey, pre
 		Streams: []string{streamKey, previousID},
 		Block:   subscribeDuration,
 	})
-	
+
 	streams, err := cmd.Result()
 	if err != nil {
 		// Streamに更新がない場合はNilが返却される

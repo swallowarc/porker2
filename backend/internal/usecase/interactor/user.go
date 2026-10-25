@@ -41,9 +41,13 @@ func (i *userInteractor) Login(ctx context.Context, userName user.Name) (user.ID
 	return id, token, nil
 }
 
+// Logout はセッションを破棄する。冪等であり、ユーザーや部屋が既に消えていても成功を返す。
 func (i *userInteractor) Logout(ctx context.Context, userID user.ID) error {
 	_, _, roomID, err := i.userRepo.GetByID(ctx, userID)
 	if err != nil {
+		if merror.IsNotFound(err) {
+			return nil
+		}
 		return err
 	}
 
@@ -51,10 +55,15 @@ func (i *userInteractor) Logout(ctx context.Context, userID user.ID) error {
 
 	if roomID != "" {
 		eg.Go(func() error {
-			return i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.RoomCondition) error {
+			err := i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.RoomCondition) error {
 				c.Leave(userID)
 				return nil
 			})
+			if err != nil && !merror.IsNotFound(err) {
+				return err
+			}
+			// 部屋が TTL 切れで既に消えている場合は退室処理は不要
+			return nil
 		})
 	}
 
@@ -68,7 +77,7 @@ func (i *userInteractor) Logout(ctx context.Context, userID user.ID) error {
 func (i *userInteractor) GetUser(ctx context.Context, userID user.ID) (user.Name, error) {
 	name, _, _, err := i.userRepo.GetByID(ctx, userID)
 	if err != nil {
-		return "", err
+		return "", asSessionError(err)
 	}
 
 	return name, nil
