@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"encoding/json"
 	"log/slog"
 	"time"
 
@@ -34,26 +33,27 @@ func NewPokerRepository(mem gateway.MemDBClient) port.PokerRepository {
 }
 
 func (r *pokerRepository) CreateRoom(ctx context.Context) (poker.RoomID, error) {
-	var c *poker.RoomCondition
-	for i := 0; i <= roomCreateRetry; i++ {
-		c = poker.NewRoomCondition()
-		_, err := r.mem.Get(ctx, roomConditionKey(c.RoomID))
-		if merror.IsNotFound(err) {
-			break
-		} else if err != nil {
-			return "", merror.WrapInternal(err, "failed to memDBCli.Get")
+	for attempt := 0; attempt <= roomCreateRetry; attempt++ {
+		c := poker.NewRoomCondition()
+
+		// 部屋の実体は Stream なので、存在確認に GET を使うと WRONGTYPE エラーになる。
+		// 必ず Stream 用の読み出しで確認する。
+		_, err := r.GetRoomCondition(ctx, c.RoomID)
+		if err == nil {
+			continue // room id collision, retry
+		}
+		if !merror.IsNotFound(err) {
+			return "", err
 		}
 
-		if i == roomCreateRetry {
-			return "", merror.NewUnavailable("room creation retry limit has been exceeded")
+		if err := r.publishRoomStream(ctx, c); err != nil {
+			return "", err
 		}
+
+		return c.RoomID, nil
 	}
 
-	if err := r.publishRoomStream(ctx, c); err != nil {
-		return "", err
-	}
-
-	return c.RoomID, nil
+	return "", merror.NewUnavailable("room creation retry limit has been exceeded")
 }
 
 func (r *pokerRepository) UpdateRoomWithLock(ctx context.Context, roomID poker.RoomID, modifier port.RoomModifier) error {
@@ -124,12 +124,7 @@ func (r *pokerRepository) GetRoomCondition(ctx context.Context, roomID poker.Roo
 		return nil, merror.NewNotFound("room condition not found:%s", roomID)
 	}
 
-	var rc poker.RoomCondition
-	if err := json.Unmarshal([]byte(j), &rc); err != nil {
-		return nil, err
-	}
-
-	return &rc, nil
+	return poker.FromJson(j)
 }
 
 func (r *pokerRepository) SubscribeRoomCondition(ctx context.Context, roomID poker.RoomID, fn port.RoomSubscriber) error {

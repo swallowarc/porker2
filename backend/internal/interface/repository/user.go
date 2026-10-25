@@ -57,7 +57,7 @@ func (r *userRepository) Create(ctx context.Context, userName user.Name) (user.I
 func (r *userRepository) UpdateRoomID(ctx context.Context, userID user.ID, roomID poker.RoomID) error {
 	u, err := r.getUserModel(ctx, userID)
 	if err != nil {
-		return merror.WrapInternal(err, "failed to unmarshal user")
+		return err
 	}
 
 	u.RoomID = roomID
@@ -80,36 +80,21 @@ func (r *userRepository) Delete(ctx context.Context, userID user.ID) error {
 		if merror.IsNotFound(err) {
 			return nil
 		}
-		return merror.WrapInternal(err, "failed to unmarshal user")
+		return err
 	}
 
 	var eg errgroup.Group
 
 	eg.Go(func() error {
-		if err := r.mem.Del(ctx, userIDKey(userID)); err != nil {
-			if !merror.IsNotFound(err) {
-				return merror.WrapInternal(err, "failed to delete user name")
-			}
-		}
-		return nil
+		return ignoreNotFound(r.mem.Del(ctx, userIDKey(userID)), "failed to delete user id")
 	})
 
 	eg.Go(func() error {
-		if err := r.mem.Del(ctx, userNameKey(u.Name)); err != nil {
-			if !merror.IsNotFound(err) {
-				return merror.WrapInternal(err, "failed to delete user name")
-			}
-		}
-		return nil
+		return ignoreNotFound(r.mem.Del(ctx, userNameKey(u.Name)), "failed to delete user name")
 	})
 
 	eg.Go(func() error {
-		if err := r.mem.Del(ctx, userTokenKey(u.Token)); err != nil {
-			if !merror.IsNotFound(err) {
-				return merror.WrapInternal(err, "failed to delete user name")
-			}
-		}
-		return nil
+		return ignoreNotFound(r.mem.Del(ctx, userTokenKey(u.Token)), "failed to delete user token")
 	})
 
 	return eg.Wait()
@@ -118,7 +103,7 @@ func (r *userRepository) Delete(ctx context.Context, userID user.ID) error {
 func (r *userRepository) ResetLifetime(ctx context.Context, userID user.ID) error {
 	u, err := r.getUserModel(ctx, userID)
 	if err != nil {
-		return merror.WrapInternal(err, "failed to unmarshal user")
+		return err
 	}
 
 	var eg errgroup.Group
@@ -153,7 +138,7 @@ func (r *userRepository) GetIDByAccessToken(ctx context.Context, token string) (
 func (r *userRepository) GetByID(ctx context.Context, userID user.ID) (user.Name, string, poker.RoomID, error) {
 	u, err := r.getUserModel(ctx, userID)
 	if err != nil {
-		return "", "", "", merror.WrapInternal(err, "failed to unmarshal user")
+		return "", "", "", err
 	}
 
 	return u.Name, u.Token, u.RoomID, nil
@@ -171,15 +156,28 @@ func (r *userRepository) GetIDByName(ctx context.Context, userName user.Name) (u
 	return user.ID(j), nil
 }
 
+// getUserModel はユーザーを取得する。
+// NotFound は呼び出し側 (usecase) が分岐に使うので、ラップせずそのまま返す。
+// merror.WrapInternal で包むと外側の CodeInternal が優先され、merror.IsNotFound が false になる。
 func (r *userRepository) getUserModel(ctx context.Context, userID user.ID) (*userModel, error) {
 	j, err := r.mem.Get(ctx, userIDKey(userID))
 	if err != nil {
-		return nil, err
+		if merror.IsNotFound(err) {
+			return nil, merror.NewNotFound("user does not exist: %s", userID)
+		}
+		return nil, merror.WrapInternal(err, "failed to get user")
 	}
 
 	var ui userModel
 	if err := json.Unmarshal([]byte(j), &ui); err != nil {
-		return nil, err
+		return nil, merror.WrapInternal(err, "failed to unmarshal user")
 	}
 	return &ui, nil
+}
+
+func ignoreNotFound(err error, messageFormat string, args ...any) error {
+	if err == nil || merror.IsNotFound(err) {
+		return nil
+	}
+	return merror.WrapInternal(err, messageFormat, args...)
 }
