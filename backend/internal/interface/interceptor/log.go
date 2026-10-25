@@ -3,9 +3,9 @@ package interceptor
 import (
 	"context"
 	"log/slog"
+	"uuid"
 
 	"connectrpc.com/connect"
-	"github.com/google/uuid"
 
 	"github.com/swallowarc/porker2/backend/internal/core/logger"
 )
@@ -26,7 +26,7 @@ func (i *LogInterceptor) WrapUnary(next connect.UnaryFunc) connect.UnaryFunc {
 	return func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
 		ctx = logger.SetLogger(ctx, i.l.With(
 			slog.String("rpc_name", getRPCNameFromSpec(req.Spec())),
-			slog.String("request_id", uuid.NewString()),
+			slog.String("request_id", uuid.New().String()),
 		))
 
 		res, err := next(ctx, req)
@@ -57,7 +57,7 @@ func (i *LogInterceptor) WrapStreamingHandler(next connect.StreamingHandlerFunc)
 	) error {
 		ctx = logger.SetLogger(ctx, i.l.With(
 			slog.String("rpc_name", getRPCNameFromSpec(conn.Spec())),
-			slog.String("request_id", uuid.NewString()),
+			slog.String("request_id", uuid.New().String()),
 		))
 
 		logger.FromCtx(ctx).Info("success to connect streaming")
