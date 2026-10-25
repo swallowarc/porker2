@@ -2,16 +2,12 @@ package controller
 
 import (
 	"context"
-	"errors"
 	"log/slog"
 
 	"connectrpc.com/connect"
 
 	"github.com/swallowarc/porker2/backend/internal/core/logger"
-	"github.com/swallowarc/porker2/backend/internal/core/merror"
 	"github.com/swallowarc/porker2/backend/internal/domain/poker"
-	"github.com/swallowarc/porker2/backend/internal/domain/user"
-	"github.com/swallowarc/porker2/backend/internal/domain/validator"
 	pb "github.com/swallowarc/porker2/backend/internal/interface/pb/porker/v2"
 	pbconn "github.com/swallowarc/porker2/backend/internal/interface/pb/porker/v2/porkerv2connect"
 	"github.com/swallowarc/porker2/backend/internal/interface/session"
@@ -21,7 +17,6 @@ import (
 type (
 	porker2 struct {
 		session  session.Manager
-		v        validator.Validator
 		userItr  interactor.User
 		pokerItr interactor.Poker
 	}
@@ -29,24 +24,23 @@ type (
 
 func NewPorker2Controller(
 	session session.Manager,
-	v validator.Validator,
 	userItr interactor.User,
 	pokerItr interactor.Poker,
 ) pbconn.Porker2ServiceHandler {
 	return &porker2{
 		session:  session,
-		v:        v,
 		userItr:  userItr,
 		pokerItr: pokerItr,
 	}
 }
 
 func (p *porker2) Login(ctx context.Context, r *connect.Request[pb.LoginRequest]) (*connect.Response[pb.LoginResponse], error) {
-	if err := p.v.VarWithMessage(r.Msg.UserName, validator.TagUserName, "invalid argument"); err != nil {
+	var f requestFields
+	name := f.userName(r.Msg.UserName)
+	if err := f.err(); err != nil {
 		return nil, err
 	}
 
-	name := user.Name(r.Msg.UserName)
 	id, token, err := p.userItr.Login(ctx, name)
 	if err != nil {
 		return nil, err
@@ -111,11 +105,13 @@ func (p *porker2) CreateRoom(ctx context.Context, _ *connect.Request[pb.CreateRo
 }
 
 func (p *porker2) CheckRoom(ctx context.Context, r *connect.Request[pb.CheckRoomRequest]) (*connect.Response[pb.CheckRoomResponse], error) {
-	if err := p.v.VarWithMessage(r.Msg.RoomId, validator.TagRoomID, "invalid argument"); err != nil {
+	var f requestFields
+	roomID := f.roomID(r.Msg.RoomId)
+	if err := f.err(); err != nil {
 		return nil, err
 	}
 
-	if err := p.pokerItr.CheckRoom(ctx, p.session.UserIDFromCtx(ctx), roomIDFromProto(r.Msg.RoomId)); err != nil {
+	if err := p.pokerItr.CheckRoom(ctx, p.session.UserIDFromCtx(ctx), roomID); err != nil {
 		return nil, err
 	}
 
@@ -126,7 +122,9 @@ func (p *porker2) CheckRoom(ctx context.Context, r *connect.Request[pb.CheckRoom
 }
 
 func (p *porker2) JoinRoom(ctx context.Context, r *connect.Request[pb.JoinRoomRequest], stream *connect.ServerStream[pb.JoinRoomResponse]) error {
-	if err := p.v.VarWithMessage(r.Msg.RoomId, validator.TagRoomID, "invalid argument"); err != nil {
+	var f requestFields
+	roomID := f.roomID(r.Msg.RoomId)
+	if err := f.err(); err != nil {
 		return err
 	}
 
@@ -140,22 +138,14 @@ func (p *porker2) JoinRoom(ctx context.Context, r *connect.Request[pb.JoinRoomRe
 		return true, nil
 	}
 
-	if err := p.pokerItr.JoinRoom(ctx, p.session.UserIDFromCtx(ctx), roomIDFromProto(r.Msg.RoomId), fn); err != nil {
-		if errors.Is(err, context.Canceled) {
-			// when httpserver.WriteTimeout is exceeded
-			return merror.NewCanceled("connection closed(WriteTimeout)")
-		}
-		return err
-	}
-
-	return nil
+	// context.Canceled (WriteTimeout 超過等) は rpcerr が Canceled に変換する
+	return p.pokerItr.JoinRoom(ctx, p.session.UserIDFromCtx(ctx), roomID, fn)
 }
 
-func (p *porker2) LeaveRoom(ctx context.Context, r *connect.Request[pb.LeaveRoomRequest]) (*connect.Response[pb.LeaveRoomResponse], error) {
-	if err := p.v.VarWithMessage(r.Msg.RoomId, validator.TagRoomID, "invalid argument"); err != nil {
-		return nil, err
-	}
-
+// LeaveRoom はユーザーが現在参加している部屋から退室する。
+// 退室先はサーバー側のユーザー情報から決まるため、リクエストの room_id は参照しない
+// (クライアントはストリーム切断後に room_id が空の状態で呼ぶことがある)。
+func (p *porker2) LeaveRoom(ctx context.Context, _ *connect.Request[pb.LeaveRoomRequest]) (*connect.Response[pb.LeaveRoomResponse], error) {
 	if err := p.pokerItr.LeaveRoom(ctx, p.session.UserIDFromCtx(ctx)); err != nil {
 		return nil, err
 	}
@@ -167,17 +157,10 @@ func (p *porker2) LeaveRoom(ctx context.Context, r *connect.Request[pb.LeaveRoom
 }
 
 func (p *porker2) CastVote(ctx context.Context, r *connect.Request[pb.CastVoteRequest]) (*connect.Response[pb.CastVoteResponse], error) {
-	roomID := roomIDFromProto(r.Msg.RoomId)
-	point := pointFromProto(r.Msg.Point)
-
-	vs := struct {
-		RoomID poker.RoomID `validate:"room_id"`
-		Point  poker.Point  `validate:"point"`
-	}{
-		RoomID: roomID,
-		Point:  point,
-	}
-	if err := p.v.StructWithMessage(vs, "invalid argument"); err != nil {
+	var f requestFields
+	roomID := f.roomID(r.Msg.RoomId)
+	point := f.point(r.Msg.Point)
+	if err := f.err(); err != nil {
 		return nil, err
 	}
 
@@ -192,11 +175,13 @@ func (p *porker2) CastVote(ctx context.Context, r *connect.Request[pb.CastVoteRe
 }
 
 func (p *porker2) ShowVotes(ctx context.Context, r *connect.Request[pb.ShowVotesRequest]) (*connect.Response[pb.ShowVotesResponse], error) {
-	if err := p.v.VarWithMessage(r.Msg.RoomId, validator.TagRoomID, "invalid argument"); err != nil {
+	var f requestFields
+	roomID := f.roomID(r.Msg.RoomId)
+	if err := f.err(); err != nil {
 		return nil, err
 	}
 
-	if err := p.pokerItr.ShowVotes(ctx, p.session.UserIDFromCtx(ctx), roomIDFromProto(r.Msg.RoomId)); err != nil {
+	if err := p.pokerItr.ShowVotes(ctx, p.session.UserIDFromCtx(ctx), roomID); err != nil {
 		return nil, err
 	}
 
@@ -207,11 +192,13 @@ func (p *porker2) ShowVotes(ctx context.Context, r *connect.Request[pb.ShowVotes
 }
 
 func (p *porker2) ResetVotes(ctx context.Context, r *connect.Request[pb.ResetVotesRequest]) (*connect.Response[pb.ResetVotesResponse], error) {
-	if err := p.v.VarWithMessage(r.Msg.RoomId, validator.TagRoomID, "invalid argument"); err != nil {
+	var f requestFields
+	roomID := f.roomID(r.Msg.RoomId)
+	if err := f.err(); err != nil {
 		return nil, err
 	}
 
-	if err := p.pokerItr.ResetVotes(ctx, p.session.UserIDFromCtx(ctx), roomIDFromProto(r.Msg.RoomId)); err != nil {
+	if err := p.pokerItr.ResetVotes(ctx, p.session.UserIDFromCtx(ctx), roomID); err != nil {
 		return nil, err
 	}
 
@@ -222,18 +209,10 @@ func (p *porker2) ResetVotes(ctx context.Context, r *connect.Request[pb.ResetVot
 }
 
 func (p *porker2) KickUser(ctx context.Context, r *connect.Request[pb.KickUserRequest]) (*connect.Response[pb.KickUserResponse], error) {
-	roomID := roomIDFromProto(r.Msg.RoomId)
-	targetUserID := userIDFromProto(r.Msg.TargetUserId)
-
-	// NOTE: go-playground/validator は非公開フィールドを検証しないので、フィールドは必ず公開する。
-	vs := struct {
-		RoomID       poker.RoomID `validate:"room_id"`
-		TargetUserID user.ID      `validate:"user_id"`
-	}{
-		RoomID:       roomID,
-		TargetUserID: targetUserID,
-	}
-	if err := p.v.StructWithMessage(vs, "invalid argument"); err != nil {
+	var f requestFields
+	roomID := f.roomID(r.Msg.RoomId)
+	targetUserID := f.userID("target_user_id", r.Msg.TargetUserId)
+	if err := f.err(); err != nil {
 		return nil, err
 	}
 
@@ -248,17 +227,10 @@ func (p *porker2) KickUser(ctx context.Context, r *connect.Request[pb.KickUserRe
 }
 
 func (p *porker2) UpdateRoom(ctx context.Context, r *connect.Request[pb.UpdateRoomRequest]) (*connect.Response[pb.UpdateRoomResponse], error) {
-	roomID := roomIDFromProto(r.Msg.RoomId)
-	displayMode := poker.DisplayMode(r.Msg.DisplayMode)
-
-	vs := struct {
-		RoomID      poker.RoomID      `validate:"room_id"`
-		DisplayMode poker.DisplayMode `validate:"display_mode"`
-	}{
-		RoomID:      roomID,
-		DisplayMode: displayMode,
-	}
-	if err := p.v.StructWithMessage(vs, "invalid argument"); err != nil {
+	var f requestFields
+	roomID := f.roomID(r.Msg.RoomId)
+	displayMode := f.displayMode(r.Msg.DisplayMode)
+	if err := f.err(); err != nil {
 		return nil, err
 	}
 
@@ -273,11 +245,13 @@ func (p *porker2) UpdateRoom(ctx context.Context, r *connect.Request[pb.UpdateRo
 }
 
 func (p *porker2) ToggleObserverMode(ctx context.Context, r *connect.Request[pb.ToggleObserverModeRequest]) (*connect.Response[pb.ToggleObserverModeResponse], error) {
-	if err := p.v.VarWithMessage(r.Msg.RoomId, validator.TagRoomID, "invalid argument"); err != nil {
+	var f requestFields
+	roomID := f.roomID(r.Msg.RoomId)
+	if err := f.err(); err != nil {
 		return nil, err
 	}
 
-	if err := p.pokerItr.ToggleObserverMode(ctx, p.session.UserIDFromCtx(ctx), roomIDFromProto(r.Msg.RoomId), r.Msg.IsObserver); err != nil {
+	if err := p.pokerItr.ToggleObserverMode(ctx, p.session.UserIDFromCtx(ctx), roomID, r.Msg.IsObserver); err != nil {
 		return nil, err
 	}
 
