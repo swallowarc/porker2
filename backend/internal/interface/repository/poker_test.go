@@ -30,7 +30,8 @@ func TestPokerRepository_CreateRoom(t *testing.T) {
 
 		id, err := NewPokerRepository(mem).CreateRoom(context.Background())
 		require.NoError(t, err)
-		assert.True(t, id.Valid())
+		_, err = poker.NewRoomID(id.String())
+		assert.NoError(t, err, "生成された room id は事前条件を満たす")
 	})
 
 	t.Run("存在確認が NotFound 以外で失敗したらそのまま返す", func(t *testing.T) {

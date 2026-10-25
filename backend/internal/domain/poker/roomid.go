@@ -3,6 +3,7 @@ package poker
 import (
 	"regexp"
 
+	"github.com/swallowarc/porker2/backend/internal/core/merror"
 	"github.com/swallowarc/porker2/backend/internal/core/random"
 )
 
@@ -16,8 +17,19 @@ var (
 )
 
 type (
+	// RoomID は 5 桁の数字からなる部屋の識別子。
+	// 外部入力からは必ず NewRoomID で生成し、事前条件を満たさない値を作らないこと。
 	RoomID string
 )
+
+// NewRoomID は外部入力から RoomID を生成する。形式を満たさなければ InvalidArgument を返す。
+func NewRoomID(raw string) (RoomID, error) {
+	id := RoomID(raw)
+	if !id.valid() {
+		return "", merror.NewInvalidArgument(nil, "room id must be %d digits: %q", roomIDLength, raw)
+	}
+	return id, nil
+}
 
 func newRoomID() RoomID {
 	return RoomID(random.RandString6ByParam(roomIDLength, roomIDAvailableChars))
@@ -27,6 +39,6 @@ func (id RoomID) String() string {
 	return string(id)
 }
 
-func (id RoomID) Valid() bool {
+func (id RoomID) valid() bool {
 	return roomIDRegexp.MatchString(string(id))
 }

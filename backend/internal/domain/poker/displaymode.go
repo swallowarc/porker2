@@ -1,5 +1,7 @@
 package poker
 
+import "github.com/swallowarc/porker2/backend/internal/core/merror"
+
 type (
 	DisplayMode int
 )
@@ -10,6 +12,11 @@ const (
 	DisplayModeTShirt      DisplayMode = 2
 )
 
-func (m DisplayMode) Valid() bool {
-	return m == DisplayModePoint || m == DisplayModeTShirt
+// NewDisplayMode は外部入力から DisplayMode を生成する。Unspecified は許容しない。
+func NewDisplayMode(raw int32) (DisplayMode, error) {
+	m := DisplayMode(raw)
+	if m != DisplayModePoint && m != DisplayModeTShirt {
+		return DisplayModeUnspecified, merror.NewInvalidArgument(nil, "display mode must be point(%d) or tshirt(%d): %d", DisplayModePoint, DisplayModeTShirt, raw)
+	}
+	return m, nil
 }
