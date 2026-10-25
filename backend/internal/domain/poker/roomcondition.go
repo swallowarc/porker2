@@ -16,7 +16,7 @@ const (
 
 var (
 	ErrNotAdmin = merror.NewPermissionDenied("user is not admin")
-	ErrRoomFull = merror.NewFailedPrecondition("", "room is full")
+	ErrRoomFull = merror.NewFailedPrecondition("room is full")
 )
 
 type (

@@ -204,7 +204,7 @@ func (i *pokerInteractor) checkUserRoomJoin(ctx context.Context, userID user.ID,
 	}
 
 	if roomID != joinedRoomID {
-		return merror.NewFailedPrecondition("", "user is not in the room with specified room_id: %s", roomID)
+		return merror.NewFailedPrecondition("user is not in the room with specified room_id: %s", roomID)
 	}
 
 	return nil

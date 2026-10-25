@@ -29,7 +29,8 @@ type (
 
 func NewServer(logger *slog.Logger, conf Config, controller pbconn.Porker2ServiceHandler, session session.Manager, f *interceptor.Factory) *Server {
 	mux := http.NewServeMux()
-	server := connect.NewServer(f.LogInterceptor())
+	// 先頭が最も外側。ErrorInterceptor を外側に置き、LogInterceptor は変換前のアプリケーションエラーを見る。
+	server := connect.NewServer(f.ErrorInterceptor(), f.LogInterceptor())
 	pbconn.RegisterPorker2ServiceHandler(server, controller)
 	connecthttp.Mount(mux, server)
 
