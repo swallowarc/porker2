@@ -28,14 +28,14 @@ func NewUser(repo port.UserRepository, pokerRepo port.PokerRepository) User {
 func (i *userInteractor) Login(ctx context.Context, userName user.Name) (user.ID, string, error) {
 	// Check if the userName already exists.
 	if _, err := i.userRepo.GetIDByName(ctx, userName); err == nil {
-		return "", "", merror.NewAlreadyExists("user name already exists")
+		return user.ID{}, "", merror.NewAlreadyExists("user name already exists")
 	} else if !merror.IsNotFound(err) {
-		return "", "", merror.WrapInternal(err, "failed to get user name")
+		return user.ID{}, "", merror.WrapInternal(err, "failed to get user name")
 	}
 
 	id, token, err := i.userRepo.Create(ctx, userName)
 	if err != nil {
-		return "", "", err
+		return user.ID{}, "", err
 	}
 
 	return id, token, nil
@@ -53,9 +53,9 @@ func (i *userInteractor) Logout(ctx context.Context, userID user.ID) error {
 
 	var eg errgroup.Group
 
-	if roomID != "" {
+	if !roomID.IsZero() {
 		eg.Go(func() error {
-			err := i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.RoomCondition) error {
+			err := i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.Room) error {
 				c.Leave(userID)
 				return nil
 			})
@@ -77,7 +77,7 @@ func (i *userInteractor) Logout(ctx context.Context, userID user.ID) error {
 func (i *userInteractor) GetUser(ctx context.Context, userID user.ID) (user.Name, error) {
 	name, _, _, err := i.userRepo.GetByID(ctx, userID)
 	if err != nil {
-		return "", asSessionError(err)
+		return user.Name{}, asSessionError(err)
 	}
 
 	return name, nil

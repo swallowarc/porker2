@@ -33,7 +33,7 @@ func TestUserInteractor_Logout(t *testing.T) {
 
 	t.Run("ユーザーが既に消えていても Logout は成功する (冪等)", func(t *testing.T) {
 		itr, userRepo, _ := newUserInteractorWithMocks(t)
-		userRepo.EXPECT().GetByID(gomock.Any(), testUserID).Return(user.Name(""), "", poker.RoomID(""), merror.NewNotFound("user does not exist"))
+		userRepo.EXPECT().GetByID(gomock.Any(), testUserID).Return(user.Name{}, "", poker.RoomID{}, merror.NewNotFound("user does not exist"))
 
 		assert.NoError(t, itr.Logout(context.Background(), testUserID))
 	})
@@ -53,7 +53,7 @@ func TestUserInteractor_Logout(t *testing.T) {
 func TestUserInteractor_GetUser(t *testing.T) {
 	t.Run("ユーザーデータが消えていたら Unauthenticated", func(t *testing.T) {
 		itr, userRepo, _ := newUserInteractorWithMocks(t)
-		userRepo.EXPECT().GetByID(gomock.Any(), testUserID).Return(user.Name(""), "", poker.RoomID(""), merror.NewNotFound("user does not exist"))
+		userRepo.EXPECT().GetByID(gomock.Any(), testUserID).Return(user.Name{}, "", poker.RoomID{}, merror.NewNotFound("user does not exist"))
 
 		_, err := itr.GetUser(context.Background(), testUserID)
 		assert.True(t, merror.IsUnauthenticated(err), "got: %v", err)

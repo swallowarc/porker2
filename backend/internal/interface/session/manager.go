@@ -82,7 +82,7 @@ func (m *manager) UserIDFromCtx(ctx context.Context) user.ID {
 	info := authn.GetInfo(ctx)
 	ssn, ok := info.(session)
 	if !ok {
-		return ""
+		return user.ID{}
 	}
 
 	return ssn.UserID

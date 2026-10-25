@@ -20,14 +20,14 @@ type (
 		GetIDByName(ctx context.Context, userName user.Name) (user.ID, error)
 	}
 
-	RoomModifier   func(ctx context.Context, condition *poker.RoomCondition) error
-	RoomSubscriber func(ctx context.Context, condition *poker.RoomCondition) (bool, error)
+	RoomModifier   func(ctx context.Context, room *poker.Room) error
+	RoomSubscriber func(ctx context.Context, room *poker.Room) (bool, error)
 
 	PokerRepository interface {
 		CreateRoom(ctx context.Context) (poker.RoomID, error)
 		UpdateRoomWithLock(ctx context.Context, roomID poker.RoomID, modifier RoomModifier) error
 
-		GetRoomCondition(ctx context.Context, roomID poker.RoomID) (*poker.RoomCondition, error)
-		SubscribeRoomCondition(ctx context.Context, roomID poker.RoomID, fn RoomSubscriber) error
+		GetRoom(ctx context.Context, roomID poker.RoomID) (*poker.Room, error)
+		SubscribeRoom(ctx context.Context, roomID poker.RoomID, fn RoomSubscriber) error
 	}
 )

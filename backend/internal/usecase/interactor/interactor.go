@@ -22,9 +22,9 @@ type (
 	Poker interface {
 		// CreateRoom creates a new room and returns the room ID.
 		CreateRoom(ctx context.Context) (poker.RoomID, error)
-		// CheckRoom checks the room.
+		// CheckRoom checks whether the user can join the room.
 		CheckRoom(ctx context.Context, userID user.ID, roomID poker.RoomID) error
-		// JoinRoom Check if the room is ready.
+		// JoinRoom joins the room and subscribes to its state until fn returns false or ctx is done.
 		JoinRoom(ctx context.Context, userID user.ID, roomID poker.RoomID, fn port.RoomSubscriber) error
 		// LeaveRoom leaves the room.
 		LeaveRoom(ctx context.Context, userID user.ID) error

@@ -225,6 +225,20 @@ func (mr *MockPokerMockRecorder) ShowVotes(ctx, userID, roomID any) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowVotes", reflect.TypeOf((*MockPoker)(nil).ShowVotes), ctx, userID, roomID)
 }
 
+// ToggleObserverMode mocks base method.
+func (m *MockPoker) ToggleObserverMode(ctx context.Context, userID user.ID, roomID poker.RoomID, isObserver bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ToggleObserverMode", ctx, userID, roomID, isObserver)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ToggleObserverMode indicates an expected call of ToggleObserverMode.
+func (mr *MockPokerMockRecorder) ToggleObserverMode(ctx, userID, roomID, isObserver any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ToggleObserverMode", reflect.TypeOf((*MockPoker)(nil).ToggleObserverMode), ctx, userID, roomID, isObserver)
+}
+
 // Update mocks base method.
 func (m *MockPoker) Update(ctx context.Context, userID user.ID, roomID poker.RoomID, autoOpen bool, displayMode poker.DisplayMode) error {
 	m.ctrl.T.Helper()
