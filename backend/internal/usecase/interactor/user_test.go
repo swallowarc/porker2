@@ -59,3 +59,23 @@ func TestUserInteractor_GetUser(t *testing.T) {
 		assert.True(t, merror.IsUnauthenticated(err), "got: %v", err)
 	})
 }
+
+func TestUserInteractor_Login(t *testing.T) {
+	t.Run("正常系", func(t *testing.T) {
+		itr, userRepo, _ := newUserInteractorWithMocks(t)
+		userRepo.EXPECT().Create(gomock.Any(), testUserName).Return(testUserID, "tk", nil)
+
+		id, token, err := itr.Login(context.Background(), testUserName)
+		assert.NoError(t, err)
+		assert.Equal(t, testUserID, id)
+		assert.Equal(t, "tk", token)
+	})
+
+	t.Run("名前重複は Create の AlreadyExists をそのまま返す", func(t *testing.T) {
+		itr, userRepo, _ := newUserInteractorWithMocks(t)
+		userRepo.EXPECT().Create(gomock.Any(), testUserName).Return(user.ID{}, "", merror.NewAlreadyExists("dup"))
+
+		_, _, err := itr.Login(context.Background(), testUserName)
+		assert.True(t, merror.IsAlreadyExists(err))
+	})
+}
