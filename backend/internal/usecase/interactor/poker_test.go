@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"connectrpc.com/connect"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
@@ -74,7 +73,7 @@ func TestPokerInteractor_LeaveRoom(t *testing.T) {
 		userRepo.EXPECT().GetByID(gomock.Any(), testUserID).Return(user.Name(""), "", poker.RoomID(""), merror.NewNotFound("user does not exist"))
 
 		err := itr.LeaveRoom(context.Background(), testUserID)
-		assert.Equal(t, connect.CodeUnauthenticated, merror.CodeFromError(err))
+		assert.True(t, merror.IsUnauthenticated(err), "got: %v", err)
 	})
 
 	t.Run("Redis 障害など NotFound 以外のエラーはそのまま返す", func(t *testing.T) {
@@ -84,7 +83,7 @@ func TestPokerInteractor_LeaveRoom(t *testing.T) {
 			Return(merror.NewUnavailable("lock could not be acquired"))
 
 		err := itr.LeaveRoom(context.Background(), testUserID)
-		assert.Equal(t, connect.CodeUnavailable, merror.CodeFromError(err))
+		assert.True(t, merror.IsUnavailable(err), "got: %v", err)
 	})
 }
 
@@ -94,7 +93,7 @@ func TestPokerInteractor_JoinRoom(t *testing.T) {
 		userRepo.EXPECT().GetByID(gomock.Any(), testUserID).Return(user.Name(""), "", poker.RoomID(""), merror.NewNotFound("user does not exist"))
 
 		err := itr.JoinRoom(context.Background(), testUserID, testRoomID, nil)
-		assert.Equal(t, connect.CodeUnauthenticated, merror.CodeFromError(err))
+		assert.True(t, merror.IsUnauthenticated(err), "got: %v", err)
 	})
 
 	t.Run("別の部屋にいた場合は先に退室してから参加する", func(t *testing.T) {
@@ -128,7 +127,7 @@ func TestPokerInteractor_checkUserRoomJoin(t *testing.T) {
 		userRepo.EXPECT().GetByID(gomock.Any(), testUserID).Return(user.Name(""), "", poker.RoomID(""), merror.NewNotFound("user does not exist"))
 
 		err := itr.CastVote(context.Background(), testUserID, testRoomID, poker.Point1)
-		assert.Equal(t, connect.CodeUnauthenticated, merror.CodeFromError(err))
+		assert.True(t, merror.IsUnauthenticated(err), "got: %v", err)
 	})
 
 	t.Run("別の部屋を指定したら FailedPrecondition", func(t *testing.T) {
@@ -136,6 +135,6 @@ func TestPokerInteractor_checkUserRoomJoin(t *testing.T) {
 		userRepo.EXPECT().GetByID(gomock.Any(), testUserID).Return(testUserName, "tk", poker.RoomID("99999"), nil)
 
 		err := itr.CastVote(context.Background(), testUserID, testRoomID, poker.Point1)
-		assert.Equal(t, connect.CodeFailedPrecondition, merror.CodeFromError(err))
+		assert.True(t, merror.IsFailedPrecondition(err), "got: %v", err)
 	})
 }

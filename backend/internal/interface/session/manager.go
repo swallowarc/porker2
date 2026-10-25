@@ -9,6 +9,7 @@ import (
 
 	"github.com/swallowarc/porker2/backend/internal/core/merror"
 	"github.com/swallowarc/porker2/backend/internal/domain/user"
+	"github.com/swallowarc/porker2/backend/internal/interface/rpcerr"
 	"github.com/swallowarc/porker2/backend/internal/usecase/port"
 )
 
@@ -67,7 +68,8 @@ func (m *manager) VerifyToken(ctx context.Context, req *http.Request) (any, erro
 			// token は残っているが user データが消えている (TTL のずれ等)。認証失敗として扱う。
 			return nil, authn.Errorf("unable to authenticate")
 		}
-		return nil, merror.WrapInternal(err, "error: failed to reset lifetime")
+		// authn ミドルウェアは interceptor の外側なので、ここで明示的に connect エラーへ変換する
+		return nil, rpcerr.ToConnect(merror.WrapInternal(err, "failed to reset lifetime"))
 	}
 
 	return session{
