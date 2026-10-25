@@ -37,7 +37,7 @@ func (i *pokerInteractor) CreateRoom(ctx context.Context) (poker.RoomID, error) 
 }
 
 func (i *pokerInteractor) CheckRoom(ctx context.Context, userID user.ID, roomID poker.RoomID) error {
-	rc, err := i.pokerRepo.GetRoomCondition(ctx, roomID)
+	rc, err := i.pokerRepo.GetRoom(ctx, roomID)
 	if err != nil {
 		return err
 	}
@@ -70,7 +70,7 @@ func (i *pokerInteractor) JoinRoom(ctx context.Context, userID user.ID, roomID p
 		}
 	}
 
-	if err := i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.RoomCondition) error {
+	if err := i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.Room) error {
 		if err := c.Join(userID, userName); err != nil {
 			return err
 		}
@@ -83,7 +83,7 @@ func (i *pokerInteractor) JoinRoom(ctx context.Context, userID user.ID, roomID p
 		return err
 	}
 
-	if err := i.pokerRepo.SubscribeRoomCondition(ctx, roomID, func(ctx context.Context, c *poker.RoomCondition) (bool, error) {
+	if err := i.pokerRepo.SubscribeRoom(ctx, roomID, func(ctx context.Context, c *poker.Room) (bool, error) {
 		if !c.IsUserIn(userID) {
 			logger.FromCtx(ctx).Info("stop subscribing room condition (user is not in the room)")
 			return false, nil
@@ -107,7 +107,7 @@ func (i *pokerInteractor) LeaveRoom(ctx context.Context, userID user.ID) error {
 		return nil
 	}
 
-	err = i.pokerRepo.UpdateRoomWithLock(ctx, joinedRoomID, func(ctx context.Context, c *poker.RoomCondition) error {
+	err = i.pokerRepo.UpdateRoomWithLock(ctx, joinedRoomID, func(ctx context.Context, c *poker.Room) error {
 		if err := i.userRepo.UpdateRoomID(ctx, userID, poker.RoomID("")); err != nil {
 			return err
 		}
@@ -137,7 +137,7 @@ func (i *pokerInteractor) CastVote(ctx context.Context, userID user.ID, roomID p
 		return err
 	}
 
-	return i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.RoomCondition) error {
+	return i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.Room) error {
 		c.Vote(userID, point)
 		return nil
 	})
@@ -148,7 +148,7 @@ func (i *pokerInteractor) ShowVotes(ctx context.Context, userID user.ID, roomID 
 		return err
 	}
 
-	return i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.RoomCondition) error {
+	return i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.Room) error {
 		c.Open()
 		return nil
 	})
@@ -159,7 +159,7 @@ func (i *pokerInteractor) ResetVotes(ctx context.Context, userID user.ID, roomID
 		return err
 	}
 
-	return i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.RoomCondition) error {
+	return i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.Room) error {
 		c.Reset()
 		return nil
 	})
@@ -170,7 +170,7 @@ func (i *pokerInteractor) Kick(ctx context.Context, userID, targetUserID user.ID
 		return err
 	}
 
-	return i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.RoomCondition) error {
+	return i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.Room) error {
 		return c.Kick(userID, targetUserID)
 	})
 }
@@ -180,7 +180,7 @@ func (i *pokerInteractor) Update(ctx context.Context, userID user.ID, roomID pok
 		return err
 	}
 
-	return i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.RoomCondition) error {
+	return i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.Room) error {
 		c.UpdateSetting(autoOpen, displayMode)
 		return nil
 	})
@@ -191,7 +191,7 @@ func (i *pokerInteractor) ToggleObserverMode(ctx context.Context, userID user.ID
 		return err
 	}
 
-	return i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.RoomCondition) error {
+	return i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.Room) error {
 		c.ToggleObserverMode(userID, isObserver)
 		return nil
 	})

@@ -28,8 +28,8 @@ func newPokerInteractorWithMocks(t *testing.T) (*pokerInteractor, *mock_port.Moc
 	return NewPoker(userRepo, pokerRepo).(*pokerInteractor), userRepo, pokerRepo
 }
 
-// runModifier は UpdateRoomWithLock のモックとして、渡された modifier を実際の RoomCondition に適用する。
-func runModifier(rc *poker.RoomCondition) func(context.Context, poker.RoomID, port.RoomModifier) error {
+// runModifier は UpdateRoomWithLock のモックとして、渡された modifier を実際の Room に適用する。
+func runModifier(rc *poker.Room) func(context.Context, poker.RoomID, port.RoomModifier) error {
 	return func(ctx context.Context, _ poker.RoomID, modifier port.RoomModifier) error {
 		return modifier(ctx, rc)
 	}
@@ -38,7 +38,7 @@ func runModifier(rc *poker.RoomCondition) func(context.Context, poker.RoomID, po
 func TestPokerInteractor_LeaveRoom(t *testing.T) {
 	t.Run("通常の退室", func(t *testing.T) {
 		itr, userRepo, pokerRepo := newPokerInteractorWithMocks(t)
-		rc := poker.NewRoomCondition()
+		rc := poker.NewRoom()
 		require.NoError(t, rc.Join(testUserID, testUserName))
 
 		userRepo.EXPECT().GetByID(gomock.Any(), testUserID).Return(testUserName, "tk", testRoomID, nil)
@@ -99,9 +99,9 @@ func TestPokerInteractor_JoinRoom(t *testing.T) {
 	t.Run("別の部屋にいた場合は先に退室してから参加する", func(t *testing.T) {
 		itr, userRepo, pokerRepo := newPokerInteractorWithMocks(t)
 		oldRoomID := poker.RoomID("99999")
-		oldRoom := poker.NewRoomCondition()
+		oldRoom := poker.NewRoom()
 		require.NoError(t, oldRoom.Join(testUserID, testUserName))
-		newRoom := poker.NewRoomCondition()
+		newRoom := poker.NewRoom()
 
 		gomock.InOrder(
 			userRepo.EXPECT().GetByID(gomock.Any(), testUserID).Return(testUserName, "tk", oldRoomID, nil),
@@ -112,7 +112,7 @@ func TestPokerInteractor_JoinRoom(t *testing.T) {
 			// Join
 			pokerRepo.EXPECT().UpdateRoomWithLock(gomock.Any(), testRoomID, gomock.Any()).DoAndReturn(runModifier(newRoom)),
 			userRepo.EXPECT().UpdateRoomID(gomock.Any(), testUserID, testRoomID).Return(nil),
-			pokerRepo.EXPECT().SubscribeRoomCondition(gomock.Any(), testRoomID, gomock.Any()).Return(nil),
+			pokerRepo.EXPECT().SubscribeRoom(gomock.Any(), testRoomID, gomock.Any()).Return(nil),
 		)
 
 		assert.NoError(t, itr.JoinRoom(context.Background(), testUserID, testRoomID, nil))

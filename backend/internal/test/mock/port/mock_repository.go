@@ -187,33 +187,33 @@ func (mr *MockPokerRepositoryMockRecorder) CreateRoom(ctx any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRoom", reflect.TypeOf((*MockPokerRepository)(nil).CreateRoom), ctx)
 }
 
-// GetRoomCondition mocks base method.
-func (m *MockPokerRepository) GetRoomCondition(ctx context.Context, roomID poker.RoomID) (*poker.RoomCondition, error) {
+// GetRoom mocks base method.
+func (m *MockPokerRepository) GetRoom(ctx context.Context, roomID poker.RoomID) (*poker.Room, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetRoomCondition", ctx, roomID)
-	ret0, _ := ret[0].(*poker.RoomCondition)
+	ret := m.ctrl.Call(m, "GetRoom", ctx, roomID)
+	ret0, _ := ret[0].(*poker.Room)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetRoomCondition indicates an expected call of GetRoomCondition.
-func (mr *MockPokerRepositoryMockRecorder) GetRoomCondition(ctx, roomID any) *gomock.Call {
+// GetRoom indicates an expected call of GetRoom.
+func (mr *MockPokerRepositoryMockRecorder) GetRoom(ctx, roomID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRoomCondition", reflect.TypeOf((*MockPokerRepository)(nil).GetRoomCondition), ctx, roomID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRoom", reflect.TypeOf((*MockPokerRepository)(nil).GetRoom), ctx, roomID)
 }
 
-// SubscribeRoomCondition mocks base method.
-func (m *MockPokerRepository) SubscribeRoomCondition(ctx context.Context, roomID poker.RoomID, fn port.RoomSubscriber) error {
+// SubscribeRoom mocks base method.
+func (m *MockPokerRepository) SubscribeRoom(ctx context.Context, roomID poker.RoomID, fn port.RoomSubscriber) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SubscribeRoomCondition", ctx, roomID, fn)
+	ret := m.ctrl.Call(m, "SubscribeRoom", ctx, roomID, fn)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// SubscribeRoomCondition indicates an expected call of SubscribeRoomCondition.
-func (mr *MockPokerRepositoryMockRecorder) SubscribeRoomCondition(ctx, roomID, fn any) *gomock.Call {
+// SubscribeRoom indicates an expected call of SubscribeRoom.
+func (mr *MockPokerRepositoryMockRecorder) SubscribeRoom(ctx, roomID, fn any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubscribeRoomCondition", reflect.TypeOf((*MockPokerRepository)(nil).SubscribeRoomCondition), ctx, roomID, fn)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubscribeRoom", reflect.TypeOf((*MockPokerRepository)(nil).SubscribeRoom), ctx, roomID, fn)
 }
 
 // UpdateRoomWithLock mocks base method.
