@@ -85,6 +85,6 @@ func roomConditionToProto(rc *poker.RoomCondition) *pb.RoomCondition {
 		Ballots:       ballotsToProto(rc.Ballots),
 		AutoOpen:      rc.AutoOpen,
 		DisplayMode:   pb.DisplayMode(rc.DisplayMode),
-		ObserverCount: rc.ObserverCount,
+		ObserverCount: rc.ObserverCount(),
 	}
 }
