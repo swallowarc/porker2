@@ -21,25 +21,23 @@ var (
 
 type (
 	RoomCondition struct {
-		RoomID        RoomID      `json:"room_id"`
-		AdminUserID   user.ID     `json:"admin_user_id"`
-		VoteState     VoteState   `json:"vote_state"`
-		Ballots       []*Ballot   `json:"ballots"`
-		AutoOpen      bool        `json:"auto_open"`
-		DisplayMode   DisplayMode `json:"display_mode"`
-		ObserverCount int32       `json:"observer_count"`
+		RoomID      RoomID      `json:"room_id"`
+		AdminUserID user.ID     `json:"admin_user_id"`
+		VoteState   VoteState   `json:"vote_state"`
+		Ballots     []*Ballot   `json:"ballots"`
+		AutoOpen    bool        `json:"auto_open"`
+		DisplayMode DisplayMode `json:"display_mode"`
 	}
 )
 
 func NewRoomCondition() *RoomCondition {
 	return &RoomCondition{
-		RoomID:        newRoomID(),
-		AdminUserID:   "",
-		VoteState:     VoteStateHide,
-		Ballots:       []*Ballot{},
-		AutoOpen:      true,
-		DisplayMode:   DisplayModePoint,
-		ObserverCount: 0,
+		RoomID:      newRoomID(),
+		AdminUserID: "",
+		VoteState:   VoteStateHide,
+		Ballots:     []*Ballot{},
+		AutoOpen:    true,
+		DisplayMode: DisplayModePoint,
 	}
 }
 
@@ -67,6 +65,19 @@ func (c *RoomCondition) IsUserIn(userID user.ID) bool {
 	}
 
 	return false
+}
+
+// ObserverCount は観戦者数を Ballots から導出する。
+// フィールドとして保持すると Leave / Kick 時の減算漏れで実態とずれるため、常に計算で求める。
+func (c *RoomCondition) ObserverCount() int32 {
+	var n int32
+	for _, b := range c.Ballots {
+		if b.IsObserver() {
+			n++
+		}
+	}
+
+	return n
 }
 
 func (c *RoomCondition) Join(userID user.ID, userName user.Name) error {
@@ -138,19 +149,14 @@ func (c *RoomCondition) Reset() {
 	}
 }
 
+// Kick は管理者が対象ユーザーを退室させる。
+// 退室処理(管理者の引き継ぎを含む)は Leave と同一でなければならないため Leave に委譲する。
 func (c *RoomCondition) Kick(userID, targetID user.ID) error {
-	if c.AdminUserID != userID {
+	if !c.IsAdmin(userID) {
 		return ErrNotAdmin
 	}
 
-	for i, b := range c.Ballots {
-		if b.UserID == targetID {
-			c.Ballots = append(c.Ballots[:i], c.Ballots[i+1:]...)
-			break
-		}
-	}
-
-	c.tally()
+	c.Leave(targetID)
 
 	return nil
 }
@@ -164,15 +170,7 @@ func (c *RoomCondition) UpdateSetting(autoOpen bool, displayMode DisplayMode) {
 func (c *RoomCondition) ToggleObserverMode(userID user.ID, isObserver bool) {
 	for _, b := range c.Ballots {
 		if b.UserID == userID {
-			previouslyObserver := b.IsObserver()
 			b.SetObserverMode(isObserver)
-			
-			if previouslyObserver && !isObserver {
-				c.ObserverCount--
-			} else if !previouslyObserver && isObserver {
-				c.ObserverCount++
-			}
-			
 			c.tally()
 			break
 		}
