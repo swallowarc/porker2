@@ -51,7 +51,7 @@ func expectedCookie(conf Config, token string) string {
 		Domain:   conf.CookieDomain,
 		MaxAge:   user.SessionLifetimeMinutes * 60,
 		Secure:   conf.CookieSecure,
-		HttpOnly: false,
+		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,
 	}).String()
 }
