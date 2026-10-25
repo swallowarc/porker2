@@ -25,20 +25,11 @@ func NewUser(repo port.UserRepository, pokerRepo port.PokerRepository) User {
 	}
 }
 
+// Login はユーザーを作成しセッションを開始する。
+// 名前の重複は Create がアトミックに検出して AlreadyExists を返すため、事前チェックはしない
+// (事前チェックは競合時に守りにならず、RTT を 1 回増やすだけ)。
 func (i *userInteractor) Login(ctx context.Context, userName user.Name) (user.ID, string, error) {
-	// Check if the userName already exists.
-	if _, err := i.userRepo.GetIDByName(ctx, userName); err == nil {
-		return user.ID{}, "", merror.NewAlreadyExists("user name already exists")
-	} else if !merror.IsNotFound(err) {
-		return user.ID{}, "", merror.WrapInternal(err, "failed to get user name")
-	}
-
-	id, token, err := i.userRepo.Create(ctx, userName)
-	if err != nil {
-		return user.ID{}, "", err
-	}
-
-	return id, token, nil
+	return i.userRepo.Create(ctx, userName)
 }
 
 // Logout はセッションを破棄する。冪等であり、ユーザーや部屋が既に消えていても成功を返す。

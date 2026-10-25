@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"time"
+	"uuid"
 
 	"github.com/cenkalti/backoff/v7"
 
@@ -56,11 +57,15 @@ func (r *pokerRepository) CreateRoom(ctx context.Context) (poker.RoomID, error) 
 	return poker.RoomID{}, merror.NewUnavailable("room creation retry limit has been exceeded")
 }
 
+// UpdateRoomWithLock は部屋ごとの分散ロックを取得して modifier を適用し、結果を publish する。
+// ロック値に一意なトークンを入れ、解放時に一致を確認する。TTL 切れ後に他者が取得したロックを
+// 誤って削除しないため。
 func (r *pokerRepository) UpdateRoomWithLock(ctx context.Context, roomID poker.RoomID, modifier port.RoomModifier) error {
 	lockKey := roomLockKey(roomID)
+	lockToken := uuid.New().String()
 
 	_, err := backoff.Retry(ctx, func() (struct{}, error) {
-		set, err := r.mem.SetNX(ctx, lockKey, []byte{}, roomLockDuration)
+		set, err := r.mem.SetNX(ctx, lockKey, lockToken, roomLockDuration)
 		if err != nil {
 			return struct{}{}, backoff.Permanent(err)
 		} else if !set {
@@ -80,10 +85,14 @@ func (r *pokerRepository) UpdateRoomWithLock(ctx context.Context, roomID poker.R
 	defer cancel()
 
 	defer func() {
-		if err := r.mem.Del(ctx, lockKey); err != nil {
-			if !merror.IsNotFound(err) {
-				logger.FromCtx(inCtx).Error("failed to release lock", slog.String("error", err.Error()))
-			}
+		released, err := r.mem.CompareAndDelete(ctx, lockKey, lockToken)
+		if err != nil {
+			logger.FromCtx(ctx).Error("failed to release lock", slog.String("error", err.Error()))
+			return
+		}
+		if !released {
+			// TTL 切れで既に消えている、または他者が取り直している。処理時間が TTL に迫っている兆候。
+			logger.FromCtx(ctx).Warn("lock was not owned at release", slog.String("room_id", roomID.String()))
 		}
 	}()
 

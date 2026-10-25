@@ -109,3 +109,37 @@ func TestUserRepository_UpdateRoomID_ClearsWithZeroValue(t *testing.T) {
 
 	assert.NoError(t, NewUserRepository(mem).UpdateRoomID(context.Background(), testUserID, poker.RoomID{}))
 }
+
+func TestUserRepository_Create(t *testing.T) {
+	name := user.MustName("alice")
+
+	t.Run("name をガードに 3 キーをアトミックに書き込む", func(t *testing.T) {
+		mem := mock_gateway.NewMockMemDBClient(gomock.NewController(t))
+		var got map[string]any
+		mem.EXPECT().SetAllIfAbsent(gomock.Any(), userNameKey(name), gomock.Any(), user.SessionLifetimeDuration).
+			DoAndReturn(func(_ context.Context, _ string, entries map[string]any, _ any) (bool, error) {
+				got = entries
+				return true, nil
+			})
+
+		id, token, err := NewUserRepository(mem).Create(context.Background(), name)
+		require.NoError(t, err)
+		assert.False(t, id.IsZero())
+		assert.NotEmpty(t, token)
+
+		require.Len(t, got, 3)
+		assert.Equal(t, id.String(), got[userNameKey(name)])
+		assert.Equal(t, id.String(), got[userTokenKey(token)])
+		m, err := decodeUser(got[userIDKey(id)].(string))
+		require.NoError(t, err)
+		assert.Equal(t, userModel{ID: id.String(), Name: "alice", Token: token}, *m)
+	})
+
+	t.Run("name が既にあれば AlreadyExists", func(t *testing.T) {
+		mem := mock_gateway.NewMockMemDBClient(gomock.NewController(t))
+		mem.EXPECT().SetAllIfAbsent(gomock.Any(), userNameKey(name), gomock.Any(), gomock.Any()).Return(false, nil)
+
+		_, _, err := NewUserRepository(mem).Create(context.Background(), name)
+		assert.True(t, merror.IsAlreadyExists(err), "got: %v", err)
+	})
+}
