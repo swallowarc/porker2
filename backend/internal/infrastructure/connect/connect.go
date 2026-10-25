@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"net"
 	"net/http"
 	"time"
 
@@ -58,18 +59,28 @@ func NewServer(logger *slog.Logger, conf Config, controller pbconn.Porker2Servic
 	}
 }
 
-func (s *Server) Run() {
+// Start は listen を同期的に行い、失敗 (ポート使用中等) を起動エラーとして返す。
+// 受け付けループだけを別 goroutine で回す。
+func (s *Server) Start(_ context.Context) error {
+	ln, err := net.Listen("tcp", s.httpServer.Addr)
+	if err != nil {
+		return fmt.Errorf("failed to listen on %s: %w", s.httpServer.Addr, err)
+	}
+
+	s.logger.Info("server listening", slog.String("addr", ln.Addr().String()))
+
 	go func() {
-		if err := s.httpServer.ListenAndServe(); err != nil {
-			if !errors.Is(err, http.ErrServerClosed) {
-				s.logger.Error("failed to rest server listen and serve", slog.Any("error", err))
-			}
+		if err := s.httpServer.Serve(ln); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			s.logger.Error("server stopped unexpectedly", slog.Any("error", err))
 		}
 	}()
+
+	return nil
 }
 
-func (s *Server) Shutdown(ctx context.Context) {
+func (s *Server) Shutdown(ctx context.Context) error {
 	if err := s.httpServer.Shutdown(ctx); err != nil {
-		s.logger.Error("failed to shutdown server", slog.Any("error", err))
+		return fmt.Errorf("failed to shutdown server: %w", err)
 	}
+	return nil
 }

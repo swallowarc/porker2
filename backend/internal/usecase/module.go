@@ -7,7 +7,7 @@ import (
 )
 
 func Module() fx.Option {
-	return fx.Module("infrastructure",
+	return fx.Module("usecase",
 		fx.Provide(
 			interactor.NewUser,
 			interactor.NewPoker,
