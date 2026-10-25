@@ -64,6 +64,10 @@ func (m *manager) VerifyToken(ctx context.Context, req *http.Request) (any, erro
 	}
 
 	if err := m.repo.ResetLifetime(ctx, userID); err != nil {
+		if merror.IsNotFound(err) {
+			// token は残っているが user データが消えている (TTL のずれ等)。認証失敗として扱う。
+			return nil, authn.Errorf("unable to authenticate")
+		}
 		return nil, merror.WrapInternal(err, "error: failed to reset lifetime")
 	}
 
