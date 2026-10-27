@@ -24,32 +24,29 @@ func NewUserRepository(mem gateway.MemDBClient) port.UserRepository {
 	}
 }
 
+// Create はユーザーを作成する。
+// name / id / token の 3 キーは guard (name) の不在確認と合わせてアトミックに書き込む。
+// 個別に SetNX すると途中失敗で name キーだけが残り、その名前が TTL まで使えなくなる。
 func (r *userRepository) Create(ctx context.Context, userName user.Name) (user.ID, string, error) {
 	id := user.NewID()
 	token := user.NewToken()
-	m := &userModel{ID: id.String(), Name: userName.String(), Token: token}
 
-	set, err := r.mem.SetNX(ctx, userNameKey(userName), id.String(), user.SessionLifetimeDuration)
-	if err != nil {
-		return user.ID{}, "", merror.WrapInternal(err, "failed to set user name")
-	} else if !set {
-		return user.ID{}, "", merror.NewAlreadyExists("user name already exists")
-	}
-
-	j, err := encodeUser(m)
+	j, err := encodeUser(&userModel{ID: id.String(), Name: userName.String(), Token: token})
 	if err != nil {
 		return user.ID{}, "", err
 	}
 
-	set, err = r.mem.SetNX(ctx, userIDKey(id), j, user.SessionLifetimeDuration)
+	nameKey := userNameKey(userName)
+	set, err := r.mem.SetAllIfAbsent(ctx, nameKey, map[string]any{
+		nameKey:             id.String(),
+		userIDKey(id):       j,
+		userTokenKey(token): id.String(),
+	}, user.SessionLifetimeDuration)
 	if err != nil {
-		return user.ID{}, "", merror.WrapInternal(err, "failed to set user id")
-	} else if !set {
-		return user.ID{}, "", merror.NewAlreadyExists("user id already exists")
+		return user.ID{}, "", merror.WrapInternal(err, "failed to create user")
 	}
-
-	if _, err := r.mem.SetNX(ctx, userTokenKey(token), id.String(), user.SessionLifetimeDuration); err != nil {
-		return user.ID{}, "", merror.WrapInternal(err, "failed to set user token")
+	if !set {
+		return user.ID{}, "", merror.NewAlreadyExists("user name already exists")
 	}
 
 	return id, token, nil

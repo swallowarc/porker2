@@ -41,6 +41,21 @@ func (m *MockMemDBClient) EXPECT() *MockMemDBClientMockRecorder {
 	return m.recorder
 }
 
+// CompareAndDelete mocks base method.
+func (m *MockMemDBClient) CompareAndDelete(ctx context.Context, key, expected string) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CompareAndDelete", ctx, key, expected)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CompareAndDelete indicates an expected call of CompareAndDelete.
+func (mr *MockMemDBClientMockRecorder) CompareAndDelete(ctx, key, expected any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CompareAndDelete", reflect.TypeOf((*MockMemDBClient)(nil).CompareAndDelete), ctx, key, expected)
+}
+
 // Del mocks base method.
 func (m *MockMemDBClient) Del(ctx context.Context, key string) error {
 	m.ctrl.T.Helper()
@@ -208,6 +223,21 @@ func (m *MockMemDBClient) Set(ctx context.Context, key string, value any, durati
 func (mr *MockMemDBClientMockRecorder) Set(ctx, key, value, duration any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Set", reflect.TypeOf((*MockMemDBClient)(nil).Set), ctx, key, value, duration)
+}
+
+// SetAllIfAbsent mocks base method.
+func (m *MockMemDBClient) SetAllIfAbsent(ctx context.Context, guardKey string, entries map[string]any, duration time.Duration) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetAllIfAbsent", ctx, guardKey, entries, duration)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SetAllIfAbsent indicates an expected call of SetAllIfAbsent.
+func (mr *MockMemDBClientMockRecorder) SetAllIfAbsent(ctx, guardKey, entries, duration any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAllIfAbsent", reflect.TypeOf((*MockMemDBClient)(nil).SetAllIfAbsent), ctx, guardKey, entries, duration)
 }
 
 // SetNX mocks base method.

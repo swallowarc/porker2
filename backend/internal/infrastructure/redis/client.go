@@ -19,6 +19,26 @@ const (
 	earliestEntry = "-"
 )
 
+var (
+	// compareAndDeleteScript: 値が一致する場合のみ削除する。ロック解放で他者のロックを消さないために使う。
+	compareAndDeleteScript = redis.NewScript(`
+if redis.call("GET", KEYS[1]) == ARGV[1] then
+  return redis.call("DEL", KEYS[1])
+end
+return 0`)
+
+	// setAllIfAbsentScript: KEYS[1] (guard) が無い場合のみ、全 KEYS を ARGV の対応値で SET する。
+	// 最後の ARGV は TTL (ミリ秒)。
+	setAllIfAbsentScript = redis.NewScript(`
+if redis.call("EXISTS", KEYS[1]) == 1 then
+  return 0
+end
+for i = 1, #KEYS do
+  redis.call("SET", KEYS[i], ARGV[i], "PX", ARGV[#ARGV])
+end
+return 1`)
+)
+
 type (
 	redisClient struct {
 		cli redis.Cmdable
@@ -59,6 +79,33 @@ func (c *redisClient) SetNX(ctx context.Context, key string, value any, duration
 	return ret, nil
 }
 
+func (c *redisClient) SetAllIfAbsent(ctx context.Context, guardKey string, entries map[string]any, duration time.Duration) (bool, error) {
+	guardValue, ok := entries[guardKey]
+	if !ok {
+		return false, merror.NewInternal("guard key %q must be included in entries", guardKey)
+	}
+
+	keys := make([]string, 0, len(entries))
+	args := make([]any, 0, len(entries)+1)
+	keys = append(keys, guardKey)
+	args = append(args, guardValue)
+	for k, v := range entries {
+		if k == guardKey {
+			continue
+		}
+		keys = append(keys, k)
+		args = append(args, v)
+	}
+	args = append(args, duration.Milliseconds())
+
+	n, err := setAllIfAbsentScript.Run(ctx, c.cli, keys, args...).Int()
+	if err != nil {
+		return false, merror.WrapInternal(err, "failed to redis SetAllIfAbsent")
+	}
+
+	return n == 1, nil
+}
+
 func (c *redisClient) Get(ctx context.Context, key string) (string, error) {
 	val, err := c.cli.Get(ctx, key).Result()
 	if err != nil {
@@ -79,6 +126,15 @@ func (c *redisClient) Del(ctx context.Context, key string) error {
 		return merror.WrapInternal(err, "failed to redis Del")
 	}
 	return nil
+}
+
+func (c *redisClient) CompareAndDelete(ctx context.Context, key string, expected string) (bool, error) {
+	n, err := compareAndDeleteScript.Run(ctx, c.cli, []string{key}, expected).Int()
+	if err != nil {
+		return false, merror.WrapInternal(err, "failed to redis CompareAndDelete")
+	}
+
+	return n == 1, nil
 }
 
 func (c *redisClient) SAdd(ctx context.Context, key string, values ...any) error {

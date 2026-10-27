@@ -111,3 +111,60 @@ func TestRoomModel_LegacyJSONIsReadable(t *testing.T) {
 	assert.Equal(t, int32(1), room.ObserverCount(), "observer_count は無視され ballots から導出される")
 	assert.True(t, room.Ballots()[0].IsObserver())
 }
+
+func TestPokerRepository_UpdateRoomWithLock(t *testing.T) {
+	roomID := poker.MustRoomID("12345")
+	// publish 先のキーは GetRoom が返した部屋の ID から決まるので、固定 ID の部屋を復元して使う
+	room, err := poker.RestoreRoom(poker.RoomSnapshot{
+		RoomID:      roomID.String(),
+		VoteState:   poker.VoteStateHide.Int32(),
+		AutoOpen:    true,
+		DisplayMode: poker.DisplayModePoint.Int32(),
+	})
+	require.NoError(t, err)
+	encoded, err := encodeRoom(room)
+	require.NoError(t, err)
+
+	t.Run("取得したトークンと同じ値でロックを解放する", func(t *testing.T) {
+		mem := mock_gateway.NewMockMemDBClient(gomock.NewController(t))
+		var token string
+		gomock.InOrder(
+			mem.EXPECT().SetNX(gomock.Any(), roomLockKey(roomID), gomock.Any(), roomLockDuration).
+				DoAndReturn(func(_ context.Context, _ string, v any, _ any) (bool, error) {
+					token = v.(string)
+					assert.NotEmpty(t, token, "ロック値は一意なトークン")
+					return true, nil
+				}),
+			mem.EXPECT().ReadStreamLatest(gomock.Any(), roomKey(roomID), keyRoomConditionMessage).Return(encoded, nil),
+			mem.EXPECT().PublishStream(gomock.Any(), roomKey(roomID), gomock.Any()).Return(nil),
+			mem.EXPECT().Expire(gomock.Any(), roomKey(roomID), poker.RoomLifetimeDuration).Return(nil),
+			mem.EXPECT().CompareAndDelete(gomock.Any(), roomLockKey(roomID), gomock.Any()).
+				DoAndReturn(func(_ context.Context, _ string, expected string) (bool, error) {
+					assert.Equal(t, token, expected, "SetNX で置いたトークンで解放する")
+					return true, nil
+				}),
+		)
+
+		called := false
+		err := NewPokerRepository(mem).UpdateRoomWithLock(context.Background(), roomID, func(_ context.Context, r *poker.Room) error {
+			called = true
+			return nil
+		})
+		require.NoError(t, err)
+		assert.True(t, called)
+	})
+
+	t.Run("modifier が失敗しても publish せずロックは解放する", func(t *testing.T) {
+		mem := mock_gateway.NewMockMemDBClient(gomock.NewController(t))
+		gomock.InOrder(
+			mem.EXPECT().SetNX(gomock.Any(), roomLockKey(roomID), gomock.Any(), roomLockDuration).Return(true, nil),
+			mem.EXPECT().ReadStreamLatest(gomock.Any(), roomKey(roomID), keyRoomConditionMessage).Return(encoded, nil),
+			mem.EXPECT().CompareAndDelete(gomock.Any(), roomLockKey(roomID), gomock.Any()).Return(true, nil),
+		)
+
+		err := NewPokerRepository(mem).UpdateRoomWithLock(context.Background(), roomID, func(_ context.Context, _ *poker.Room) error {
+			return poker.ErrNotAdmin
+		})
+		assert.ErrorIs(t, err, poker.ErrNotAdmin)
+	})
+}
