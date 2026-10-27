@@ -95,34 +95,6 @@ jobs:
           body: |
             ## Docker Image
 
-            `${{ env.DOCKER_IMAGE }}:${{ steps.tag.outputs.version }}`
-
-            マルチアーキテクチャサポート: `linux/amd64`, `linux/arm64`
-
-            ### 使用方法
-
-            ```bash
-            docker run -d \
-              --name porker2 \
-              -p 8081:8081 \
-              -p 8082:8082 \
-              -e ENV=production \
-              -e REDIS_HOST_PORT=redis:6379 \
-              -e REDIS_DB=0 \
-              -e CONNECT_CORS_ALLOW_ORIGINS=http://localhost \
-              -e SESSION_COOKIE_DOMAIN=localhost \
-              ${{ env.DOCKER_IMAGE }}:${{ steps.tag.outputs.version }}
-            ```
-
-            ### 環境変数
-
-            | 変数名 | 説明 | デフォルト値 |
-            |--------|------|------------|
-            | `ENV` | 環境 (local/production) | local |
-            | `REDIS_HOST_PORT` | Redisホスト:ポート | localhost:6379 |
-            | `REDIS_DB` | Redis DBインデックス | 0 |
-            | `CONNECT_PORT` | バックエンドポート | 8080 |
-            | `CONNECT_CORS_ALLOW_ORIGINS` | CORS許可オリジン | 必須 |
-            | `SESSION_COOKIE_DOMAIN` | クッキードメイン | localhost |
-
-            詳細は [README.md](https://github.com/${{ github.repository }}) を参照してください。
+            - `${{ env.DOCKER_IMAGE }}:${{ steps.tag.outputs.version }}`
+            - `${{ env.DOCKER_IMAGE }}:${{ steps.tag.outputs.minor }}`
+            - `${{ env.DOCKER_IMAGE }}:${{ steps.tag.outputs.major }}`
