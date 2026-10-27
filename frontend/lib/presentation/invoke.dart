@@ -4,15 +4,22 @@ import 'package:connectrpc/connect.dart';
 import 'package:porker2fe/core/error/error.dart';
 import 'package:porker2fe/core/logger/logger.dart';
 
-typedef ErrorCallback = void Function(String errMessage);
-
-Future<void> invoke<T>(BuildContext context,
-    Future<T> Function() call,
-    void Function(T result) callback,) async {
+/// [call] を実行し、成功したら [callback] を呼ぶ。
+/// 失敗した場合はエラーをスナックバーで表示し、[onError] があれば呼ぶ。
+/// ただし Unauthenticated はログイン画面へ戻し、[onError] は呼ばない。
+Future<void> invoke<T>(
+  BuildContext context,
+  Future<T> Function() call,
+  void Function(T result) callback, {
+  void Function()? onError,
+}) async {
   const unexpectedMessage = "An unexpected error has occurred (＠_＠;)";
 
   await call().then((result) {
-    callback(result);
+    // 画面遷移を伴う callback が、呼び出し中に破棄された画面の context で動かないようにする
+    if (context.mounted) {
+      callback(result);
+    }
   }).catchError((e) {
     logger.e(e.toString());
     String message = unexpectedMessage;
@@ -55,6 +62,7 @@ Future<void> invoke<T>(BuildContext context,
         content: Text(message),
         backgroundColor: snackBackgroundColor,
       ));
+      onError?.call();
     }
   });
 }

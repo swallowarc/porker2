@@ -46,45 +46,43 @@ class Porker2ServiceImpl extends Porker2Service {
     try {
       await _client.checkRoom(CheckRoomRequest()
         ..roomId = roomID);
-    } catch (e) {
-      if (e is ConnectException) {
-        if (e.code == Code.notFound) {
-          throw roomNotFoundError;
-        }
-      }
-      rethrow;
+    } on ConnectException catch (e) {
+      throw _roomError(e);
     }
   }
 
   @override
   Stream<RoomCondition> joinRoom(String roomID) async* {
-    bool subscribing = true;
-
-    while (subscribing) {
+    while (true) {
       try {
         await for (final res in _client.joinRoom(JoinRoomRequest(roomId: roomID))) {
           yield res.condition;
         }
-        // Stream completed normally
-        subscribing = false;
-      } catch (e, stackTrace) {
+        // サーバーが購読を終えた (退室・キックなど)
+        logger.d('Stream completed');
+        return;
+      } catch (e) {
         if (shouldRetry(e)) {
           // server側のWriteTimeoutを超えた場合などを想定しリトライ
           logger.i('Stream retryable error', error: e);
           await Future.delayed(retryInterval);
           continue;
         }
-
-        subscribing = false;
-        logger.e('Stream error', error: e, stackTrace: stackTrace);
-
-        if (e is ConnectException && e.code == Code.notFound) {
-          throw roomNotFoundError;
-        }
+        throw (e is ConnectException) ? _roomError(e) : e;
       }
     }
+  }
 
-    logger.d('Stream completed');
+  /// 部屋に対する操作で返るエラーのうち、利用者に見せるものを ExpectedError に変換する
+  Exception _roomError(ConnectException e) {
+    switch (e.code) {
+      case Code.notFound:
+        return roomNotFoundError;
+      case Code.failedPrecondition:
+        return roomFullError;
+      default:
+        return e;
+    }
   }
 
   @override

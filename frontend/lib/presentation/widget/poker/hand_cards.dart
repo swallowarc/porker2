@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pbenum.dart';
 import 'package:porker2fe/application/provider.dart';
+import 'package:porker2fe/presentation/invoke.dart';
 import 'package:porker2fe/presentation/widget/poker/hand_card.dart';
 
 const List<Point> pointOrder = [
@@ -45,8 +46,12 @@ class HandCards extends HookConsumerWidget {
             if (!pokerNotifier.votable) {
               return;
             }
-            pokerNotifier
-                .castVote(myPoint == point ? Point.POINT_UNSPECIFIED : point);
+            invoke(
+              context,
+              () => pokerNotifier
+                  .castVote(myPoint == point ? Point.POINT_UNSPECIFIED : point),
+              (_) {},
+            );
           },
           delayMilliseconds: delayMilliseconds,
           selected: myPoint == point,

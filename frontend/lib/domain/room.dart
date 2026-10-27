@@ -5,3 +5,7 @@ final roomIDFormatRegExp = RegExp(r"^[0-9]{5}$");
 final roomNotFoundError = ExpectedError(
   "Room not found",
 );
+
+final roomFullError = ExpectedError(
+  "Room is full",
+);

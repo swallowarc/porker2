@@ -1,12 +1,12 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/core/logger/logger.dart';
 import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pb.dart';
 import 'package:porker2fe/presentation/const.dart';
 import 'package:porker2fe/presentation/invoke.dart';
 import 'package:porker2fe/application/provider.dart';
+import 'package:porker2fe/presentation/router/router.dart';
 import 'package:porker2fe/presentation/widget/app_bar.dart';
 import 'package:porker2fe/presentation/widget/bottom_bar.dart';
 import 'package:porker2fe/presentation/widget/dialog.dart';
@@ -24,22 +24,22 @@ class PokerPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // 未ログインでの到達は router の redirect が防いでいるので、ここでは入室だけを行う
+    // 未ログインでの到達は router の redirect が防いでいるので、ここでは入室だけを行う。
+    // joinRoom は購読が終わる (退室・キック・部屋の消滅) まで完了しないので、
+    // 完了したら部屋選択へ戻る。エラー (部屋がない・満員など) は invoke が表示してから
+    // 部屋選択へ戻し、Unauthenticated ならログインへ戻す
     useEffect(() {
-      ref.read(pokerProvider.notifier).joinRoom(roomId);
       logger.d('join room: $roomId');
+      invoke(
+        context,
+        () => ref.read(pokerProvider.notifier).joinRoom(roomId),
+        (_) => RoomSelectRoute().go(context),
+        onError: () => RoomSelectRoute().go(context),
+      );
       return null;
     }, [roomId]);
 
     final poker = ref.watch(pokerProvider);
-    if (!ref.read(pokerProvider.notifier).subscribing) {
-      logger.d('not subscribing');
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        GoRouter.of(context).go('/room');
-      });
-      return const PorkerProgressIndicator();
-    }
-
     if (poker.roomID.isEmpty) {
       return const PorkerProgressIndicator();
     }
@@ -79,10 +79,11 @@ class PokerPage extends HookConsumerWidget {
             builder: (_) => TwoChoiceDialog(
               title: 'Leave Room',
               message: 'Do you want to leave this poker?',
+              // 退室が成功すれば購読が終わり、上の joinRoom の完了処理で部屋選択へ戻る
               onYes: () => invoke(
                   context,
                   () => ref.read(pokerProvider.notifier).leaveRoom(),
-                  (_) => GoRouter.of(context).go('/room')),
+                  (_) {}),
             ),
           );
         },

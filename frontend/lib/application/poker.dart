@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/core/logger/logger.dart';
@@ -21,27 +23,33 @@ abstract class PokerState with _$PokerState {
   ) = _PokerState;
 }
 
+const _initialState = PokerState(
+    "", "", [], VoteState.VOTE_STATE_HIDE, true, DisplayMode.DISPLAY_MODE_POINT, 0);
+
+/// 購読中の部屋。購読の終了は [done] で待てる。
+class _RoomSubscription {
+  _RoomSubscription(this.roomID);
+
+  final String roomID;
+  final done = Completer<void>();
+  StreamSubscription<RoomCondition>? subscription;
+
+  void cancel() {
+    subscription?.cancel();
+    subscription = null;
+  }
+}
+
 class Poker extends Notifier<PokerState> {
   late final Porker2Service _svcRepo;
-  String _subscribingRoomID = "";
+
+  _RoomSubscription? _current;
 
   @override
   PokerState build() {
     _svcRepo = ref.read(porker2ServiceProvider);
-    return const PokerState("", "", [], VoteState.VOTE_STATE_HIDE, true, DisplayMode.DISPLAY_MODE_POINT, 0);
-  }
-
-  void _reset() {
-    _subscribingRoomID = "";
-    state = state.copyWith(
-      roomID: "",
-      adminUserID: "",
-      ballots: [],
-      voteState: VoteState.VOTE_STATE_HIDE,
-      autoOpen: true,
-      displayMode: DisplayMode.DISPLAY_MODE_POINT,
-      observerCount: 0,
-    );
+    ref.onDispose(() => _current?.cancel());
+    return _initialState;
   }
 
   Future<String> createRoom() async {
@@ -52,17 +60,24 @@ class Poker extends Notifier<PokerState> {
     await _svcRepo.checkRoom(roomId);
   }
 
-  Future<void> joinRoom(String roomId) async {
-    if (_subscribingRoomID == roomId) {
+  /// 部屋の状態を購読する。返す Future は購読が終わる (退室・キック・エラー) まで完了しない。
+  /// 既に同じ部屋を購読中ならその購読の終了を待つ Future を返す (画面を開き直した場合)。
+  /// 別の部屋を購読中ならそちらを打ち切って入り直す。打ち切られた側の Future は完了しない
+  /// (完了させると古い画面の遷移処理が走ってしまう)。
+  /// 購読がエラーで終わった場合はそのエラーを投げる。
+  Future<void> joinRoom(String roomId) {
+    final current = _current;
+    if (current != null && current.roomID == roomId) {
       logger.d("already subscribing: $roomId");
-      return;
+      return current.done.future;
     }
-    _subscribingRoomID = roomId;
+    current?.cancel();
 
-    try {
-      await for (final rc in _svcRepo.joinRoom(roomId)) {
+    final next = _RoomSubscription(roomId);
+    _current = next;
+    next.subscription = _svcRepo.joinRoom(roomId).listen(
+      (rc) {
         logger.d("subscribe room condition: $rc");
-
         state = state.copyWith(
           roomID: rc.roomId,
           adminUserID: rc.adminUserId,
@@ -72,14 +87,31 @@ class Poker extends Notifier<PokerState> {
           displayMode: rc.displayMode,
           observerCount: rc.observerCount,
         );
-      }
-      logger.d("unsubscribe room condition");
-      _reset();
-    } catch (error, stackTrace) {
-      logger.e("subscribe room condition error: $error",
-          error: error, stackTrace: stackTrace);
-      _reset();
+      },
+      onError: (Object error, StackTrace stackTrace) {
+        logger.e("subscribe room condition error: $error",
+            error: error, stackTrace: stackTrace);
+        _finish(next);
+        next.done.completeError(error, stackTrace);
+      },
+      onDone: () {
+        logger.d("unsubscribe room condition");
+        _finish(next);
+        next.done.complete();
+      },
+      cancelOnError: true,
+    );
+
+    return next.done.future;
+  }
+
+  /// 購読の終了処理。別の部屋へ入り直した後に古い購読が終わっても、新しい購読の状態を壊さない。
+  void _finish(_RoomSubscription finished) {
+    if (!identical(_current, finished)) {
+      return;
     }
+    _current = null;
+    state = _initialState;
   }
 
   Future<void> leaveRoom() async => _svcRepo.leaveRoom(state.roomID);
@@ -108,9 +140,7 @@ class Poker extends Notifier<PokerState> {
 
   bool get openable =>
       state.voteState == VoteState.VOTE_STATE_HIDE &&
-          state.ballots
-              .where((e) => ![Point.POINT_UNSPECIFIED].contains(e.point))
-              .isNotEmpty;
+          state.ballots.any((e) => e.point != Point.POINT_UNSPECIFIED);
 
   bool get votable => state.voteState == VoteState.VOTE_STATE_HIDE;
 
@@ -123,8 +153,6 @@ class Poker extends Notifier<PokerState> {
       state.ballots
           .firstWhere((e) => e.userId == userID, orElse: () => Ballot())
           .role == UserRole.USER_ROLE_OBSERVER;
-
-  bool get subscribing => _subscribingRoomID.isNotEmpty;
 
   List<Ballot> get voterBallots =>
       state.ballots
