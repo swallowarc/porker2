@@ -1,5 +1,7 @@
+import 'dart:async';
+
 import 'package:connectrpc/connect.dart';
-import 'package:porker2fe/core/error/retry.dart';
+import 'package:porker2fe/core/error/retry.dart' as retry;
 import 'package:porker2fe/core/logger/logger.dart';
 import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pb.dart';
 import 'package:porker2fe/infrastructure/generated/pb/porker/v2/service.connect.client.dart';
@@ -10,8 +12,10 @@ import 'package:porker2fe/application/port/port.dart';
 
 class Porker2ServiceImpl extends Porker2Service {
   final Porker2ServiceClient _client;
+  final Duration _retryInterval;
 
-  Porker2ServiceImpl(this._client);
+  Porker2ServiceImpl(this._client, {Duration? retryInterval})
+      : _retryInterval = retryInterval ?? retry.retryInterval;
 
   @override
   Future<LoginResult> login(String userName) async {
@@ -51,26 +55,56 @@ class Porker2ServiceImpl extends Porker2Service {
     }
   }
 
+  /// 部屋の状態を購読する。リトライ対象のエラー (サーバーの WriteTimeout など) では
+  /// 間を置いて再接続する。購読が cancel されたら、進行中のリクエストを中断し、再接続もしない
+  /// (async* だと cancel が次の yield まで効かず、cancel 後に JoinRoom を呼び直して
+  /// 退室した部屋へ入り直してしまう)。
   @override
-  Stream<RoomCondition> joinRoom(String roomID) async* {
-    while (true) {
-      try {
-        await for (final res in _client.joinRoom(JoinRoomRequest(roomId: roomID))) {
-          yield res.condition;
-        }
-        // サーバーが購読を終えた (退室・キックなど)
-        logger.d('Stream completed');
-        return;
-      } catch (e) {
-        if (shouldRetry(e)) {
-          // server側のWriteTimeoutを超えた場合などを想定しリトライ
-          logger.i('Stream retryable error', error: e);
-          await Future.delayed(retryInterval);
-          continue;
-        }
-        throw (e is ConnectException) ? _roomError(e) : e;
-      }
+  Stream<RoomCondition> joinRoom(String roomID) {
+    late final StreamController<RoomCondition> controller;
+    CancelableSignal? signal;
+    Timer? retryTimer;
+    var cancelled = false;
+
+    void connect() {
+      if (cancelled) return;
+      signal = CancelableSignal();
+      _client.joinRoom(JoinRoomRequest(roomId: roomID), signal: signal).listen(
+        (res) {
+          if (!cancelled) controller.add(res.condition);
+        },
+        onError: (Object e, StackTrace stackTrace) {
+          // cancel 後は signal の中断で Canceled が届く。購読者はもういないので捨てる
+          if (cancelled) return;
+          if (retry.shouldRetry(e)) {
+            logger.i('Stream retryable error', error: e);
+            retryTimer = Timer(_retryInterval, connect);
+            return;
+          }
+          controller.addError((e is ConnectException) ? _roomError(e) : e, stackTrace);
+          controller.close();
+        },
+        onDone: () {
+          if (cancelled) return;
+          // サーバーが購読を終えた (退室・キックなど)
+          logger.d('Stream completed');
+          controller.close();
+        },
+        cancelOnError: true,
+      );
     }
+
+    controller = StreamController<RoomCondition>(
+      onListen: connect,
+      onCancel: () {
+        cancelled = true;
+        retryTimer?.cancel();
+        // リクエストを中断する。内側の購読は中断エラーで自然に終わる
+        // (cancel() の完了を待つと、応答が来るまで購読の cancel が返らない)
+        signal?.cancel();
+      },
+    );
+    return controller.stream;
   }
 
   /// 部屋に対する操作で返るエラーのうち、利用者に見せるものを ExpectedError に変換する
