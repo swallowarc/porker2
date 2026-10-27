@@ -45,7 +45,7 @@ class PokerPage extends HookConsumerWidget {
     }
 
     final bool isMediumScreen =
-        MediaQuery.of(context).size.width < mediumScreenBoundary;
+        MediaQuery.sizeOf(context).width < mediumScreenBoundary;
 
     final body = Stack(
       children: [

@@ -3,8 +3,8 @@ import 'package:material_ui/material_ui.dart';
 class TwoChoiceDialog extends StatelessWidget {
   final String title;
   final String message;
-  final Function() onYes;
-  final Function()? onNo;
+  final VoidCallback onYes;
+  final VoidCallback? onNo;
 
   const TwoChoiceDialog({
     super.key,
@@ -20,22 +20,16 @@ class TwoChoiceDialog extends StatelessWidget {
       title: Text(title),
       content: Text(message),
       actions: <Widget>[
-        MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: GestureDetector(
-            onTap: () {
-              onYes();
-              Navigator.pop(context);
-            },
-            child: const Text('Yes'),
-          ),
+        TextButton(
+          onPressed: onNo ?? () => Navigator.pop(context),
+          child: const Text('No'),
         ),
-        MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: GestureDetector(
-            onTap: onNo ?? () => Navigator.pop(context),
-            child: const Text('No'),
-          ),
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+            onYes();
+          },
+          child: const Text('Yes'),
         ),
       ],
     );

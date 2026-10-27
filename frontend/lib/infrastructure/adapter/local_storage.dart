@@ -12,6 +12,6 @@ class LocalStorageImpl implements LocalStorage {
 
   @override
   Future<void> setUserName(String name) async {
-    (await SharedPreferences.getInstance()).setString(_userNameKey, name);
+    await (await SharedPreferences.getInstance()).setString(_userNameKey, name);
   }
 }

@@ -47,7 +47,6 @@ dependencies:
   url_launcher: ^6.3.2
   logger: ^2.6.1
   shared_preferences: ^2.2.3
-  sprintf: ^7.0.0
   material_ui: ^1.7.0
 
 dev_dependencies:

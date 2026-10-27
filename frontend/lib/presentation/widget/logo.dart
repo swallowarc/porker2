@@ -23,7 +23,7 @@ class Logo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isSmallScreen =
-        MediaQuery.of(context).size.width < smallScreenBoundary;
+        MediaQuery.sizeOf(context).width < smallScreenBoundary;
 
     return Column(
       mainAxisSize: MainAxisSize.min,

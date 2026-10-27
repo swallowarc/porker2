@@ -37,7 +37,7 @@ class HandCards extends HookConsumerWidget {
     final isObserver = pokerNotifier.isObserver(user.userID);
 
     if (isObserver) {
-      return Container();
+      return const SizedBox.shrink();
     }
 
     HandCard buildCard(Point point, int delayMilliseconds) => HandCard(

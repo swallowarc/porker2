@@ -2,7 +2,6 @@ import 'package:material_ui/material_ui.dart';
 import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pb.dart';
 import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pbenum.dart';
 import 'package:porker2fe/domain/point.dart';
-import 'package:sprintf/sprintf.dart';
 
 final Map<Point, Color> _pointColors = {
   Point.POINT_COFFEE: Colors.blueGrey.shade300,
@@ -30,20 +29,25 @@ final List<Color> _cardColors = [
   Colors.pinkAccent.shade100,
 ];
 
+/// 裏面の絵柄の枚数 (images/card-00000.png 〜)
+const _backImageCount = 33;
+
 class BaseCard extends StatelessWidget {
   final bool opened;
   final Point point;
-  final int loginIDHash;
-  final int loginNameHash;
+
+  /// 裏面の色と絵柄をユーザーごとに固定するための種
+  final String loginID;
+  final String loginName;
   final DisplayMode displayMode;
 
-  const BaseCard(this.opened, this.point, this.loginIDHash, this.loginNameHash,
+  const BaseCard(this.opened, this.point, this.loginID, this.loginName,
       {super.key, this.displayMode = DisplayMode.DISPLAY_MODE_POINT});
 
   const BaseCard.initOpen(this.point, {super.key, this.displayMode = DisplayMode.DISPLAY_MODE_POINT})
       : opened = true,
-        loginIDHash = 0,
-        loginNameHash = 0;
+        loginID = "",
+        loginName = "";
 
   @override
   Widget build(BuildContext context) {
@@ -63,19 +67,19 @@ class BaseCard extends StatelessWidget {
       );
     }
 
-    final int imageID = loginNameHash % 33; // num of latest image no + 1.
+    final imageID = (loginName.hashCode % _backImageCount).toString().padLeft(5, '0');
     return SizedBox(
       width: 100,
       height: 130,
       child: Card(
-        color: _cardColors[loginIDHash % _cardColors.length],
+        color: _cardColors[loginID.hashCode % _cardColors.length],
         child: Container(
           margin: const EdgeInsets.all(4.0),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8.0),
             child: Image(
               fit: BoxFit.scaleDown,
-              image: AssetImage(sprintf("images/card-%05d.png", [imageID])),
+              image: AssetImage("images/card-$imageID.png"),
             ),
           ),
         ),

@@ -1,23 +1,20 @@
 import 'dart:math';
 
 import 'package:material_ui/material_ui.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pb.dart';
 import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pbenum.dart';
 import 'package:porker2fe/presentation/widget/poker/base_card.dart';
 
-class FieldCard extends ConsumerStatefulWidget {
+class FieldCard extends StatefulWidget {
   final String loginID;
-  late final int _loginIDHash;
   final String loginName;
-  late final int _loginNameHash;
 
   final Point point;
   final UserRole role;
   final bool opened;
   final DisplayMode displayMode;
 
-  FieldCard({
+  const FieldCard({
     super.key,
     required this.loginID,
     required this.loginName,
@@ -25,17 +22,13 @@ class FieldCard extends ConsumerStatefulWidget {
     required this.role,
     required this.opened,
     this.displayMode = DisplayMode.DISPLAY_MODE_POINT,
-  }) {
-    _loginIDHash = loginID.hashCode;
-    _loginNameHash = loginName.hashCode;
-  }
+  });
 
   @override
   FieldCardState createState() => FieldCardState();
 }
 
-class FieldCardState extends ConsumerState<FieldCard>
-    with TickerProviderStateMixin {
+class FieldCardState extends State<FieldCard> with TickerProviderStateMixin {
   late AnimationController _slideController;
   late Animation<Offset> _slideOffsetAnimation;
 
@@ -124,8 +117,8 @@ class FieldCardState extends ConsumerState<FieldCard>
     final card = BaseCard(
       widget.opened,
       widget.point,
-      widget._loginIDHash,
-      widget._loginNameHash,
+      widget.loginID,
+      widget.loginName,
       displayMode: widget.displayMode,
     );
 

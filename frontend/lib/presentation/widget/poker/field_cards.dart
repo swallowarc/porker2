@@ -17,7 +17,9 @@ class FieldCards extends HookConsumerWidget {
 
     final List<Widget> cards = poker.ballots
         .map(
+          // 退室や並び替えで位置が変わっても、アニメーション状態が同じユーザーに付いていくようにする
           (e) => Column(
+            key: ValueKey(e.userId),
             children: [
               FieldCard(
                 point: e.point,

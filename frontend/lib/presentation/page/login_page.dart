@@ -28,7 +28,7 @@ class LoginPage extends HookConsumerWidget {
 
     const logo = Logo(type: LogoType.login, message: "Enter your name");
     final bool isSmallScreen =
-        MediaQuery.of(context).size.width < smallScreenBoundary;
+        MediaQuery.sizeOf(context).width < smallScreenBoundary;
 
     final body = Center(
       child: SingleChildScrollView(

@@ -67,12 +67,6 @@ class User extends Notifier<UserState> {
 
   bool get alreadyLogin => state.userID.isNotEmpty;
 
-  Future<String> latestUserName() async {
-    final userName = await _storageRepo.getUserName();
-    if (userName.isNotEmpty) {
-      return userName;
-    }
-
-    return "";
-  }
+  /// 前回ログインに使った名前。なければ空文字。
+  Future<String> latestUserName() => _storageRepo.getUserName();
 }

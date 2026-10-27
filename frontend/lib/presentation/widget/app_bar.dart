@@ -29,7 +29,7 @@ class Porker2AppBar extends HookConsumerWidget implements PreferredSizeWidget {
     final actions = <Widget>[];
 
     final bool isMediumScreen =
-        MediaQuery.of(context).size.width < mediumScreenBoundary;
+        MediaQuery.sizeOf(context).width < mediumScreenBoundary;
 
     if (onLeave != null) {
       final errorColor = Theme.of(context).colorScheme.error;
