@@ -16,8 +16,8 @@ class HandCards extends HookConsumerWidget {
     final pokerNotifier = ref.read(pokerProvider.notifier);
     final poker = ref.watch(pokerProvider);
 
-    final myPoint = pokerNotifier.myPoint(user.userID);
-    final isObserver = pokerNotifier.isObserver(user.userID);
+    final myPoint = poker.pointOf(user.userID);
+    final isObserver = poker.isObserver(user.userID);
 
     if (isObserver) {
       return const SizedBox.shrink();
@@ -26,7 +26,7 @@ class HandCards extends HookConsumerWidget {
     HandCard buildCard(Point point, int delayMilliseconds) => HandCard(
           point: point,
           onTap: () {
-            if (!pokerNotifier.votable) {
+            if (!poker.votable) {
               return;
             }
             invoke(

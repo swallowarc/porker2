@@ -63,4 +63,48 @@ abstract class Room with _$Room {
   );
 
   bool get isEmpty => roomID.isEmpty;
+
+  bool get opened => voteState == VoteState.open;
+
+  /// 投票を受け付ける状態か
+  bool get votable => voteState == VoteState.hide;
+
+  /// 公開できる状態か (伏せられていて、誰かが投票済み)
+  bool get openable => votable && ballots.any((e) => e.point.isVoted);
+
+  Ballot? ballotOf(String userID) =>
+      ballots.where((e) => e.userID == userID).firstOrNull;
+
+  /// 指定ユーザーの投票。部屋にいない・未投票なら [Point.unspecified]
+  Point pointOf(String userID) =>
+      ballotOf(userID)?.point ?? Point.unspecified;
+
+  bool isObserver(String userID) => ballotOf(userID)?.isObserver ?? false;
+
+  /// 投票者 (観戦者を除く)
+  List<Ballot> get voters =>
+      ballots.where((e) => !e.isObserver).toList(growable: false);
+
+  int get observerCount => ballots.where((e) => e.isObserver).length;
+
+  /// 数値の票だけを数えた投票者数
+  int get numericVoteCount => voters.where((e) => e.point.isNumeric).length;
+
+  /// 数値の票の平均。数値の票がなければ 0
+  double get average {
+    final values = voters.map((e) => e.point.value).nonNulls.toList();
+    if (values.isEmpty) return 0;
+    return values.reduce((a, b) => a + b) / values.length;
+  }
+
+  /// 公開済みで、2 人以上の投票者が全員同じ札を出しているか (観戦者は数えない)
+  bool get isUnanimity {
+    if (!opened) return false;
+
+    final vs = voters;
+    if (vs.length < 2) return false;
+
+    final first = vs.first.point;
+    return first.isVoted && vs.every((e) => e.point == first);
+  }
 }

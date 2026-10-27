@@ -10,11 +10,10 @@ class Summary extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final poker = ref.watch(pokerProvider);
-    final pokerNotifier = ref.read(pokerProvider.notifier);
 
     if (poker.voteState != VoteState.open) {
-      final voterCount = pokerNotifier.voterBallots.length;
-      final observerCount = pokerNotifier.observerCount;
+      final voterCount = poker.voters.length;
+      final observerCount = poker.observerCount;
 
       return Column(
         children: [
@@ -27,9 +26,9 @@ class Summary extends HookConsumerWidget {
       );
     }
 
-    final validVotes = pokerNotifier.validVoteCount;
-    final average = pokerNotifier.voteAverage;
-    final observerCount = pokerNotifier.observerCount;
+    final validVotes = poker.numericVoteCount;
+    final average = poker.average;
+    final observerCount = poker.observerCount;
 
     String displayText;
     if (poker.displayMode == DisplayMode.tshirt) {

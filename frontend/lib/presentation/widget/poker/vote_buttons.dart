@@ -8,7 +8,7 @@ class VoteButtons extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final _ = ref.watch(pokerProvider);
+    final poker = ref.watch(pokerProvider);
     final pokerNotifier = ref.read(pokerProvider.notifier);
 
     return Center(
@@ -31,7 +31,7 @@ class VoteButtons extends HookConsumerWidget {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(4)),
                 ),
-                onPressed: pokerNotifier.openable
+                onPressed: poker.openable
                     ? () => invoke(context, pokerNotifier.showVotes, (_) {})
                     : null,
               ),

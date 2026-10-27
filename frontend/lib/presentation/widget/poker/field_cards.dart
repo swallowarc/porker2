@@ -26,7 +26,7 @@ class FieldCards extends HookConsumerWidget {
                 loginID: e.userID,
                 loginName: e.userName,
                 role: e.role,
-                opened: ref.read(pokerProvider.notifier).opened,
+                opened: poker.opened,
                 displayMode: poker.displayMode,
               ),
               const SizedBox(height: 4),

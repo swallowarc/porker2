@@ -49,7 +49,7 @@ class PokerPage extends HookConsumerWidget {
 
     final body = Stack(
       children: [
-        if (ref.read(pokerProvider.notifier).isUnanimity)
+        if (poker.isUnanimity)
           const Positioned.fill(child: FireWorks()),
         const Center(
           child: SingleChildScrollView(
@@ -171,7 +171,7 @@ class _Drawer extends HookConsumerWidget {
             title: const Text('Observer mode'),
             subtitle: const Text('Watch without voting', style: TextStyle(fontSize: 12)),
             secondary: const Icon(Icons.visibility),
-            value: pokerNotifier.isObserver(user.userID),
+            value: poker.isObserver(user.userID),
             onChanged: (bool value) {
               invoke(context, () => pokerNotifier.toggleObserverMode(value), (_) {});
             },

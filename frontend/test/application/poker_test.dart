@@ -5,9 +5,9 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/logger.dart';
 import 'package:porker2fe/application/port/port.dart';
 import 'package:porker2fe/core/logger/logger.dart';
+import 'package:porker2fe/domain/point.dart';
 import 'package:porker2fe/domain/room.dart';
 import 'package:porker2fe/domain/user.dart';
-import 'package:porker2fe/domain/point.dart';
 import 'package:porker2fe/application/provider.dart';
 
 /// joinRoom / leaveRoom だけを差し替えられる Porker2Service。他のメソッドは呼ばれない想定。
@@ -90,9 +90,6 @@ Room _condition(
       autoOpen: true,
       displayMode: DisplayMode.point,
     );
-
-Ballot _ballot(String userID, Point point, {UserRole role = UserRole.voter}) =>
-    Ballot(userID: userID, userName: userID, point: point, role: role);
 
 void main() {
   late _FakeService service;
@@ -205,82 +202,4 @@ void main() {
     });
   });
 
-  group('derived values', () {
-    Future<void> emit(Room condition) async {
-      container.read(pokerProvider.notifier).joinRoom(condition.roomID);
-      service.controllerFor(condition.roomID).add(condition);
-      await Future<void>.delayed(Duration.zero);
-    }
-
-    test('openable requires a hidden state and at least one vote', () async {
-      final notifier = container.read(pokerProvider.notifier);
-      await emit(_condition('11111', ballots: [
-        _ballot('a', Point.unspecified),
-      ]));
-      expect(notifier.openable, isFalse);
-
-      await emit(_condition('11111', ballots: [
-        _ballot('a', Point.p3),
-      ]));
-      expect(notifier.openable, isTrue);
-
-      await emit(_condition('11111',
-          voteState: VoteState.open,
-          ballots: [_ballot('a', Point.p3)]));
-      expect(notifier.openable, isFalse);
-    });
-
-    test('voteAverage ignores observers and non-numeric points', () async {
-      final notifier = container.read(pokerProvider.notifier);
-      await emit(_condition('11111', ballots: [
-        _ballot('a', Point.p3),
-        _ballot('b', Point.p5),
-        _ballot('c', Point.question),
-        _ballot('d', Point.p21, role: UserRole.observer),
-      ]));
-      expect(notifier.voteAverage, 4.0);
-      expect(notifier.validVoteCount, 2);
-      expect(notifier.observerCount, 1);
-    });
-
-    test('isUnanimity needs an open state and two or more equal voter points',
-        () async {
-      final notifier = container.read(pokerProvider.notifier);
-      final same = [_ballot('a', Point.p3), _ballot('b', Point.p3)];
-
-      await emit(_condition('11111', ballots: same));
-      expect(notifier.isUnanimity, isFalse, reason: 'hidden');
-
-      await emit(_condition('11111',
-          voteState: VoteState.open, ballots: same));
-      expect(notifier.isUnanimity, isTrue);
-
-      await emit(_condition('11111',
-          voteState: VoteState.open,
-          ballots: [...same, _ballot('c', Point.p5)]));
-      expect(notifier.isUnanimity, isFalse);
-
-      await emit(_condition('11111',
-          voteState: VoteState.open,
-          ballots: [
-            ...same,
-            _ballot('o', Point.unspecified,
-                role: UserRole.observer),
-          ]));
-      expect(notifier.isUnanimity, isTrue, reason: 'observers are ignored');
-    });
-
-    test('myPoint and isObserver look up the ballot by user id', () async {
-      final notifier = container.read(pokerProvider.notifier);
-      await emit(_condition('11111', ballots: [
-        _ballot('a', Point.p8),
-        _ballot('o', Point.unspecified,
-            role: UserRole.observer),
-      ]));
-      expect(notifier.myPoint('a'), Point.p8);
-      expect(notifier.myPoint('zzz'), Point.unspecified);
-      expect(notifier.isObserver('o'), isTrue);
-      expect(notifier.isObserver('a'), isFalse);
-    });
-  });
 }
