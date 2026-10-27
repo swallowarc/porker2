@@ -233,7 +233,7 @@ func TestRoom_Ballots_IsCopy(t *testing.T) {
 	ballots[0] = Ballot{}
 	ballots = append(ballots, Ballot{})
 
+	assert.Len(t, ballots, 2)
 	assert.Len(t, r.Ballots(), 1, "返り値の変更は部屋に影響しない")
 	assert.Equal(t, u1, r.Ballots()[0].UserID())
-	_ = ballots
 }

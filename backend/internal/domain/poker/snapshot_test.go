@@ -56,6 +56,18 @@ func TestRestoreRoom_CorruptedDataIsInternal(t *testing.T) {
 		"ballot name":  func(s *RoomSnapshot) { s.Ballots[0].UserName = "" },
 		"ballot point": func(s *RoomSnapshot) { s.Ballots[0].Point = 42 },
 		"ballot role":  func(s *RoomSnapshot) { s.Ballots[0].Role = 0 },
+		"duplicate ballot": func(s *RoomSnapshot) {
+			s.Ballots = append(s.Ballots, s.Ballots[0])
+		},
+		"too many ballots": func(s *RoomSnapshot) {
+			for len(s.Ballots) <= MaxMember {
+				b := s.Ballots[0]
+				b.UserID = user.NewID().String()
+				s.Ballots = append(s.Ballots, b)
+			}
+		},
+		"admin absent in non-empty room": func(s *RoomSnapshot) { s.AdminUserID = "" },
+		"admin not in room":              func(s *RoomSnapshot) { s.AdminUserID = user.NewID().String() },
 	}
 	for name, corrupt := range cases {
 		t.Run(name, func(t *testing.T) {
@@ -103,6 +115,4 @@ func TestEnumConstructors(t *testing.T) {
 	}
 	_, err = NewUserRole(0)
 	assert.True(t, merror.IsInvalidArgument(err))
-
-	_ = user.NewID()
 }

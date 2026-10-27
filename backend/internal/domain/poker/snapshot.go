@@ -45,7 +45,8 @@ func (c *Room) Snapshot() RoomSnapshot {
 }
 
 // RestoreRoom は Snapshot から Room を復元する。
-// 各値は VO のコンストラクタを通るため、ストレージ上の壊れたデータはここで Internal として検出される。
+// 各値は VO のコンストラクタを通り、集約の不変条件も検証するため、
+// ストレージ上の壊れたデータはここで Internal として検出される。
 func RestoreRoom(s RoomSnapshot) (*Room, error) {
 	roomID, err := NewRoomID(s.RoomID)
 	if err != nil {
@@ -78,14 +79,48 @@ func RestoreRoom(s RoomSnapshot) (*Room, error) {
 		ballots = append(ballots, b)
 	}
 
-	return &Room{
+	r := &Room{
 		roomID:      roomID,
 		adminUserID: adminUserID,
 		voteState:   voteState,
 		ballots:     ballots,
 		autoOpen:    s.AutoOpen,
 		displayMode: displayMode,
-	}, nil
+	}
+	if err := r.checkInvariants(); err != nil {
+		return nil, corrupted(err)
+	}
+
+	return r, nil
+}
+
+// checkInvariants は Room のメソッドが守っている不変条件を検証する。
+// メソッド経由の変更では破れないため、復元時にだけ使う。
+func (c *Room) checkInvariants() error {
+	if len(c.ballots) > MaxMember {
+		return merror.NewInternal("too many ballots: %d", len(c.ballots))
+	}
+
+	seen := make(map[user.ID]struct{}, len(c.ballots))
+	for _, b := range c.ballots {
+		if _, ok := seen[b.userID]; ok {
+			return merror.NewInternal("duplicate ballot: %s", b.userID)
+		}
+		seen[b.userID] = struct{}{}
+	}
+
+	// 管理者は参加者の中から選ばれ、部屋が空のときだけ不在になる
+	if c.adminUserID.IsZero() {
+		if len(c.ballots) > 0 {
+			return merror.NewInternal("admin is absent in non-empty room")
+		}
+		return nil
+	}
+	if !c.IsUserIn(c.adminUserID) {
+		return merror.NewInternal("admin is not in the room: %s", c.adminUserID)
+	}
+
+	return nil
 }
 
 func restoreBallot(s BallotSnapshot) (*Ballot, error) {
