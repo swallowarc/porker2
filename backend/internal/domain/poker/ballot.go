@@ -3,6 +3,7 @@ package poker
 import (
 	"slices"
 
+	"github.com/swallowarc/porker2/backend/internal/core/merror"
 	"github.com/swallowarc/porker2/backend/internal/domain/user"
 )
 
@@ -49,15 +50,21 @@ var (
 	}
 )
 
-func (p Point) Valid() bool {
-	return slices.Contains(PointList, p)
+// NewPoint は外部入力から Point を生成する。
+// PointUnspecified は「未投票に戻す」操作として正当な入力なので許容する。
+func NewPoint(raw int32) (Point, error) {
+	p := Point(raw)
+	if !slices.Contains(PointList, p) {
+		return PointUnspecified, merror.NewInvalidArgument(nil, "unknown point: %d", raw)
+	}
+	return p, nil
 }
 
 type (
 	Ballot struct {
-		UserID   user.ID   `validate:"user_id" json:"user_id"`
+		UserID   user.ID   `json:"user_id"`
 		UserName user.Name `json:"user_name"`
-		Point    Point     `validate:"point" json:"point"`
+		Point    Point     `json:"point"`
 		Role     UserRole  `json:"role"`
 	}
 )

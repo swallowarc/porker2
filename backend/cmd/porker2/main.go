@@ -9,7 +9,6 @@ import (
 	"go.uber.org/fx/fxevent"
 
 	"github.com/swallowarc/porker2/backend/internal/core"
-	"github.com/swallowarc/porker2/backend/internal/domain"
 	"github.com/swallowarc/porker2/backend/internal/infrastructure"
 	"github.com/swallowarc/porker2/backend/internal/infrastructure/connect"
 	"github.com/swallowarc/porker2/backend/internal/interface"
@@ -22,7 +21,6 @@ func main() {
 			return &fxevent.SlogLogger{Logger: logger}
 		}),
 		core.Module(),
-		domain.Module(),
 		infrastructure.Module(),
 		interfaces.Module(),
 		usecase.Module(),

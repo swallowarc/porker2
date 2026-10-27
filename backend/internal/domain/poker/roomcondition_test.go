@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/swallowarc/porker2/backend/internal/core/merror"
 	"github.com/swallowarc/porker2/backend/internal/domain/user"
 )
 
@@ -226,9 +227,28 @@ func TestRoomCondition_Json_IgnoresLegacyObserverCount(t *testing.T) {
 	assert.Equal(t, int32(1), c.ObserverCount())
 }
 
-func TestDisplayMode_Valid(t *testing.T) {
-	assert.False(t, DisplayModeUnspecified.Valid())
-	assert.True(t, DisplayModePoint.Valid())
-	assert.True(t, DisplayModeTShirt.Valid())
-	assert.False(t, DisplayMode(3).Valid())
+func TestNewDisplayMode(t *testing.T) {
+	m, err := NewDisplayMode(int32(DisplayModePoint))
+	assert.NoError(t, err)
+	assert.Equal(t, DisplayModePoint, m)
+	m, err = NewDisplayMode(int32(DisplayModeTShirt))
+	assert.NoError(t, err)
+	assert.Equal(t, DisplayModeTShirt, m)
+
+	for _, raw := range []int32{0, 3, -1} {
+		_, err := NewDisplayMode(raw)
+		assert.True(t, merror.IsInvalidArgument(err), "raw=%d err=%v", raw, err)
+	}
+}
+
+func TestNewPoint(t *testing.T) {
+	for _, p := range PointList {
+		got, err := NewPoint(int32(p))
+		assert.NoError(t, err)
+		assert.Equal(t, p, got)
+	}
+	for _, raw := range []int32{10, 99, 102, -1} {
+		_, err := NewPoint(raw)
+		assert.True(t, merror.IsInvalidArgument(err), "raw=%d err=%v", raw, err)
+	}
 }

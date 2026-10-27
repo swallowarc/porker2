@@ -1,19 +1,66 @@
 package controller
 
 import (
+	"github.com/swallowarc/porker2/backend/internal/core/merror"
 	"github.com/swallowarc/porker2/backend/internal/domain/poker"
 	"github.com/swallowarc/porker2/backend/internal/domain/user"
 	pb "github.com/swallowarc/porker2/backend/internal/interface/pb/porker/v2"
 )
 
-func userIDFromProto(p string) user.ID {
-	// It is assumed that it has been validated.
-	return user.ID(p)
+// requestFields はリクエストの各フィールドをドメイン型へ変換し、違反をまとめて保持する。
+// 事前条件の検証はドメインのコンストラクタが担い、ここでは proto のフィールド名を付けて束ねるだけ。
+//
+//	var f requestFields
+//	roomID := f.roomID(r.Msg.RoomId)
+//	point := f.point(r.Msg.Point)
+//	if err := f.err(); err != nil { return nil, err }
+type requestFields struct {
+	violations merror.FieldViolations
 }
 
-func pointFromProto(p pb.Point) poker.Point {
-	// No branching by switch-case because of validation after conversion.
-	return poker.Point(p)
+func (f *requestFields) add(field string, err error) {
+	if err == nil {
+		return
+	}
+	f.violations = append(f.violations, merror.FieldViolation{Field: field, Description: err.Error()})
+}
+
+// err は 1 つ以上の違反があれば InvalidArgument を返す。
+func (f *requestFields) err() error {
+	if len(f.violations) == 0 {
+		return nil
+	}
+	return merror.NewInvalidArgument(f.violations, "invalid argument")
+}
+
+func (f *requestFields) roomID(raw string) poker.RoomID {
+	v, err := poker.NewRoomID(raw)
+	f.add("room_id", err)
+	return v
+}
+
+func (f *requestFields) userName(raw string) user.Name {
+	v, err := user.NewName(raw)
+	f.add("user_name", err)
+	return v
+}
+
+func (f *requestFields) userID(field, raw string) user.ID {
+	v, err := user.ParseID(raw)
+	f.add(field, err)
+	return v
+}
+
+func (f *requestFields) point(p pb.Point) poker.Point {
+	v, err := poker.NewPoint(int32(p))
+	f.add("point", err)
+	return v
+}
+
+func (f *requestFields) displayMode(m pb.DisplayMode) poker.DisplayMode {
+	v, err := poker.NewDisplayMode(int32(m))
+	f.add("display_mode", err)
+	return v
 }
 
 func pointToProto(p poker.Point) pb.Point {
@@ -71,10 +118,6 @@ func ballotsToProto(b []*poker.Ballot) []*pb.Ballot {
 		ballots = append(ballots, ballotToProto(ballot))
 	}
 	return ballots
-}
-
-func roomIDFromProto(p string) poker.RoomID {
-	return poker.RoomID(p)
 }
 
 func roomConditionToProto(rc *poker.RoomCondition) *pb.RoomCondition {
