@@ -24,24 +24,12 @@ class PokerPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // 未ログインでの到達は router の redirect が防いでいるので、ここでは入室だけを行う
     useEffect(() {
-      if (ref.read(userProvider).userID.isEmpty) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          ref.read(directRoomJoinProvider.notifier).setPresetRoomID(roomId);
-          GoRouter.of(context).go('/');
-        });
-        return null;
-      }
-
       ref.read(pokerProvider.notifier).joinRoom(roomId);
       logger.d('join room: $roomId');
-
-      return null; // クリーンアップが不要な場合はnullを返す
-    }, []); // 空の依存配列を渡すことで、初回のみ実行
-
-    if (ref.read(directRoomJoinProvider.notifier).hasPresetRoomID) {
-      return const PorkerProgressIndicator();
-    }
+      return null;
+    }, [roomId]);
 
     final poker = ref.watch(pokerProvider);
     if (!ref.read(pokerProvider.notifier).subscribing) {

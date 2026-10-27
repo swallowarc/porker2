@@ -6,6 +6,8 @@ import 'package:porker2fe/presentation/page/login_page.dart';
 import 'package:porker2fe/presentation/page/poker_page.dart';
 import 'package:porker2fe/presentation/page/room_select_page.dart';
 import 'package:porker2fe/presentation/provider/provider.dart';
+import 'package:porker2fe/presentation/router/paths.dart';
+import 'package:porker2fe/presentation/router/redirect.dart';
 
 part 'router.g.dart';
 
@@ -13,26 +15,23 @@ final routerProvider = Provider<GoRouter>((ref) {
   final env = ref.read(envProvider);
   return GoRouter(
     debugLogDiagnostics: !env.isProduction,
-    initialLocation: '/',
+    initialLocation: LoginRoute().location,
     routes: $appRoutes,
     redirect: (context, state) {
       final isLoggedIn = ref.read(userProvider.notifier).alreadyLogin;
-      final isLoggingIn = state.fullPath == '/';
-      final isPoker = state.fullPath == '/poker';
-
-      logger.d(
-          'isLoggedIn: $isLoggedIn, isLoggingIn: $isLoggingIn, path: ${state.fullPath}');
-
-      if (!isLoggedIn && !isLoggingIn && !isPoker) {
-        return '/';
-      }
-      return null;
+      logger.d('isLoggedIn: $isLoggedIn, path: ${state.fullPath}');
+      return resolveRedirect(
+        isLoggedIn: isLoggedIn,
+        path: state.fullPath,
+        roomID: state.uri.queryParameters[roomIDParam] ?? '',
+        parkRoomID: ref.read(directRoomJoinProvider.notifier).setPresetRoomID,
+      );
     },
   );
 });
 
 @TypedGoRoute<LoginRoute>(
-  path: '/',
+  path: loginPath,
 )
 class LoginRoute extends GoRouteData with $LoginRoute {
   LoginRoute();
@@ -44,7 +43,7 @@ class LoginRoute extends GoRouteData with $LoginRoute {
 }
 
 @TypedGoRoute<RoomSelectRoute>(
-  path: '/room',
+  path: roomSelectPath,
 )
 class RoomSelectRoute extends GoRouteData with $RoomSelectRoute {
   RoomSelectRoute();
@@ -56,7 +55,7 @@ class RoomSelectRoute extends GoRouteData with $RoomSelectRoute {
 }
 
 @TypedGoRoute<PokerRoute>(
-  path: '/poker',
+  path: pokerPath,
 )
 class PokerRoute extends GoRouteData with $PokerRoute {
   PokerRoute({this.roomId = ""});
