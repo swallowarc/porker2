@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:connectrpc/connect.dart';
+import 'package:porker2fe/core/error/error.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/core/logger/logger.dart';
 import 'package:porker2fe/application/provider.dart';
@@ -47,6 +47,8 @@ class User extends Notifier<UserState> {
     state = const UserState("", "");
   }
 
+  /// セッションが有効ならユーザー情報を復元して true を返す。
+  /// 未ログインや通信失敗は false (ログイン画面に留まる)。
   Future<bool> verifyUser() async {
     try {
       final user = await _svcRepo.verifyUser();
@@ -55,13 +57,11 @@ class User extends Notifier<UserState> {
         userName: user.userName,
       );
       return true;
-    } catch (e) {
-      if (e is ConnectException && e.code == Code.unauthenticated) {
-        return false;
-      } else {
-        logger.e(e.toString());
-        return false;
-      }
+    } on UnauthenticatedError {
+      return false;
+    } catch (e, stackTrace) {
+      logger.e("verify user failed", error: e, stackTrace: stackTrace);
+      return false;
     }
   }
 

@@ -1,7 +1,8 @@
 import 'dart:async';
 
 import 'package:connectrpc/connect.dart';
-import 'package:porker2fe/core/error/retry.dart' as retry;
+import 'package:porker2fe/core/error/error.dart';
+import 'package:porker2fe/infrastructure/adapter/retry.dart' as retry;
 import 'package:porker2fe/core/logger/logger.dart';
 import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pb.dart';
 import 'package:porker2fe/infrastructure/generated/pb/porker/v2/service.connect.client.dart';
@@ -10,6 +11,8 @@ import 'package:porker2fe/domain/room.dart';
 import 'package:porker2fe/domain/user.dart';
 import 'package:porker2fe/application/port/port.dart';
 
+/// Porker2Service の Connect RPC 実装。
+/// ConnectException はここで application 層のエラー型に変換し、外へ漏らさない。
 class Porker2ServiceImpl extends Porker2Service {
   final Porker2ServiceClient _client;
   final Duration _retryInterval;
@@ -18,42 +21,31 @@ class Porker2ServiceImpl extends Porker2Service {
       : _retryInterval = retryInterval ?? retry.retryInterval;
 
   @override
-  Future<LoginResult> login(String userName) async {
-    try {
-      final res = await _client.login(LoginRequest()
-        ..userName = userName);
-      return (userID: res.userId); // tokenはcookieに保存される
-    } on ConnectException catch (e) {
-      throw (e.code == Code.alreadyExists) ? alreadyUsedNameError : e;
-    }
-  }
+  Future<LoginResult> login(String userName) => _call(() async {
+        final res = await _client.login(LoginRequest()..userName = userName);
+        return (userID: res.userId); // tokenはcookieに保存される
+      }, (e) => e.code == Code.alreadyExists ? alreadyUsedNameError : null);
 
   @override
-  Future<void> logout() async {
-    await _client.logout(LogoutRequest());
-  }
+  Future<void> logout() => _call(() => _client.logout(LogoutRequest()));
 
   @override
-  Future<UserEntity> verifyUser() async {
-    final res = await _client.verifyUser(VerifyUserRequest());
-    return Future.value(UserEntity(userID: res.userId, userName: res.userName));
-  }
+  Future<UserEntity> verifyUser() => _call(() async {
+        final res = await _client.verifyUser(VerifyUserRequest());
+        return UserEntity(userID: res.userId, userName: res.userName);
+      });
 
   @override
-  Future<String> createRoom() async {
-    final res = await _client.createRoom(CreateRoomRequest());
-    return res.roomId;
-  }
+  Future<String> createRoom() => _call(() async {
+        final res = await _client.createRoom(CreateRoomRequest());
+        return res.roomId;
+      });
 
   @override
-  Future<void> checkRoom(String roomID) async {
-    try {
-      await _client.checkRoom(CheckRoomRequest()
-        ..roomId = roomID);
-    } on ConnectException catch (e) {
-      throw _roomError(e);
-    }
-  }
+  Future<void> checkRoom(String roomID) => _call(
+        () => _client.checkRoom(CheckRoomRequest()..roomId = roomID),
+        _roomError,
+      );
 
   /// 部屋の状態を購読する。リトライ対象のエラー (サーバーの WriteTimeout など) では
   /// 間を置いて再接続する。購読が cancel されたら、進行中のリクエストを中断し、再接続もしない
@@ -81,7 +73,7 @@ class Porker2ServiceImpl extends Porker2Service {
             retryTimer = Timer(_retryInterval, connect);
             return;
           }
-          controller.addError((e is ConnectException) ? _roomError(e) : e, stackTrace);
+          controller.addError(_translate(e, _roomError), stackTrace);
           controller.close();
         },
         onDone: () {
@@ -107,62 +99,83 @@ class Porker2ServiceImpl extends Porker2Service {
     return controller.stream;
   }
 
+  @override
+  Future<void> leaveRoom(String roomID) =>
+      _call(() => _client.leaveRoom(LeaveRoomRequest()..roomId = roomID));
+
+  @override
+  Future<void> castVote(String roomID, Point point) => _call(() => _client
+      .castVote(CastVoteRequest()
+        ..roomId = roomID
+        ..point = point));
+
+  @override
+  Future<void> resetVotes(String roomID) =>
+      _call(() => _client.resetVotes(ResetVotesRequest()..roomId = roomID));
+
+  @override
+  Future<void> showVotes(String roomID) =>
+      _call(() => _client.showVotes(ShowVotesRequest()..roomId = roomID));
+
+  @override
+  Future<void> kickUser(String roomID, String targetUserID) =>
+      _call(() => _client.kickUser(KickUserRequest()
+        ..roomId = roomID
+        ..targetUserId = targetUserID));
+
+  @override
+  Future<void> updateRoom(
+          String roomID, bool autoOpen, DisplayMode displayMode) =>
+      _call(() => _client.updateRoom(UpdateRoomRequest()
+        ..roomId = roomID
+        ..autoOpen = autoOpen
+        ..displayMode = displayMode));
+
+  @override
+  Future<void> toggleObserverMode(String roomID, bool isObserver) =>
+      _call(() => _client.toggleObserverMode(ToggleObserverModeRequest()
+        ..roomId = roomID
+        ..isObserver = isObserver));
+
+  /// RPC を呼び、失敗したら application 層のエラー型に変換して投げ直す。
+  /// [specific] は RPC 固有の変換 (該当しなければ null を返す)。
+  Future<T> _call<T>(
+    Future<T> Function() rpc, [
+    Exception? Function(ConnectException e)? specific,
+  ]) async {
+    try {
+      return await rpc();
+    } catch (e, stackTrace) {
+      Error.throwWithStackTrace(_translate(e, specific), stackTrace);
+    }
+  }
+
   /// 部屋に対する操作で返るエラーのうち、利用者に見せるものを ExpectedError に変換する
-  Exception _roomError(ConnectException e) {
+  Exception? _roomError(ConnectException e) {
     switch (e.code) {
       case Code.notFound:
         return roomNotFoundError;
       case Code.failedPrecondition:
         return roomFullError;
       default:
-        return e;
+        return null;
     }
   }
 
-  @override
-  Future<void> leaveRoom(String roomID) async {
-    await _client.leaveRoom(LeaveRoomRequest()
-      ..roomId = roomID);
-  }
-
-  @override
-  Future<void> castVote(String roomID, Point point) async {
-    await _client.castVote(CastVoteRequest()
-      ..roomId = roomID
-      ..point = point);
-  }
-
-  @override
-  Future<void> resetVotes(String roomID) async {
-    await _client.resetVotes(ResetVotesRequest()
-      ..roomId = roomID);
-  }
-
-  @override
-  Future<void> showVotes(String roomID) async {
-    await _client.showVotes(ShowVotesRequest()
-      ..roomId = roomID);
-  }
-
-  @override
-  Future<void> kickUser(String roomID, String targetUserID) async {
-    await _client.kickUser(KickUserRequest()
-      ..roomId = roomID
-      ..targetUserId = targetUserID);
-  }
-
-  @override
-  Future<void> updateRoom(String roomID, bool autoOpen, DisplayMode displayMode) async {
-    await _client.updateRoom(UpdateRoomRequest()
-      ..roomId = roomID
-      ..autoOpen = autoOpen
-      ..displayMode = displayMode);
-  }
-
-  @override
-  Future<void> toggleObserverMode(String roomID, bool isObserver) async {
-    await _client.toggleObserverMode(ToggleObserverModeRequest()
-      ..roomId = roomID
-      ..isObserver = isObserver);
+  Object _translate(
+    Object e,
+    Exception? Function(ConnectException e)? specific,
+  ) {
+    if (e is Error) {
+      // プログラムの不具合はそのまま伝える
+      return e;
+    }
+    if (e is! ConnectException) {
+      return UnexpectedError('request failed', e);
+    }
+    if (e.code == Code.unauthenticated) {
+      return const UnauthenticatedError();
+    }
+    return specific?.call(e) ?? UnexpectedError('rpc failed: ${e.code.name}', e);
   }
 }

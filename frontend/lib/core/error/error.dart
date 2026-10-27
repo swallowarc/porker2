@@ -1,3 +1,4 @@
+/// 利用者に原因を伝えられる、想定内の失敗 (部屋がない、名前が使用中など)。
 class ExpectedError implements Exception {
   final String message;
 
@@ -7,14 +8,22 @@ class ExpectedError implements Exception {
   String toString() => message;
 }
 
-class UnexpectedError implements Exception {
-  final String _message;
-  final Exception? _cause;
-
-  UnexpectedError(this._message, [this._cause]);
+/// セッションが無効 (未ログイン、または期限切れ)。画面はログインへ戻す。
+class UnauthenticatedError implements Exception {
+  const UnauthenticatedError();
 
   @override
-  String toString() => _message;
+  String toString() => 'unauthenticated';
+}
 
-  Exception get cause => _cause ?? this;
+/// 想定外の失敗。[cause] に元の例外を保持する。
+class UnexpectedError implements Exception {
+  final String message;
+  final Object? cause;
+
+  UnexpectedError(this.message, [this.cause]);
+
+  @override
+  String toString() =>
+      cause == null ? message : '$message (caused by: $cause)';
 }

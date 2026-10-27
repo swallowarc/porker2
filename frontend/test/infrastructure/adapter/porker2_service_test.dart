@@ -4,7 +4,10 @@ import 'package:connectrpc/connect.dart';
 import 'package:connectrpc/test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:logger/logger.dart';
+import 'package:porker2fe/core/error/error.dart';
 import 'package:porker2fe/core/logger/logger.dart';
+import 'package:porker2fe/domain/room.dart';
+import 'package:porker2fe/domain/user.dart';
 import 'package:porker2fe/infrastructure/adapter/porker2_service.dart';
 import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pb.dart';
 import 'package:porker2fe/infrastructure/generated/pb/porker/v2/service.connect.client.dart';
@@ -12,10 +15,107 @@ import 'package:porker2fe/infrastructure/generated/pb/porker/v2/service.connect.
     as spec;
 import 'package:porker2fe/infrastructure/generated/pb/porker/v2/service.pb.dart';
 
+Porker2ServiceImpl _service(FakeTransportBuilder builder) =>
+    Porker2ServiceImpl(Porker2ServiceClient(builder.build()));
+
 void main() {
   setUpAll(() {
     logger.hashCode;
     Logger.level = Level.off;
+  });
+
+  group('error translation', () {
+    test('unauthenticated becomes UnauthenticatedError on every rpc', () async {
+      final svc = _service(FakeTransportBuilder()
+          .unary(spec.Porker2Service.verifyUser, (_, _) =>
+              throw ConnectException(Code.unauthenticated, 'expired'))
+          .unary(spec.Porker2Service.castVote, (_, _) =>
+              throw ConnectException(Code.unauthenticated, 'expired')));
+
+      await expectLater(svc.verifyUser(), throwsA(isA<UnauthenticatedError>()));
+      await expectLater(svc.castVote('11111', Point.POINT_1),
+          throwsA(isA<UnauthenticatedError>()));
+    });
+
+    test('login maps alreadyExists to alreadyUsedNameError', () async {
+      final svc = _service(FakeTransportBuilder().unary(
+          spec.Porker2Service.login,
+          (_, _) => throw ConnectException(Code.alreadyExists, 'dup')));
+
+      await expectLater(svc.login('bob'), throwsA(same(alreadyUsedNameError)));
+    });
+
+    test('checkRoom maps notFound and failedPrecondition to room errors',
+        () async {
+      var code = Code.notFound;
+      final svc = _service(FakeTransportBuilder().unary(
+          spec.Porker2Service.checkRoom,
+          (_, _) => throw ConnectException(code, 'room')));
+
+      await expectLater(svc.checkRoom('11111'), throwsA(same(roomNotFoundError)));
+      code = Code.failedPrecondition;
+      await expectLater(svc.checkRoom('11111'), throwsA(same(roomFullError)));
+    });
+
+    test('other codes become UnexpectedError carrying the cause', () async {
+      final svc = _service(FakeTransportBuilder().unary(
+          spec.Porker2Service.createRoom,
+          (_, _) => throw ConnectException(Code.internal, 'boom')));
+
+      await expectLater(
+        svc.createRoom(),
+        throwsA(isA<UnexpectedError>()
+            .having((e) => e.cause, 'cause', isA<ConnectException>())),
+      );
+    });
+
+    test('successful rpcs return their values', () async {
+      final svc = _service(FakeTransportBuilder()
+          .unary(spec.Porker2Service.login,
+              (LoginRequest req, _) => LoginResponse(userId: 'u-${req.userName}'))
+          .unary(spec.Porker2Service.verifyUser,
+              (_, _) => VerifyUserResponse(userId: 'u1', userName: 'bob'))
+          .unary(spec.Porker2Service.createRoom,
+              (_, _) => CreateRoomResponse(roomId: '12345')));
+
+      expect(await svc.login('bob'), (userID: 'u-bob'));
+      expect(await svc.verifyUser(),
+          const UserEntity(userID: 'u1', userName: 'bob'));
+      expect(await svc.createRoom(), '12345');
+    });
+  });
+
+  group('joinRoom', () {
+    test('yields conditions until the server closes the stream', () async {
+      final svc = _service(FakeTransportBuilder().server(
+          spec.Porker2Service.joinRoom,
+          (JoinRoomRequest req, _) => Stream.fromIterable([
+                JoinRoomResponse(condition: RoomCondition(roomId: req.roomId)),
+                JoinRoomResponse(condition: RoomCondition(roomId: req.roomId)),
+              ])));
+
+      final conditions = await svc.joinRoom('11111').toList();
+      expect(conditions.map((c) => c.roomId), ['11111', '11111']);
+    });
+
+    test('translates notFound into roomNotFoundError', () async {
+      final svc = _service(FakeTransportBuilder().server(
+          spec.Porker2Service.joinRoom,
+          (_, _) => Stream.error(ConnectException(Code.notFound, 'gone'))));
+
+      await expectLater(
+          svc.joinRoom('11111').toList(), throwsA(same(roomNotFoundError)));
+    });
+
+    test('translates unauthenticated into UnauthenticatedError', () async {
+      final svc = _service(FakeTransportBuilder().server(
+          spec.Porker2Service.joinRoom,
+          (_, _) =>
+              Stream.error(ConnectException(Code.unauthenticated, 'expired'))));
+
+      await expectLater(svc.joinRoom('11111').toList(),
+          throwsA(isA<UnauthenticatedError>()));
+    });
   });
 
   group('joinRoom retry', () {
