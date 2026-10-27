@@ -10,22 +10,33 @@ import 'package:porker2fe/domain/user.dart';
 import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pb.dart';
 import 'package:porker2fe/application/provider.dart';
 
-/// joinRoom だけを差し替えられる Porker2Service。他のメソッドは呼ばれない想定。
+/// joinRoom / leaveRoom だけを差し替えられる Porker2Service。他のメソッドは呼ばれない想定。
 class _FakeService implements Porker2Service {
+  /// 部屋ごとの最新の購読。joinRoom を呼ぶたびに新しい StreamController を作る
   final controllers = <String, StreamController<RoomCondition>>{};
+  final joinCalls = <String>[];
   final cancelled = <String>[];
+  final left = <String>[];
+  Object? leaveError;
 
   StreamController<RoomCondition> controllerFor(String roomID) =>
-      controllers.putIfAbsent(
-        roomID,
-        () => StreamController<RoomCondition>(
-          onCancel: () => cancelled.add(roomID),
-        ),
-      );
+      controllers[roomID]!;
 
   @override
-  Stream<RoomCondition> joinRoom(String roomID) =>
-      controllerFor(roomID).stream;
+  Stream<RoomCondition> joinRoom(String roomID) {
+    joinCalls.add(roomID);
+    final controller = StreamController<RoomCondition>(
+      onCancel: () => cancelled.add(roomID),
+    );
+    controllers[roomID] = controller;
+    return controller.stream;
+  }
+
+  @override
+  Future<void> leaveRoom(String roomID) async {
+    if (leaveError != null) throw leaveError!;
+    left.add(roomID);
+  }
 
   @override
   Future<LoginResult> login(String userName) => throw UnimplementedError();
@@ -41,9 +52,6 @@ class _FakeService implements Porker2Service {
 
   @override
   Future<void> checkRoom(String roomID) => throw UnimplementedError();
-
-  @override
-  Future<void> leaveRoom(String roomID) => throw UnimplementedError();
 
   @override
   Future<void> castVote(String roomID, Point point) =>
@@ -129,7 +137,7 @@ void main() {
 
       await Future<void>.delayed(Duration.zero);
       expect(secondDone, isFalse, reason: '再入室は購読の終了を待つ');
-      expect(service.controllers.keys, ['11111'], reason: '購読は 1 本のまま');
+      expect(service.joinCalls, ['11111'], reason: '購読は 1 本のまま');
 
       await service.controllerFor('11111').close();
       await Future.wait([first, second]);
@@ -155,22 +163,6 @@ void main() {
       expect(container.read(pokerProvider).roomID, '');
     });
 
-    test('closing a superseded subscription does not clobber the new one',
-        () async {
-      final notifier = container.read(pokerProvider.notifier);
-      // onCancel で close されないよう、broadcast にして古い購読を生かしたまま閉じる
-      final first = StreamController<RoomCondition>.broadcast();
-      service.controllers['11111'] = first;
-      notifier.joinRoom('11111');
-      notifier.joinRoom('22222');
-      service.controllerFor('22222').add(_condition('22222'));
-      await Future<void>.delayed(Duration.zero);
-
-      await first.close();
-      await Future<void>.delayed(Duration.zero);
-      expect(container.read(pokerProvider).roomID, '22222');
-    });
-
     test('propagates stream errors and resets state', () async {
       final notifier = container.read(pokerProvider.notifier);
       final done = notifier.joinRoom('11111');
@@ -180,6 +172,37 @@ void main() {
       service.controllerFor('11111').addError(roomNotFoundError);
       await expectLater(done, throwsA(same(roomNotFoundError)));
       expect(container.read(pokerProvider).roomID, '');
+    });
+  });
+
+  group('leaveRoom', () {
+    test('cancels the subscription and resets state without waiting for the server',
+        () async {
+      final notifier = container.read(pokerProvider.notifier);
+      notifier.joinRoom('11111');
+      service.controllerFor('11111').add(_condition('11111'));
+      await Future<void>.delayed(Duration.zero);
+
+      await notifier.leaveRoom();
+      expect(service.left, ['11111']);
+      expect(service.cancelled, ['11111']);
+      expect(container.read(pokerProvider).roomID, '');
+
+      // 退室後は同じ部屋に入り直せる (古い購読が残っていない)
+      notifier.joinRoom('11111');
+      expect(service.joinCalls, ['11111', '11111']);
+    });
+
+    test('keeps the subscription when the server rejects leaving', () async {
+      final notifier = container.read(pokerProvider.notifier);
+      notifier.joinRoom('11111');
+      service.controllerFor('11111').add(_condition('11111'));
+      await Future<void>.delayed(Duration.zero);
+
+      service.leaveError = StateError('boom');
+      await expectLater(notifier.leaveRoom(), throwsStateError);
+      expect(service.cancelled, isEmpty);
+      expect(container.read(pokerProvider).roomID, '11111');
     });
   });
 

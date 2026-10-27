@@ -79,11 +79,10 @@ class PokerPage extends HookConsumerWidget {
             builder: (_) => TwoChoiceDialog(
               title: 'Leave Room',
               message: 'Do you want to leave this poker?',
-              // 退室が成功すれば購読が終わり、上の joinRoom の完了処理で部屋選択へ戻る
               onYes: () => invoke(
                   context,
                   () => ref.read(pokerProvider.notifier).leaveRoom(),
-                  (_) {}),
+                  (_) => RoomSelectRoute().go(context)),
             ),
           );
         },

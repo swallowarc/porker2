@@ -105,7 +105,8 @@ class Poker extends Notifier<PokerState> {
     return next.done.future;
   }
 
-  /// 購読の終了処理。別の部屋へ入り直した後に古い購読が終わっても、新しい購読の状態を壊さない。
+  /// 購読の終了処理。cancel 済みの購読では onDone / onError は呼ばれないので
+  /// identical の確認は防御的なもの (別の部屋へ入り直した後に古い購読の終了処理が走っても壊さない)。
   void _finish(_RoomSubscription finished) {
     if (!identical(_current, finished)) {
       return;
@@ -114,7 +115,15 @@ class Poker extends Notifier<PokerState> {
     state = _initialState;
   }
 
-  Future<void> leaveRoom() async => _svcRepo.leaveRoom(state.roomID);
+  /// 退室する。成功したら購読を打ち切って状態を空にする。
+  /// サーバーからの購読終了を待たない (部屋が TTL 切れで消えていると更新が配信されず、
+  /// WriteTimeout まで終わらない)。打ち切った購読の joinRoom の Future は完了しない。
+  Future<void> leaveRoom() async {
+    await _svcRepo.leaveRoom(state.roomID);
+    _current?.cancel();
+    _current = null;
+    state = _initialState;
+  }
 
   Future<void> castVote(Point point) => _svcRepo.castVote(state.roomID, point);
 
