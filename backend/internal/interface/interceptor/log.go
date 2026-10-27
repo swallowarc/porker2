@@ -40,7 +40,8 @@ func NewLogInterceptor(l *slog.Logger) connect.ServerInterceptor {
 // logResult は RPC の結果を、エラーの責任の所在に応じたレベルで記録する。
 //
 //   - 成功 / クライアント切断 (Canceled): INFO。運用上は正常系
-//   - クライアント起因 (InvalidArgument, NotFound, 認可・前提条件違反等) と一時的な競合 (Unavailable): WARN
+//   - クライアント起因 (InvalidArgument, NotFound, 認可・前提条件違反等)、一時的な競合 (Unavailable)、
+//     タイムアウト (DeadlineExceeded): WARN
 //   - サーバー起因 (Internal) と分類できないもの: ERROR。アラート対象
 func logResult(ctx context.Context, successMsg, failMsg string, err error) {
 	l := logger.FromCtx(ctx)
@@ -56,8 +57,13 @@ func logResult(ctx context.Context, successMsg, failMsg string, err error) {
 }
 
 func levelOf(err error) slog.Level {
+	// context エラーは merror の Kind より優先する (rpcerr.ToConnect と同じ方針)。
+	// redis クライアントは context エラーも WrapInternal で包むため、Kind を先に見ると ERROR になる
 	if errors.Is(err, context.Canceled) {
 		return slog.LevelInfo
+	}
+	if errors.Is(err, context.DeadlineExceeded) {
+		return slog.LevelWarn
 	}
 
 	switch merror.KindOf(err) {
