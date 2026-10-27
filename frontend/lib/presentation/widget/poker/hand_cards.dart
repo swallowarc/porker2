@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pbenum.dart';
-import 'package:porker2fe/presentation/provider/provider.dart';
+import 'package:porker2fe/application/provider.dart';
 import 'package:porker2fe/presentation/widget/poker/hand_card.dart';
 
 const List<Point> pointOrder = [

@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:porker2fe/infrastructure/provider.dart';
 import 'package:porker2fe/presentation/router/router.dart';
 
 /// OS の reduce motion 設定（web では prefers-reduced-motion）が有効でも、
@@ -14,7 +15,10 @@ void main() {
   _Porker2Binding();
   setUrlStrategy(PathUrlStrategy());
 
-  runApp(const ProviderScope(child: Porker2()));
+  runApp(ProviderScope(
+    overrides: infrastructureOverrides,
+    child: const Porker2(),
+  ));
 }
 
 class Porker2 extends HookConsumerWidget {

@@ -2,7 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pb.dart';
 import 'package:porker2fe/presentation/invoke.dart';
-import 'package:porker2fe/presentation/provider/provider.dart';
+import 'package:porker2fe/application/provider.dart';
 import 'package:porker2fe/presentation/widget/dialog.dart';
 import 'package:porker2fe/presentation/widget/poker/field_card.dart';
 

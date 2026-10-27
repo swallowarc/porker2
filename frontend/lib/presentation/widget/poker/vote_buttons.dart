@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:porker2fe/presentation/provider/provider.dart';
+import 'package:porker2fe/application/provider.dart';
 
 class VoteButtons extends HookConsumerWidget {
   const VoteButtons({super.key});

@@ -6,7 +6,7 @@ import 'package:porker2fe/core/logger/logger.dart';
 import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pb.dart';
 import 'package:porker2fe/presentation/const.dart';
 import 'package:porker2fe/presentation/invoke.dart';
-import 'package:porker2fe/presentation/provider/provider.dart';
+import 'package:porker2fe/application/provider.dart';
 import 'package:porker2fe/presentation/widget/app_bar.dart';
 import 'package:porker2fe/presentation/widget/bottom_bar.dart';
 import 'package:porker2fe/presentation/widget/dialog.dart';
