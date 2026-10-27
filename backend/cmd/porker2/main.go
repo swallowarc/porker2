@@ -38,13 +38,11 @@ func invoke(lc fx.Lifecycle, logger *slog.Logger, server *connect.Server) {
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			logger.Info("app start")
-			server.Run()
-			return nil
+			return server.Start(ctx)
 		},
 		OnStop: func(ctx context.Context) error {
-			server.Shutdown(ctx)
-			logger.Info("app stop")
-			return nil
+			defer logger.Info("app stop")
+			return server.Shutdown(ctx)
 		},
 	})
 }
