@@ -1,12 +1,12 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/core/logger/logger.dart';
 import 'package:porker2fe/domain/user.dart';
 import 'package:porker2fe/presentation/const.dart';
 import 'package:porker2fe/presentation/invoke.dart';
 import 'package:porker2fe/presentation/provider/provider.dart';
+import 'package:porker2fe/presentation/router/router.dart';
 import 'package:porker2fe/presentation/widget/app_bar.dart';
 import 'package:porker2fe/presentation/widget/bottom_bar.dart';
 import 'package:porker2fe/presentation/widget/logo.dart';
@@ -152,16 +152,13 @@ class _FormContent extends HookConsumerWidget {
 }
 
 void _next(BuildContext context, WidgetRef ref) {
+  // 未ログインで部屋 URL を直接開いていた場合は、router が預けた room-id の部屋へ入る。
+  // 部屋の存在確認は PokerPage の入室処理に任せる
   final presetRoomID =
       ref.read(directRoomJoinProvider.notifier).popPresetRoomID();
-
   if (presetRoomID.isNotEmpty) {
-    invoke(
-      context,
-      () => ref.read(pokerProvider.notifier).checkRoom(presetRoomID),
-      (_) => GoRouter.of(context).go('/poker?room-id=$presetRoomID'),
-    );
+    PokerRoute(roomId: presetRoomID).go(context);
+    return;
   }
-
-  GoRouter.of(context).go('/room');
+  RoomSelectRoute().go(context);
 }
