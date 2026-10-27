@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"connectrpc.com/connect/v2"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 
@@ -47,7 +46,7 @@ func TestUserInteractor_Logout(t *testing.T) {
 		userRepo.EXPECT().Delete(gomock.Any(), testUserID).Return(nil)
 
 		err := itr.Logout(context.Background(), testUserID)
-		assert.Equal(t, connect.CodeUnavailable, merror.CodeFromError(err))
+		assert.True(t, merror.IsUnavailable(err), "got: %v", err)
 	})
 }
 
@@ -57,6 +56,6 @@ func TestUserInteractor_GetUser(t *testing.T) {
 		userRepo.EXPECT().GetByID(gomock.Any(), testUserID).Return(user.Name(""), "", poker.RoomID(""), merror.NewNotFound("user does not exist"))
 
 		_, err := itr.GetUser(context.Background(), testUserID)
-		assert.Equal(t, connect.CodeUnauthenticated, merror.CodeFromError(err))
+		assert.True(t, merror.IsUnauthenticated(err), "got: %v", err)
 	})
 }

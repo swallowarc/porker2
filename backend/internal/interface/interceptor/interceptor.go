@@ -23,6 +23,10 @@ func (f *Factory) LogInterceptor() connect.ServerInterceptor {
 	return NewLogInterceptor(f.logger)
 }
 
+func (f *Factory) ErrorInterceptor() connect.ServerInterceptor {
+	return NewErrorInterceptor()
+}
+
 func getRPCNameFromSpec(spec connect.Spec) string {
 	path := strings.Split(spec.Procedure, "/")
 	if len(path) == 0 {

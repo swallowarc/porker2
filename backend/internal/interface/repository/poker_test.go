@@ -50,7 +50,7 @@ func TestPokerRepository_CreateRoom(t *testing.T) {
 			Return(string(existing), nil).Times(roomCreateRetry + 1)
 
 		_, err = NewPokerRepository(mem).CreateRoom(context.Background())
-		assert.Equal(t, "unavailable", merror.CodeFromError(err).String())
+		assert.True(t, merror.IsUnavailable(err), "got: %v", err)
 	})
 }
 

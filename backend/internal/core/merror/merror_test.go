@@ -1,34 +1,74 @@
 package merror
 
 import (
+	"errors"
+	"fmt"
+	"io"
 	"testing"
 
-	pb "github.com/swallowarc/porker2/backend/internal/interface/pb/porker/v2"
+	"github.com/stretchr/testify/assert"
 )
 
-func Test_CodeFromError(t *testing.T) {
-	err := NewNotFound("test")
-	if !IsNotFound(err) {
-		t.Errorf("want CodeNotFound, got %v", CodeFromError(err))
-	}
+func TestKindOf(t *testing.T) {
+	assert.Equal(t, KindNotFound, KindOf(NewNotFound("x")))
+	assert.Equal(t, KindUnknown, KindOf(errors.New("plain")))
+	assert.Equal(t, KindUnknown, KindOf(nil))
+
+	// fmt.Errorf の %w で包まれていても種別を辿れる
+	wrapped := fmt.Errorf("outer: %w", NewAlreadyExists("x"))
+	assert.True(t, IsAlreadyExists(wrapped))
 }
 
-func Test_NewFailedPrecondition(t *testing.T) {
-	err := NewFailedPrecondition(pb.Violation_VIOLATION_UNSPECIFIED.String(), "test")
+func TestWrap_OuterKindWins(t *testing.T) {
+	inner := NewNotFound("key missing")
+	outer := WrapInternal(inner, "failed to load")
 
-	if !IsFailedPrecondition(err) {
-		t.Errorf("want CodeFailedPrecondition, got %v", CodeFromError(err))
-	}
+	// 包んだ側の種別が優先される。下位の種別を伝えたいなら Wrap してはいけない。
+	assert.True(t, IsInternal(outer))
+	assert.False(t, IsNotFound(outer))
 
-	vt := ViolationTypeFromError(err)
-	if vt != "VIOLATION_UNSPECIFIED" {
-		t.Errorf("want testViolationType, got %v", vt)
-	}
+	// ただし errors.Is で元エラーには到達できる
+	assert.True(t, errors.Is(outer, inner))
+	assert.Equal(t, "failed to load: key missing", outer.Error())
 }
 
-func Test_NewInvalidArgument(t *testing.T) {
-	err := NewInvalidArgument(FieldViolations{{"f1", "d1"}, {"f2", "d2"}}, "test")
-	if !IsInvalidArgument(err) {
-		t.Errorf("want CodeInvalidArgument, got %v", CodeFromError(err))
+func TestWrap_PreservesStdlibErrors(t *testing.T) {
+	err := WrapInternal(io.EOF, "read failed")
+	assert.True(t, errors.Is(err, io.EOF))
+}
+
+func TestNewInvalidArgument(t *testing.T) {
+	fvs := FieldViolations{{"f1", "d1"}, {"f2", "d2"}}
+	err := NewInvalidArgument(fvs, "invalid")
+
+	assert.True(t, IsInvalidArgument(err))
+	assert.Equal(t, fvs, FieldViolationsOf(err))
+	assert.Nil(t, FieldViolationsOf(NewNotFound("x")))
+	assert.Nil(t, FieldViolationsOf(errors.New("plain")))
+}
+
+func TestKind_String(t *testing.T) {
+	assert.Equal(t, "not_found", KindNotFound.String())
+	assert.Equal(t, "kind(99)", Kind(99).String())
+}
+
+func TestPredicates(t *testing.T) {
+	cases := []struct {
+		err  error
+		pred func(error) bool
+	}{
+		{NewNotFound("x"), IsNotFound},
+		{NewFailedPrecondition("x"), IsFailedPrecondition},
+		{NewPermissionDenied("x"), IsPermissionDenied},
+		{NewInvalidArgument(nil, "x"), IsInvalidArgument},
+		{NewInternal("x"), IsInternal},
+		{NewUnauthenticated("x"), IsUnauthenticated},
+		{NewAlreadyExists("x"), IsAlreadyExists},
+		{NewUnavailable("x"), IsUnavailable},
+		{NewCanceled("x"), IsCanceled},
+	}
+	for _, c := range cases {
+		assert.True(t, c.pred(c.err), "%v", c.err)
+		assert.False(t, c.pred(errors.New("plain")))
 	}
 }
