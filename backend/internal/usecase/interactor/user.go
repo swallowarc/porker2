@@ -53,7 +53,7 @@ func (i *userInteractor) Logout(ctx context.Context, userID user.ID) error {
 
 	var eg errgroup.Group
 
-	if roomID != "" {
+	if !roomID.IsZero() {
 		eg.Go(func() error {
 			err := i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.Room) error {
 				c.Leave(userID)

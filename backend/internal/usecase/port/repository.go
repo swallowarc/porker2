@@ -20,8 +20,8 @@ type (
 		GetIDByName(ctx context.Context, userName user.Name) (user.ID, error)
 	}
 
-	RoomModifier   func(ctx context.Context, condition *poker.Room) error
-	RoomSubscriber func(ctx context.Context, condition *poker.Room) (bool, error)
+	RoomModifier   func(ctx context.Context, room *poker.Room) error
+	RoomSubscriber func(ctx context.Context, room *poker.Room) (bool, error)
 
 	PokerRepository interface {
 		CreateRoom(ctx context.Context) (poker.RoomID, error)

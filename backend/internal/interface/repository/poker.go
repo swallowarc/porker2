@@ -34,11 +34,11 @@ func NewPokerRepository(mem gateway.MemDBClient) port.PokerRepository {
 
 func (r *pokerRepository) CreateRoom(ctx context.Context) (poker.RoomID, error) {
 	for attempt := 0; attempt <= roomCreateRetry; attempt++ {
-		c := poker.NewRoom()
+		room := poker.NewRoom()
 
 		// 部屋の実体は Stream なので、存在確認に GET を使うと WRONGTYPE エラーになる。
 		// 必ず Stream 用の読み出しで確認する。
-		_, err := r.GetRoom(ctx, c.RoomID)
+		_, err := r.GetRoom(ctx, room.RoomID())
 		if err == nil {
 			continue // room id collision, retry
 		}
@@ -46,11 +46,11 @@ func (r *pokerRepository) CreateRoom(ctx context.Context) (poker.RoomID, error) 
 			return "", err
 		}
 
-		if err := r.publishRoom(ctx, c); err != nil {
+		if err := r.publishRoom(ctx, room); err != nil {
 			return "", err
 		}
 
-		return c.RoomID, nil
+		return room.RoomID(), nil
 	}
 
 	return "", merror.NewUnavailable("room creation retry limit has been exceeded")
@@ -82,31 +82,31 @@ func (r *pokerRepository) UpdateRoomWithLock(ctx context.Context, roomID poker.R
 	defer func() {
 		if err := r.mem.Del(ctx, lockKey); err != nil {
 			if !merror.IsNotFound(err) {
-				logger.FromCtx(inCtx).Error("failed to release lock: %s", slog.String("error", err.Error()))
+				logger.FromCtx(inCtx).Error("failed to release lock", slog.String("error", err.Error()))
 			}
 		}
 	}()
 
-	c, err := r.GetRoom(inCtx, roomID)
+	room, err := r.GetRoom(inCtx, roomID)
 	if err != nil {
 		return err
 	}
 
-	if err := modifier(inCtx, c); err != nil {
+	if err := modifier(inCtx, room); err != nil {
 		return err
 	}
 
-	return r.publishRoom(inCtx, c)
+	return r.publishRoom(inCtx, room)
 }
 
-func (r *pokerRepository) publishRoom(ctx context.Context, condition *poker.Room) error {
-	j, err := condition.ToJson()
+func (r *pokerRepository) publishRoom(ctx context.Context, room *poker.Room) error {
+	j, err := encodeRoom(room)
 	if err != nil {
 		return err
 	}
 
-	streamKey := roomKey(condition.RoomID)
-	if err := r.mem.PublishStream(ctx, roomKey(condition.RoomID), map[string]any{
+	streamKey := roomKey(room.RoomID())
+	if err := r.mem.PublishStream(ctx, streamKey, map[string]any{
 		keyRoomConditionMessage: j,
 	}); err != nil {
 		return err
@@ -121,10 +121,10 @@ func (r *pokerRepository) GetRoom(ctx context.Context, roomID poker.RoomID) (*po
 		return nil, err
 	}
 	if j == "" {
-		return nil, merror.NewNotFound("room condition not found:%s", roomID)
+		return nil, merror.NewNotFound("room not found: %s", roomID.String())
 	}
 
-	return poker.FromJson(j)
+	return decodeRoom(j)
 }
 
 func (r *pokerRepository) SubscribeRoom(ctx context.Context, roomID poker.RoomID, fn port.RoomSubscriber) error {
@@ -147,11 +147,11 @@ func (r *pokerRepository) SubscribeRoom(ctx context.Context, roomID poker.RoomID
 
 			messageID = latestMessageID
 
-			rc, err := poker.FromJson(j)
+			room, err := decodeRoom(j)
 			if err != nil {
 				return err
 			}
-			if subscribe, err = fn(ctx, rc); err != nil {
+			if subscribe, err = fn(ctx, room); err != nil {
 				return err
 			}
 		}

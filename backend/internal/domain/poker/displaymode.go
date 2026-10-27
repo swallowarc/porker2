@@ -2,9 +2,8 @@ package poker
 
 import "github.com/swallowarc/porker2/backend/internal/core/merror"
 
-type (
-	DisplayMode int
-)
+// DisplayMode はポイントの表示方式。
+type DisplayMode int32
 
 const (
 	DisplayModeUnspecified DisplayMode = 0
@@ -20,3 +19,5 @@ func NewDisplayMode(raw int32) (DisplayMode, error) {
 	}
 	return m, nil
 }
+
+func (m DisplayMode) Int32() int32 { return int32(m) }

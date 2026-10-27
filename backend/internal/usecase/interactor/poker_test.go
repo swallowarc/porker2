@@ -15,8 +15,8 @@ import (
 	"github.com/swallowarc/porker2/backend/internal/usecase/port"
 )
 
-const (
-	testUserID   = user.ID("0f2d6c9e-4b1a-4c3d-9e8f-123456789abc")
+var (
+	testUserID   = user.NewID()
 	testUserName = user.Name("alice")
 	testRoomID   = poker.RoomID("12345")
 )
@@ -29,9 +29,9 @@ func newPokerInteractorWithMocks(t *testing.T) (*pokerInteractor, *mock_port.Moc
 }
 
 // runModifier は UpdateRoomWithLock のモックとして、渡された modifier を実際の Room に適用する。
-func runModifier(rc *poker.Room) func(context.Context, poker.RoomID, port.RoomModifier) error {
+func runModifier(room *poker.Room) func(context.Context, poker.RoomID, port.RoomModifier) error {
 	return func(ctx context.Context, _ poker.RoomID, modifier port.RoomModifier) error {
-		return modifier(ctx, rc)
+		return modifier(ctx, room)
 	}
 }
 

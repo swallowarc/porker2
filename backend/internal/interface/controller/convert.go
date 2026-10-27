@@ -103,16 +103,16 @@ func userRoleToProto(r poker.UserRole) pb.UserRole {
 	}
 }
 
-func ballotToProto(b *poker.Ballot) *pb.Ballot {
+func ballotToProto(b poker.Ballot) *pb.Ballot {
 	return &pb.Ballot{
-		UserId:   b.UserID.String(),
-		UserName: b.UserName.String(),
-		Point:    pointToProto(b.Point),
-		Role:     userRoleToProto(b.Role),
+		UserId:   b.UserID().String(),
+		UserName: b.UserName().String(),
+		Point:    pointToProto(b.Point()),
+		Role:     userRoleToProto(b.Role()),
 	}
 }
 
-func ballotsToProto(b []*poker.Ballot) []*pb.Ballot {
+func ballotsToProto(b []poker.Ballot) []*pb.Ballot {
 	ballots := make([]*pb.Ballot, 0, len(b))
 	for _, ballot := range b {
 		ballots = append(ballots, ballotToProto(ballot))
@@ -120,14 +120,15 @@ func ballotsToProto(b []*poker.Ballot) []*pb.Ballot {
 	return ballots
 }
 
-func roomToProto(rc *poker.Room) *pb.RoomCondition {
+// roomToProto はドメインの Room を転送用メッセージ RoomCondition に写す。
+func roomToProto(room *poker.Room) *pb.RoomCondition {
 	return &pb.RoomCondition{
-		RoomId:        rc.RoomID.String(),
-		AdminUserId:   rc.AdminUserID.String(),
-		VoteState:     pb.VoteState(rc.VoteState),
-		Ballots:       ballotsToProto(rc.Ballots),
-		AutoOpen:      rc.AutoOpen,
-		DisplayMode:   pb.DisplayMode(rc.DisplayMode),
-		ObserverCount: rc.ObserverCount(),
+		RoomId:        room.RoomID().String(),
+		AdminUserId:   room.AdminUserID().String(),
+		VoteState:     pb.VoteState(room.VoteState().Int32()),
+		Ballots:       ballotsToProto(room.Ballots()),
+		AutoOpen:      room.AutoOpen(),
+		DisplayMode:   pb.DisplayMode(room.DisplayMode().Int32()),
+		ObserverCount: room.ObserverCount(),
 	}
 }

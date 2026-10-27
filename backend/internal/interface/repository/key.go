@@ -22,10 +22,15 @@ func userTokenKey(tk string) string {
 }
 
 func userIDKey(id user.ID) string {
-	return fmt.Sprintf(keyFormatUserID, id)
+	return fmt.Sprintf(keyFormatUserID, id.String())
 }
 
 func userNameKey(name user.Name) string {
+	return userNameKeyRaw(name.String())
+}
+
+// userNameKeyRaw は永続化モデル上の生の名前からキーを作る (削除・延命時はドメイン型への復元を要しない)。
+func userNameKeyRaw(name string) string {
 	return fmt.Sprintf(keyFormatUserName, name)
 }
 
@@ -40,9 +45,9 @@ const (
 )
 
 func roomKey(id poker.RoomID) string {
-	return fmt.Sprintf(keyFormatRoomCondition, id)
+	return fmt.Sprintf(keyFormatRoomCondition, id.String())
 }
 
 func roomLockKey(id poker.RoomID) string {
-	return fmt.Sprintf(keyFormatRoomLock, id)
+	return fmt.Sprintf(keyFormatRoomLock, id.String())
 }
