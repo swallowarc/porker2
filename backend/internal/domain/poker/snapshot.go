@@ -53,7 +53,7 @@ func RestoreRoom(s RoomSnapshot) (*Room, error) {
 		return nil, corrupted(err)
 	}
 
-	adminUserID := user.ID("")
+	adminUserID := user.ID{}
 	if s.AdminUserID != "" {
 		if adminUserID, err = user.ParseID(s.AdminUserID); err != nil {
 			return nil, corrupted(err)

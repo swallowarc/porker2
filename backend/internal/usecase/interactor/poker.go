@@ -28,7 +28,7 @@ func NewPoker(userRepo port.UserRepository, pokerRepo port.PokerRepository) Poke
 func (i *pokerInteractor) CreateRoom(ctx context.Context) (poker.RoomID, error) {
 	id, err := i.pokerRepo.CreateRoom(ctx)
 	if err != nil {
-		return "", err
+		return poker.RoomID{}, err
 	}
 
 	logger.FromCtx(ctx).Debug("room created", slog.String("room_id", id.String()))
@@ -108,7 +108,7 @@ func (i *pokerInteractor) LeaveRoom(ctx context.Context, userID user.ID) error {
 	}
 
 	err = i.pokerRepo.UpdateRoomWithLock(ctx, joinedRoomID, func(ctx context.Context, c *poker.Room) error {
-		if err := i.userRepo.UpdateRoomID(ctx, userID, ""); err != nil {
+		if err := i.userRepo.UpdateRoomID(ctx, userID, poker.RoomID{}); err != nil {
 			return err
 		}
 		c.Leave(userID)
@@ -129,7 +129,7 @@ func (i *pokerInteractor) LeaveRoom(ctx context.Context, userID user.ID) error {
 		slog.String("room_id", joinedRoomID.String()),
 	)
 
-	return asSessionError(i.userRepo.UpdateRoomID(ctx, userID, ""))
+	return asSessionError(i.userRepo.UpdateRoomID(ctx, userID, poker.RoomID{}))
 }
 
 func (i *pokerInteractor) CastVote(ctx context.Context, userID user.ID, roomID poker.RoomID, point poker.Point) error {

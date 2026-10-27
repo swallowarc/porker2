@@ -16,29 +16,38 @@ var (
 	roomIDRegexp = regexp.MustCompile(`^[0-9]{5}$`)
 )
 
-type (
-	// RoomID は 5 桁の数字からなる部屋の識別子。
-	// 外部入力からは必ず NewRoomID で生成し、事前条件を満たさない値を作らないこと。
-	// ゼロ値は「どの部屋にも属していない」ことを表す (IsZero)。
-	RoomID string
-)
+// RoomID は 5 桁の数字からなる部屋の識別子。
+// 非公開フィールドのため、NewRoomID / MustRoomID / 部屋の新規作成以外では生成できない。
+// ゼロ値は「どの部屋にも属していない」ことを表す (IsZero)。
+type RoomID struct {
+	v string
+}
 
 // NewRoomID は外部入力から RoomID を生成する。形式を満たさなければ InvalidArgument を返す。
 func NewRoomID(raw string) (RoomID, error) {
 	if !roomIDRegexp.MatchString(raw) {
-		return "", merror.NewInvalidArgument(nil, "room id must be %d digits: %q", roomIDLength, raw)
+		return RoomID{}, merror.NewInvalidArgument(nil, "room id must be %d digits: %q", roomIDLength, raw)
 	}
-	return RoomID(raw), nil
+	return RoomID{v: raw}, nil
+}
+
+// MustRoomID は NewRoomID の panic 版。リテラルから作る (テスト等) 用途に限る。
+func MustRoomID(raw string) RoomID {
+	id, err := NewRoomID(raw)
+	if err != nil {
+		panic(err)
+	}
+	return id
 }
 
 func newRoomID() RoomID {
-	return RoomID(random.RandString6ByParam(roomIDLength, roomIDAvailableChars))
+	return RoomID{v: random.RandString6ByParam(roomIDLength, roomIDAvailableChars)}
 }
 
 func (id RoomID) String() string {
-	return string(id)
+	return id.v
 }
 
 func (id RoomID) IsZero() bool {
-	return id == ""
+	return id.v == ""
 }

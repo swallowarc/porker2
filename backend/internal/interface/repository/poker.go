@@ -43,17 +43,17 @@ func (r *pokerRepository) CreateRoom(ctx context.Context) (poker.RoomID, error) 
 			continue // room id collision, retry
 		}
 		if !merror.IsNotFound(err) {
-			return "", err
+			return poker.RoomID{}, err
 		}
 
 		if err := r.publishRoom(ctx, room); err != nil {
-			return "", err
+			return poker.RoomID{}, err
 		}
 
 		return room.RoomID(), nil
 	}
 
-	return "", merror.NewUnavailable("room creation retry limit has been exceeded")
+	return poker.RoomID{}, merror.NewUnavailable("room creation retry limit has been exceeded")
 }
 
 func (r *pokerRepository) UpdateRoomWithLock(ctx context.Context, roomID poker.RoomID, modifier port.RoomModifier) error {

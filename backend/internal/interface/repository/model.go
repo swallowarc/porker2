@@ -56,13 +56,13 @@ func decodeUser(j string) (*userModel, error) {
 func (m *userModel) toDomain() (user.Name, poker.RoomID, error) {
 	name, err := user.NewName(m.Name)
 	if err != nil {
-		return "", "", merror.WrapInternal(err, "corrupted user")
+		return user.Name{}, poker.RoomID{}, merror.WrapInternal(err, "corrupted user")
 	}
 
-	roomID := poker.RoomID("")
+	roomID := poker.RoomID{}
 	if m.RoomID != "" {
 		if roomID, err = poker.NewRoomID(m.RoomID); err != nil {
-			return "", "", merror.WrapInternal(err, "corrupted user")
+			return user.Name{}, poker.RoomID{}, merror.WrapInternal(err, "corrupted user")
 		}
 	}
 

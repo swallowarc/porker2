@@ -14,7 +14,7 @@ import (
 func join(t *testing.T, r *Room, name string) user.ID {
 	t.Helper()
 	id := user.NewID()
-	require.NoError(t, r.Join(id, user.Name(name)))
+	require.NoError(t, r.Join(id, user.MustName(name)))
 	return id
 }
 
@@ -55,7 +55,7 @@ func TestRoom_Join(t *testing.T) {
 	assert.Len(t, r.Ballots(), 2)
 
 	// 既に参加しているユーザーが再参加しても増えない
-	assert.NoError(t, r.Join(u1, user.Name("User1")))
+	assert.NoError(t, r.Join(u1, user.MustName("User1")))
 	assert.Len(t, r.Ballots(), 2)
 
 	// 部屋が満員の場合
@@ -63,7 +63,7 @@ func TestRoom_Join(t *testing.T) {
 	for i := range MaxMember {
 		join(t, r, fmt.Sprintf("User%d", i))
 	}
-	assert.ErrorIs(t, r.Join(user.NewID(), user.Name("Extra")), ErrRoomFull)
+	assert.ErrorIs(t, r.Join(user.NewID(), user.MustName("Extra")), ErrRoomFull)
 	assert.False(t, r.CanJoin())
 }
 

@@ -16,6 +16,8 @@ import (
 	pbconn "github.com/swallowarc/porker2/backend/internal/interface/pb/porker/v2/porkerv2connect"
 )
 
+var testUserID = user.MustParseID("0f2d6c9e-4b1a-4c3d-9e8f-123456789abc")
+
 // stubHandler は Manager を通して Cookie を操作するだけの最小ハンドラ。
 type stubHandler struct {
 	pbconn.UnimplementedPorker2ServiceHandler
@@ -89,7 +91,7 @@ func TestManager_RefreshCookie_ViaRPC(t *testing.T) {
 		mgr := NewManager(conf, nil)
 		client := newInProcessClient(t, &stubHandler{
 			mgr:      mgr,
-			authInfo: session{UserID: "u1", Token: "token-from-session"},
+			authInfo: session{UserID: testUserID, Token: "token-from-session"},
 		})
 
 		ctx, info := connect.NewClientContext(context.Background())
@@ -127,7 +129,7 @@ func TestManager_UserIDFromCtx(t *testing.T) {
 	t.Parallel()
 	mgr := NewManager(Config{}, nil)
 
-	assert.Equal(t, user.ID(""), mgr.UserIDFromCtx(context.Background()))
-	assert.Equal(t, user.ID(""), mgr.UserIDFromCtx(authn.SetInfo(context.Background(), "not a session")))
-	assert.Equal(t, user.ID("u1"), mgr.UserIDFromCtx(authn.SetInfo(context.Background(), session{UserID: "u1"})))
+	assert.Equal(t, user.ID{}, mgr.UserIDFromCtx(context.Background()))
+	assert.Equal(t, user.ID{}, mgr.UserIDFromCtx(authn.SetInfo(context.Background(), "not a session")))
+	assert.Equal(t, testUserID, mgr.UserIDFromCtx(authn.SetInfo(context.Background(), session{UserID: testUserID})))
 }

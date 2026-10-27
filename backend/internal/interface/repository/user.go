@@ -31,25 +31,25 @@ func (r *userRepository) Create(ctx context.Context, userName user.Name) (user.I
 
 	set, err := r.mem.SetNX(ctx, userNameKey(userName), id.String(), user.SessionLifetimeDuration)
 	if err != nil {
-		return "", "", merror.WrapInternal(err, "failed to set user name")
+		return user.ID{}, "", merror.WrapInternal(err, "failed to set user name")
 	} else if !set {
-		return "", "", merror.NewAlreadyExists("user name already exists")
+		return user.ID{}, "", merror.NewAlreadyExists("user name already exists")
 	}
 
 	j, err := encodeUser(m)
 	if err != nil {
-		return "", "", err
+		return user.ID{}, "", err
 	}
 
 	set, err = r.mem.SetNX(ctx, userIDKey(id), j, user.SessionLifetimeDuration)
 	if err != nil {
-		return "", "", merror.WrapInternal(err, "failed to set user id")
+		return user.ID{}, "", merror.WrapInternal(err, "failed to set user id")
 	} else if !set {
-		return "", "", merror.NewAlreadyExists("user id already exists")
+		return user.ID{}, "", merror.NewAlreadyExists("user id already exists")
 	}
 
 	if _, err := r.mem.SetNX(ctx, userTokenKey(token), id.String(), user.SessionLifetimeDuration); err != nil {
-		return "", "", merror.WrapInternal(err, "failed to set user token")
+		return user.ID{}, "", merror.WrapInternal(err, "failed to set user token")
 	}
 
 	return id, token, nil
@@ -124,14 +124,14 @@ func (r *userRepository) GetIDByAccessToken(ctx context.Context, token string) (
 	j, err := r.mem.Get(ctx, userTokenKey(token))
 	if err != nil {
 		if merror.IsNotFound(err) {
-			return "", merror.NewNotFound("user token does not exist")
+			return user.ID{}, merror.NewNotFound("user token does not exist")
 		}
-		return "", merror.WrapInternal(err, "failed to get user token")
+		return user.ID{}, merror.WrapInternal(err, "failed to get user token")
 	}
 
 	id, err := user.ParseID(j)
 	if err != nil {
-		return "", merror.WrapInternal(err, "corrupted user token entry")
+		return user.ID{}, merror.WrapInternal(err, "corrupted user token entry")
 	}
 
 	return id, nil
@@ -140,12 +140,12 @@ func (r *userRepository) GetIDByAccessToken(ctx context.Context, token string) (
 func (r *userRepository) GetByID(ctx context.Context, userID user.ID) (user.Name, string, poker.RoomID, error) {
 	m, err := r.getUserModel(ctx, userID)
 	if err != nil {
-		return "", "", "", err
+		return user.Name{}, "", poker.RoomID{}, err
 	}
 
 	name, roomID, err := m.toDomain()
 	if err != nil {
-		return "", "", "", err
+		return user.Name{}, "", poker.RoomID{}, err
 	}
 
 	return name, m.Token, roomID, nil
@@ -155,14 +155,14 @@ func (r *userRepository) GetIDByName(ctx context.Context, userName user.Name) (u
 	j, err := r.mem.Get(ctx, userNameKey(userName))
 	if err != nil {
 		if merror.IsNotFound(err) {
-			return "", merror.NewNotFound("user name does not exist")
+			return user.ID{}, merror.NewNotFound("user name does not exist")
 		}
-		return "", merror.WrapInternal(err, "failed to get user name")
+		return user.ID{}, merror.WrapInternal(err, "failed to get user name")
 	}
 
 	id, err := user.ParseID(j)
 	if err != nil {
-		return "", merror.WrapInternal(err, "corrupted user name entry")
+		return user.ID{}, merror.WrapInternal(err, "corrupted user name entry")
 	}
 
 	return id, nil
