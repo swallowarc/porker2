@@ -1,47 +1,37 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'dart:async';
+
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/core/logger/logger.dart';
-import 'package:porker2fe/core/provider/providers.dart';
-import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pb.dart';
+import 'package:porker2fe/application/provider.dart';
 import 'package:porker2fe/domain/point.dart';
+import 'package:porker2fe/domain/room.dart';
 import 'package:porker2fe/application/port/port.dart';
 
-part 'poker.freezed.dart';
+/// 購読中の部屋。購読の終了は [done] で待てる。
+class _RoomSubscription {
+  _RoomSubscription(this.roomID);
 
-@freezed
-abstract class PokerState with _$PokerState {
-  const factory PokerState(
-    String roomID,
-    String adminUserID,
-    List<Ballot> ballots,
-    VoteState voteState,
-    bool autoOpen,
-    DisplayMode displayMode,
-    int observerCount,
-  ) = _PokerState;
+  final String roomID;
+  final done = Completer<void>();
+  StreamSubscription<Room>? subscription;
+
+  void cancel() {
+    subscription?.cancel();
+    subscription = null;
+  }
 }
 
-class Poker extends Notifier<PokerState> {
+/// 今いる部屋の状態。入っていなければ [Room.empty]。
+class Poker extends Notifier<Room> {
   late final Porker2Service _svcRepo;
-  String _subscribingRoomID = "";
+
+  _RoomSubscription? _current;
 
   @override
-  PokerState build() {
+  Room build() {
     _svcRepo = ref.read(porker2ServiceProvider);
-    return const PokerState("", "", [], VoteState.VOTE_STATE_HIDE, true, DisplayMode.DISPLAY_MODE_POINT, 0);
-  }
-
-  void _reset() {
-    _subscribingRoomID = "";
-    state = state.copyWith(
-      roomID: "",
-      adminUserID: "",
-      ballots: [],
-      voteState: VoteState.VOTE_STATE_HIDE,
-      autoOpen: true,
-      displayMode: DisplayMode.DISPLAY_MODE_POINT,
-      observerCount: 0,
-    );
+    ref.onDispose(() => _current?.cancel());
+    return Room.empty;
   }
 
   Future<String> createRoom() async {
@@ -52,37 +42,62 @@ class Poker extends Notifier<PokerState> {
     await _svcRepo.checkRoom(roomId);
   }
 
-  Future<void> joinRoom(String roomId) async {
-    if (_subscribingRoomID == roomId) {
+  /// 部屋の状態を購読する。返す Future は購読が終わる (退室・キック・エラー) まで完了しない。
+  /// 既に同じ部屋を購読中ならその購読の終了を待つ Future を返す (画面を開き直した場合)。
+  /// 別の部屋を購読中ならそちらを打ち切って入り直す。打ち切られた側の Future は完了しない
+  /// (完了させると古い画面の遷移処理が走ってしまう)。
+  /// 購読がエラーで終わった場合はそのエラーを投げる。
+  Future<void> joinRoom(String roomId) {
+    final current = _current;
+    if (current != null && current.roomID == roomId) {
       logger.d("already subscribing: $roomId");
-      return;
+      return current.done.future;
     }
-    _subscribingRoomID = roomId;
+    current?.cancel();
 
-    try {
-      await for (final rc in _svcRepo.joinRoom(roomId)) {
-        logger.d("subscribe room condition: $rc");
+    final next = _RoomSubscription(roomId);
+    _current = next;
+    next.subscription = _svcRepo.joinRoom(roomId).listen(
+      (room) {
+        logger.d("subscribe room condition: $room");
+        state = room;
+      },
+      onError: (Object error, StackTrace stackTrace) {
+        logger.e("subscribe room condition error: $error",
+            error: error, stackTrace: stackTrace);
+        _finish(next);
+        next.done.completeError(error, stackTrace);
+      },
+      onDone: () {
+        logger.d("unsubscribe room condition");
+        _finish(next);
+        next.done.complete();
+      },
+      cancelOnError: true,
+    );
 
-        state = state.copyWith(
-          roomID: rc.roomId,
-          adminUserID: rc.adminUserId,
-          ballots: rc.ballots,
-          voteState: rc.voteState,
-          autoOpen: rc.autoOpen,
-          displayMode: rc.displayMode,
-          observerCount: rc.observerCount,
-        );
-      }
-      logger.d("unsubscribe room condition");
-      _reset();
-    } catch (error, stackTrace) {
-      logger.e("subscribe room condition error: $error",
-          error: error, stackTrace: stackTrace);
-      _reset();
-    }
+    return next.done.future;
   }
 
-  Future<void> leaveRoom() async => _svcRepo.leaveRoom(state.roomID);
+  /// 購読の終了処理。cancel 済みの購読では onDone / onError は呼ばれないので
+  /// identical の確認は防御的なもの (別の部屋へ入り直した後に古い購読の終了処理が走っても壊さない)。
+  void _finish(_RoomSubscription finished) {
+    if (!identical(_current, finished)) {
+      return;
+    }
+    _current = null;
+    state = Room.empty;
+  }
+
+  /// 退室する。成功したら購読を打ち切って状態を空にする。
+  /// サーバーからの購読終了を待たない (部屋が TTL 切れで消えていると更新が配信されず、
+  /// WriteTimeout まで終わらない)。打ち切った購読の joinRoom の Future は完了しない。
+  Future<void> leaveRoom() async {
+    await _svcRepo.leaveRoom(state.roomID);
+    _current?.cancel();
+    _current = null;
+    state = Room.empty;
+  }
 
   Future<void> castVote(Point point) => _svcRepo.castVote(state.roomID, point);
 
@@ -102,71 +117,5 @@ class Poker extends Notifier<PokerState> {
 
   Future<void> toggleObserverMode(bool isObserver) async {
     await _svcRepo.toggleObserverMode(state.roomID, isObserver);
-  }
-
-  bool get opened => state.voteState == VoteState.VOTE_STATE_OPEN;
-
-  bool get openable =>
-      state.voteState == VoteState.VOTE_STATE_HIDE &&
-          state.ballots
-              .where((e) => ![Point.POINT_UNSPECIFIED].contains(e.point))
-              .isNotEmpty;
-
-  bool get votable => state.voteState == VoteState.VOTE_STATE_HIDE;
-
-  Point myPoint(String userID) =>
-      state.ballots
-          .firstWhere((e) => e.userId == userID, orElse: () => Ballot())
-          .point;
-
-  bool isObserver(String userID) =>
-      state.ballots
-          .firstWhere((e) => e.userId == userID, orElse: () => Ballot())
-          .role == UserRole.USER_ROLE_OBSERVER;
-
-  bool get subscribing => _subscribingRoomID.isNotEmpty;
-
-  List<Ballot> get voterBallots =>
-      state.ballots
-          .where((e) => e.role != UserRole.USER_ROLE_OBSERVER)
-          .toList();
-
-  int get observerCount =>
-      state.ballots
-          .where((e) => e.role == UserRole.USER_ROLE_OBSERVER)
-          .length;
-
-  double get voteAverage {
-    final voters = voterBallots;
-    final validVotes = voters.where((e) => validPoint(e.point));
-    if (validVotes.isEmpty) return 0;
-
-    final total = validVotes.fold<double>(
-        0, (prev, e) => prev + pointToDouble(e.point));
-    return total / validVotes.length;
-  }
-
-  int get validVoteCount =>
-      voterBallots.where((e) => validPoint(e.point)).length;
-
-  bool get isUnanimity {
-    if (state.voteState != VoteState.VOTE_STATE_OPEN) {
-      return false;
-    }
-
-    final voterBallots = state.ballots
-        .where((ballot) => ballot.role != UserRole.USER_ROLE_OBSERVER)
-        .toList();
-
-    if (voterBallots.length < 2) {
-      return false;
-    }
-
-    final firstPoint = voterBallots.first.point;
-    if (firstPoint == Point.POINT_UNSPECIFIED) {
-      return false;
-    }
-
-    return voterBallots.every((ballot) => ballot.point == firstPoint);
   }
 }

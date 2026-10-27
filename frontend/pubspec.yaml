@@ -39,7 +39,6 @@ dependencies:
 
   protobuf: ^6.1.0
   connectrpc: ^2.0.0
-  flutter_secure_storage: ^11.0.0
   freezed_annotation: ^3.1.0
   hooks_riverpod: ^3.1.0
   flutter_hooks: ^0.21.3
@@ -47,7 +46,6 @@ dependencies:
   url_launcher: ^6.3.2
   logger: ^2.6.1
   shared_preferences: ^2.2.3
-  sprintf: ^7.0.0
   material_ui: ^1.7.0
 
 dev_dependencies:

@@ -5,7 +5,7 @@ import 'package:porker2fe/core/logger/logger.dart';
 import 'package:porker2fe/presentation/page/login_page.dart';
 import 'package:porker2fe/presentation/page/poker_page.dart';
 import 'package:porker2fe/presentation/page/room_select_page.dart';
-import 'package:porker2fe/presentation/provider/provider.dart';
+import 'package:porker2fe/application/provider.dart';
 import 'package:porker2fe/presentation/router/paths.dart';
 import 'package:porker2fe/presentation/router/redirect.dart';
 
@@ -18,7 +18,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     initialLocation: LoginRoute().location,
     routes: $appRoutes,
     redirect: (context, state) {
-      final isLoggedIn = ref.read(userProvider.notifier).alreadyLogin;
+      final isLoggedIn = ref.read(userProvider).isLoggedIn;
       logger.d('isLoggedIn: $isLoggedIn, path: ${state.fullPath}');
       return resolveRedirect(
         isLoggedIn: isLoggedIn,

@@ -1,12 +1,12 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/core/logger/logger.dart';
-import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pb.dart';
+import 'package:porker2fe/domain/room.dart';
 import 'package:porker2fe/presentation/const.dart';
 import 'package:porker2fe/presentation/invoke.dart';
-import 'package:porker2fe/presentation/provider/provider.dart';
+import 'package:porker2fe/application/provider.dart';
+import 'package:porker2fe/presentation/router/router.dart';
 import 'package:porker2fe/presentation/widget/app_bar.dart';
 import 'package:porker2fe/presentation/widget/bottom_bar.dart';
 import 'package:porker2fe/presentation/widget/dialog.dart';
@@ -24,32 +24,32 @@ class PokerPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // 未ログインでの到達は router の redirect が防いでいるので、ここでは入室だけを行う
+    // 未ログインでの到達は router の redirect が防いでいるので、ここでは入室だけを行う。
+    // joinRoom は購読が終わる (退室・キック・部屋の消滅) まで完了しないので、
+    // 完了したら部屋選択へ戻る。エラー (部屋がない・満員など) は invoke が表示してから
+    // 部屋選択へ戻し、Unauthenticated ならログインへ戻す
     useEffect(() {
-      ref.read(pokerProvider.notifier).joinRoom(roomId);
       logger.d('join room: $roomId');
+      invoke(
+        context,
+        () => ref.read(pokerProvider.notifier).joinRoom(roomId),
+        (_) => RoomSelectRoute().go(context),
+        onError: () => RoomSelectRoute().go(context),
+      );
       return null;
     }, [roomId]);
 
     final poker = ref.watch(pokerProvider);
-    if (!ref.read(pokerProvider.notifier).subscribing) {
-      logger.d('not subscribing');
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        GoRouter.of(context).go('/room');
-      });
-      return const PorkerProgressIndicator();
-    }
-
     if (poker.roomID.isEmpty) {
       return const PorkerProgressIndicator();
     }
 
     final bool isMediumScreen =
-        MediaQuery.of(context).size.width < mediumScreenBoundary;
+        MediaQuery.sizeOf(context).width < mediumScreenBoundary;
 
     final body = Stack(
       children: [
-        if (ref.read(pokerProvider.notifier).isUnanimity)
+        if (poker.isUnanimity)
           const Positioned.fill(child: FireWorks()),
         const Center(
           child: SingleChildScrollView(
@@ -82,7 +82,7 @@ class PokerPage extends HookConsumerWidget {
               onYes: () => invoke(
                   context,
                   () => ref.read(pokerProvider.notifier).leaveRoom(),
-                  (_) => GoRouter.of(context).go('/room')),
+                  (_) => RoomSelectRoute().go(context)),
             ),
           );
         },
@@ -148,9 +148,9 @@ class _Drawer extends HookConsumerWidget {
             title: const Text('T-shirt mode'),
             subtitle: const Text('Use T-shirt sizes', style: TextStyle(fontSize: 12)),
             secondary: const Icon(Icons.checkroom),
-            value: poker.displayMode == DisplayMode.DISPLAY_MODE_TSHIRT,
+            value: poker.displayMode == DisplayMode.tshirt,
             onChanged: (bool value) {
-              final newMode = value ? DisplayMode.DISPLAY_MODE_TSHIRT : DisplayMode.DISPLAY_MODE_POINT;
+              final newMode = value ? DisplayMode.tshirt : DisplayMode.point;
               invoke(context, () => pokerNotifier.updateRoom(poker.autoOpen, newMode), (_) {});
             },
           ),
@@ -171,7 +171,7 @@ class _Drawer extends HookConsumerWidget {
             title: const Text('Observer mode'),
             subtitle: const Text('Watch without voting', style: TextStyle(fontSize: 12)),
             secondary: const Icon(Icons.visibility),
-            value: pokerNotifier.isObserver(user.userID),
+            value: poker.isObserver(user.userID),
             onChanged: (bool value) {
               invoke(context, () => pokerNotifier.toggleObserverMode(value), (_) {});
             },

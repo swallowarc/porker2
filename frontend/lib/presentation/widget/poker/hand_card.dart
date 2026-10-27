@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pb.dart';
+import 'package:porker2fe/domain/point.dart';
+import 'package:porker2fe/domain/room.dart';
 import 'package:porker2fe/presentation/widget/poker/base_card.dart';
 
 class HandCard extends StatefulWidget {
@@ -15,7 +16,7 @@ class HandCard extends StatefulWidget {
     required this.onTap,
     required this.delayMilliseconds,
     required this.selected,
-    this.displayMode = DisplayMode.DISPLAY_MODE_POINT,
+    this.displayMode = DisplayMode.point,
   });
 
   @override

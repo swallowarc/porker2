@@ -1,8 +1,8 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pb.dart';
 import 'package:porker2fe/domain/point.dart';
-import 'package:porker2fe/presentation/provider/provider.dart';
+import 'package:porker2fe/domain/room.dart';
+import 'package:porker2fe/application/provider.dart';
 
 class Summary extends HookConsumerWidget {
   const Summary({super.key});
@@ -10,11 +10,10 @@ class Summary extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final poker = ref.watch(pokerProvider);
-    final pokerNotifier = ref.read(pokerProvider.notifier);
 
-    if (poker.voteState != VoteState.VOTE_STATE_OPEN) {
-      final voterCount = pokerNotifier.voterBallots.length;
-      final observerCount = pokerNotifier.observerCount;
+    if (poker.voteState != VoteState.open) {
+      final voterCount = poker.voters.length;
+      final observerCount = poker.observerCount;
 
       return Column(
         children: [
@@ -27,12 +26,12 @@ class Summary extends HookConsumerWidget {
       );
     }
 
-    final validVotes = pokerNotifier.validVoteCount;
-    final average = pokerNotifier.voteAverage;
-    final observerCount = pokerNotifier.observerCount;
+    final validVotes = poker.numericVoteCount;
+    final average = poker.average;
+    final observerCount = poker.observerCount;
 
     String displayText;
-    if (poker.displayMode == DisplayMode.DISPLAY_MODE_TSHIRT) {
+    if (poker.displayMode == DisplayMode.tshirt) {
       final tshirtSize = averageToTshirtSize(average);
       displayText = "Avg: $tshirtSize (${average.toStringAsFixed(1)})";
     } else {

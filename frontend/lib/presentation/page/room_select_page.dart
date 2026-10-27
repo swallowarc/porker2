@@ -5,7 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/domain/room.dart';
 import 'package:porker2fe/presentation/const.dart';
 import 'package:porker2fe/presentation/invoke.dart';
-import 'package:porker2fe/presentation/provider/provider.dart';
+import 'package:porker2fe/application/provider.dart';
 import 'package:porker2fe/presentation/widget/app_bar.dart';
 import 'package:porker2fe/presentation/widget/bottom_bar.dart';
 import 'package:porker2fe/presentation/widget/logo.dart';
@@ -16,7 +16,7 @@ class RoomSelectPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool isSmallScreen =
-        MediaQuery.of(context).size.width < smallScreenBoundary;
+        MediaQuery.sizeOf(context).width < smallScreenBoundary;
     const logo =
         Logo(type: LogoType.roomSelect, message: "Join or Create a room");
 
@@ -64,7 +64,7 @@ class _FormContent extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final TextEditingController roomIDController = useTextEditingController();
     final bool isSmallScreen =
-        MediaQuery.of(context).size.width < smallScreenBoundary;
+        MediaQuery.sizeOf(context).width < smallScreenBoundary;
     final formKey = useMemoized(() => GlobalKey<FormState>());
     final focusNode = useFocusNode();
 

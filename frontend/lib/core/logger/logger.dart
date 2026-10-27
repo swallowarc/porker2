@@ -1,4 +1,3 @@
-import 'package:connectrpc/connect.dart';
 import 'package:logger/logger.dart';
 import 'package:porker2fe/core/env/env.dart';
 
@@ -31,36 +30,4 @@ Logger newLogger() {
         dateTimeFormat: DateTimeFormat.onlyTimeAndSinceStart
         ),
   );
-}
-
-void grpcLoggingInfo(Exception err) {
-  try {
-    final grpcErr = err as ConnectException;
-    logger.i(grpcErr.toString());
-  } catch (e, stackTrace) {
-    logger.i("an unexpected exception has occurred",
-        error: e, stackTrace: stackTrace);
-  }
-}
-
-void grpcLogging(Exception err) {
-  try {
-    final grpcErr = err as ConnectException;
-    switch (grpcErr.code) {
-      case Code.deadlineExceeded:
-        logger.i("deadline exceeded");
-        break;
-      case Code.canceled:
-        logger.i("canceled");
-        break;
-      case Code.unavailable:
-        logger.w("unavailable: ${grpcErr.message}");
-        break;
-      default:
-        logger.e(grpcErr.toString());
-    }
-  } catch (e, stackTrace) {
-    logger.e("an unexpected exception has occurred",
-        error: e, stackTrace: stackTrace);
-  }
 }

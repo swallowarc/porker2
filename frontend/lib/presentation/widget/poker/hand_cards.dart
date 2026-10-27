@@ -1,25 +1,9 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pbenum.dart';
-import 'package:porker2fe/presentation/provider/provider.dart';
+import 'package:porker2fe/application/provider.dart';
+import 'package:porker2fe/domain/point.dart';
+import 'package:porker2fe/presentation/invoke.dart';
 import 'package:porker2fe/presentation/widget/poker/hand_card.dart';
-
-const List<Point> pointOrder = [
-  Point.POINT_0,
-  Point.POINT_0_5,
-  Point.POINT_1,
-  Point.POINT_2,
-  Point.POINT_3,
-  Point.POINT_5,
-  Point.POINT_8,
-  Point.POINT_13,
-  Point.POINT_21,
-];
-
-const List<Point> _extraPoints = [
-  Point.POINT_COFFEE,
-  Point.POINT_QUESTION,
-];
 
 const double _fanLayoutMinWidth = 750;
 
@@ -32,21 +16,25 @@ class HandCards extends HookConsumerWidget {
     final pokerNotifier = ref.read(pokerProvider.notifier);
     final poker = ref.watch(pokerProvider);
 
-    final myPoint = pokerNotifier.myPoint(user.userID);
-    final isObserver = pokerNotifier.isObserver(user.userID);
+    final myPoint = poker.pointOf(user.userID);
+    final isObserver = poker.isObserver(user.userID);
 
     if (isObserver) {
-      return Container();
+      return const SizedBox.shrink();
     }
 
     HandCard buildCard(Point point, int delayMilliseconds) => HandCard(
           point: point,
           onTap: () {
-            if (!pokerNotifier.votable) {
+            if (!poker.votable) {
               return;
             }
-            pokerNotifier
-                .castVote(myPoint == point ? Point.POINT_UNSPECIFIED : point);
+            invoke(
+              context,
+              () => pokerNotifier
+                  .castVote(myPoint == point ? Point.unspecified : point),
+              (_) {},
+            );
           },
           delayMilliseconds: delayMilliseconds,
           selected: myPoint == point,
@@ -71,8 +59,8 @@ class HandCards extends HookConsumerWidget {
             child: LayoutBuilder(
               builder: (context, constraints) {
                 return Stack(
-                  children: List.generate(pointOrder.length, (index) {
-                    final indexCenter = pointOrder.length ~/ 2;
+                  children: List.generate(Point.numeric.length, (index) {
+                    final indexCenter = Point.numeric.length ~/ 2;
                     final angle = (index - indexCenter) * 0.05;
                     final leftOffset = (index - indexCenter) * 70.0;
 
@@ -101,7 +89,7 @@ class HandCards extends HookConsumerWidget {
                       top: topOffset,
                       child: Transform.rotate(
                         angle: angle,
-                        child: buildCard(pointOrder[index], index * 100),
+                        child: buildCard(Point.numeric[index], index * 100),
                       ),
                     );
                   }),
@@ -112,9 +100,10 @@ class HandCards extends HookConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              buildCard(Point.POINT_COFFEE, 1000),
-              const SizedBox(width: 20),
-              buildCard(Point.POINT_QUESTION, 1100),
+              for (final (i, p) in Point.extras.indexed) ...[
+                if (i > 0) const SizedBox(width: 20),
+                buildCard(p, 1000 + i * 100),
+              ],
             ],
           ),
         ],
@@ -123,7 +112,7 @@ class HandCards extends HookConsumerWidget {
   }
 
   Widget _scrollLayout(HandCard Function(Point, int) buildCard) {
-    final allPoints = [...pointOrder, ..._extraPoints];
+    final allPoints = [...Point.numeric, ...Point.extras];
 
     // BaseCard の SizedBox(width: 100) と揃える。
     const cardWidth = 100.0;

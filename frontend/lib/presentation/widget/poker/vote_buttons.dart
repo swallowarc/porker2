@@ -1,13 +1,14 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:porker2fe/presentation/provider/provider.dart';
+import 'package:porker2fe/application/provider.dart';
+import 'package:porker2fe/presentation/invoke.dart';
 
 class VoteButtons extends HookConsumerWidget {
   const VoteButtons({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final _ = ref.watch(pokerProvider);
+    final poker = ref.watch(pokerProvider);
     final pokerNotifier = ref.read(pokerProvider.notifier);
 
     return Center(
@@ -30,8 +31,8 @@ class VoteButtons extends HookConsumerWidget {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(4)),
                 ),
-                onPressed: pokerNotifier.openable
-                    ? () => pokerNotifier.showVotes()
+                onPressed: poker.openable
+                    ? () => invoke(context, pokerNotifier.showVotes, (_) {})
                     : null,
               ),
             ),
@@ -47,9 +48,8 @@ class VoteButtons extends HookConsumerWidget {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(4)),
                 ),
-                onPressed: () {
-                  pokerNotifier.resetVotes();
-                },
+                onPressed: () =>
+                    invoke(context, pokerNotifier.resetVotes, (_) {}),
               ),
             ),
           ],

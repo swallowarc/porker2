@@ -1,6 +1,6 @@
 import 'package:connectrpc/connect.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:porker2fe/core/error/retry.dart';
+import 'package:porker2fe/infrastructure/adapter/retry.dart';
 
 void main() {
   group('shouldRetry', () {

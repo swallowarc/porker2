@@ -61,5 +61,10 @@ jobs:
       - name: Analyze
         run: flutter analyze
 
+      # flutter analyze は analysis_options.yaml の plugins (riverpod_lint) を読まないため、
+      # dart analyze でプラグインのルールも検査する
+      - name: Analyze (riverpod_lint)
+        run: dart analyze --fatal-infos
+
       - name: Test
         run: flutter test
