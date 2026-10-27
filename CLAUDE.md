@@ -93,7 +93,7 @@ Riverpod を使ったクリーンアーキテクチャ。依存の向きは `pre
 | | `lib/application/poker.dart` 他 | `Poker` (`Notifier<Room>`) が部屋の購読を持つ。`joinRoom` は購読が終わるまで完了しない Future を返し、別の部屋へ入ると前の購読を cancel する |
 | infrastructure | `lib/infrastructure/provider.dart` | `infrastructureOverrides`。`main.dart` の `ProviderScope` に渡す composition root |
 | | `lib/infrastructure/adapter/` | `porker2_service.dart` (Connect 実装、`ConnectException` を core のエラー型へ変換、ストリームは `retry.dart` の条件で再接続)、`pb_mapper.dart` (proto ⇄ domain、未知の列挙値は `UnexpectedError`)、`local_storage.dart` |
-| presentation | `lib/presentation/router/router.dart` | go_router の typed route。`redirect` がログインを強制し、未ログインで開いた `/poker?room-id=` をログイン後に入室できるよう預ける |
+| presentation | `lib/presentation/router/router.dart` | go_router の typed route。`redirect` がログインを強制し、未ログインで開いた `/poker?room-id=` は `/?room-id=` に送ってログイン後に入室させる。ログイン状態の変化で redirect を再評価する (`refreshListenable`)。redirect は build 中に呼ばれるので provider を変更しない |
 | | `lib/presentation/invoke.dart` | ウィジェットからユースケースを呼ぶ入口。失敗は SnackBar、`UnauthenticatedError` はログインへ |
 | | `lib/presentation/page`, `widget` | `ref.watch(pokerProvider)` で `Room` を読み、`ref.read(pokerProvider.notifier)` を `invoke` で包んで呼ぶ |
 

@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/core/logger/logger.dart';
+import 'package:porker2fe/domain/room.dart';
 import 'package:porker2fe/domain/user.dart';
 import 'package:porker2fe/presentation/const.dart';
 import 'package:porker2fe/presentation/invoke.dart';
@@ -12,7 +13,10 @@ import 'package:porker2fe/presentation/widget/bottom_bar.dart';
 import 'package:porker2fe/presentation/widget/logo.dart';
 
 class LoginPage extends HookConsumerWidget {
-  const LoginPage({super.key});
+  const LoginPage({super.key, this.roomId = ""});
+
+  /// ログイン後に入る部屋。未ログインで部屋 URL を直接開いたときに router が引き継ぐ
+  final String roomId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -20,7 +24,7 @@ class LoginPage extends HookConsumerWidget {
       ref.read(userProvider.notifier).verifyUser().then((verified) {
         logger.d("User verified: $verified");
         if (verified && context.mounted) {
-          _next(context, ref);
+          _next(context, roomId);
         }
       });
       return null;
@@ -37,7 +41,7 @@ class LoginPage extends HookConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   logo,
-                  _FormContent(),
+                  _FormContent(roomId: roomId),
                 ],
               )
             : Container(
@@ -47,7 +51,7 @@ class LoginPage extends HookConsumerWidget {
                   children: [
                     const Expanded(child: logo),
                     Expanded(
-                      child: Center(child: _FormContent()),
+                      child: Center(child: _FormContent(roomId: roomId)),
                     ),
                   ],
                 ),
@@ -70,6 +74,10 @@ class LoginPage extends HookConsumerWidget {
 }
 
 class _FormContent extends HookConsumerWidget {
+  const _FormContent({required this.roomId});
+
+  final String roomId;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // restore last user name
@@ -136,7 +144,7 @@ class _FormContent extends HookConsumerWidget {
                     invoke(
                       context,
                       () => userNotifier.login(userNameController.text),
-                      (_) => _next(context, ref),
+                      (_) => _next(context, roomId),
                     );
                   }
                 },
@@ -151,13 +159,11 @@ class _FormContent extends HookConsumerWidget {
   Widget _gap() => const SizedBox(height: 16);
 }
 
-void _next(BuildContext context, WidgetRef ref) {
-  // 未ログインで部屋 URL を直接開いていた場合は、router が預けた room-id の部屋へ入る。
+void _next(BuildContext context, String roomId) {
+  // 未ログインで部屋 URL を直接開いていた場合は、引き継いだ room-id の部屋へ入る。
   // 部屋の存在確認は PokerPage の入室処理に任せる
-  final presetRoomID =
-      ref.read(directRoomJoinProvider.notifier).popPresetRoomID();
-  if (presetRoomID.isNotEmpty) {
-    PokerRoute(roomId: presetRoomID).go(context);
+  if (roomIDFormatRegExp.hasMatch(roomId)) {
+    PokerRoute(roomId: roomId).go(context);
     return;
   }
   RoomSelectRoute().go(context);

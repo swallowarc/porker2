@@ -29,3 +29,4 @@ docker/data/redis/dump.rdb
 /.mcp.json
 /.env
 /playwright/.auth/storage.json
+.playwright-mcp/

@@ -1,9 +1,9 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/presentation/const.dart';
 import 'package:porker2fe/presentation/invoke.dart';
+import 'package:porker2fe/presentation/router/router.dart';
 import 'package:porker2fe/application/provider.dart';
 import 'package:porker2fe/presentation/widget/dialog.dart';
 import 'package:porker2fe/presentation/widget/rainbow_text.dart';
@@ -63,13 +63,20 @@ class Porker2AppBar extends HookConsumerWidget implements PreferredSizeWidget {
             if (value != 'logout') {
               return;
             }
+            // ログアウトするとサーバーが部屋から外すため購読が終わり、この画面が
+            // 先に破棄されることがある。context に依存せず router で確実にログイン画面
+            // (room-id なし) へ戻す。さもないと redirect の再評価で /?room-id=X に残り、
+            // 次にログインした人がその部屋へ入ってしまう
+            final router = ref.read(routerProvider);
             showDialog<void>(
               context: context,
               builder: (_) => TwoChoiceDialog(
                 title: 'Logout',
                 message: 'Do you want to log out?',
-                onYes: () => invoke(context, () => user.logout(),
-                    (_) => GoRouter.of(context).go('/')),
+                onYes: () => invoke(context, () async {
+                  await user.logout();
+                  router.go(LoginRoute().location);
+                }, (_) {}),
               ),
             );
           },
