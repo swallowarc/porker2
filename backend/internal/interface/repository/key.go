@@ -39,7 +39,7 @@ const (
 	keyFormatRoomLock       = "porker2_room_Lock:%s"
 )
 
-func roomConditionKey(id poker.RoomID) string {
+func roomKey(id poker.RoomID) string {
 	return fmt.Sprintf(keyFormatRoomCondition, id)
 }
 

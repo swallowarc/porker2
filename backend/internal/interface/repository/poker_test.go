@@ -16,7 +16,7 @@ import (
 func TestPokerRepository_CreateRoom(t *testing.T) {
 	t.Run("room id が衝突したら別の id で再試行する", func(t *testing.T) {
 		mem := mock_gateway.NewMockMemDBClient(gomock.NewController(t))
-		existing, err := poker.NewRoomCondition().ToJson()
+		existing, err := poker.NewRoom().ToJson()
 		require.NoError(t, err)
 
 		gomock.InOrder(
@@ -45,7 +45,7 @@ func TestPokerRepository_CreateRoom(t *testing.T) {
 
 	t.Run("リトライ上限を超えたら Unavailable", func(t *testing.T) {
 		mem := mock_gateway.NewMockMemDBClient(gomock.NewController(t))
-		existing, err := poker.NewRoomCondition().ToJson()
+		existing, err := poker.NewRoom().ToJson()
 		require.NoError(t, err)
 		mem.EXPECT().ReadStreamLatest(gomock.Any(), gomock.Any(), keyRoomConditionMessage).
 			Return(string(existing), nil).Times(roomCreateRetry + 1)
@@ -55,12 +55,12 @@ func TestPokerRepository_CreateRoom(t *testing.T) {
 	})
 }
 
-func TestPokerRepository_GetRoomCondition(t *testing.T) {
+func TestPokerRepository_GetRoom(t *testing.T) {
 	t.Run("存在しない部屋は NotFound", func(t *testing.T) {
 		mem := mock_gateway.NewMockMemDBClient(gomock.NewController(t))
-		mem.EXPECT().ReadStreamLatest(gomock.Any(), roomConditionKey("12345"), keyRoomConditionMessage).Return("", nil)
+		mem.EXPECT().ReadStreamLatest(gomock.Any(), roomKey("12345"), keyRoomConditionMessage).Return("", nil)
 
-		_, err := NewPokerRepository(mem).GetRoomCondition(context.Background(), "12345")
+		_, err := NewPokerRepository(mem).GetRoom(context.Background(), "12345")
 		assert.True(t, merror.IsNotFound(err), "got: %v", err)
 	})
 }

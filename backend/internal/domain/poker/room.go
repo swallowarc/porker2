@@ -20,7 +20,7 @@ var (
 )
 
 type (
-	RoomCondition struct {
+	Room struct {
 		RoomID      RoomID      `json:"room_id"`
 		AdminUserID user.ID     `json:"admin_user_id"`
 		VoteState   VoteState   `json:"vote_state"`
@@ -30,8 +30,8 @@ type (
 	}
 )
 
-func NewRoomCondition() *RoomCondition {
-	return &RoomCondition{
+func NewRoom() *Room {
+	return &Room{
 		RoomID:      newRoomID(),
 		AdminUserID: "",
 		VoteState:   VoteStateHide,
@@ -41,23 +41,23 @@ func NewRoomCondition() *RoomCondition {
 	}
 }
 
-func (c *RoomCondition) IsAdmin(userID user.ID) bool {
+func (c *Room) IsAdmin(userID user.ID) bool {
 	return c.AdminUserID == userID
 }
 
-func (c *RoomCondition) CanVote() bool {
+func (c *Room) CanVote() bool {
 	return c.VoteState == VoteStateHide
 }
 
-func (c *RoomCondition) CanShow() bool {
+func (c *Room) CanShow() bool {
 	return c.VoteState == VoteStateHide
 }
 
-func (c *RoomCondition) CanJoin() bool {
+func (c *Room) CanJoin() bool {
 	return len(c.Ballots) < MaxMember
 }
 
-func (c *RoomCondition) IsUserIn(userID user.ID) bool {
+func (c *Room) IsUserIn(userID user.ID) bool {
 	for _, b := range c.Ballots {
 		if b.UserID == userID {
 			return true
@@ -69,7 +69,7 @@ func (c *RoomCondition) IsUserIn(userID user.ID) bool {
 
 // ObserverCount は観戦者数を Ballots から導出する。
 // フィールドとして保持すると Leave / Kick 時の減算漏れで実態とずれるため、常に計算で求める。
-func (c *RoomCondition) ObserverCount() int32 {
+func (c *Room) ObserverCount() int32 {
 	var n int32
 	for _, b := range c.Ballots {
 		if b.IsObserver() {
@@ -80,7 +80,7 @@ func (c *RoomCondition) ObserverCount() int32 {
 	return n
 }
 
-func (c *RoomCondition) Join(userID user.ID, userName user.Name) error {
+func (c *Room) Join(userID user.ID, userName user.Name) error {
 	if !c.CanJoin() {
 		return ErrRoomFull
 	}
@@ -98,7 +98,7 @@ func (c *RoomCondition) Join(userID user.ID, userName user.Name) error {
 	return nil
 }
 
-func (c *RoomCondition) Vote(userID user.ID, point Point) {
+func (c *Room) Vote(userID user.ID, point Point) {
 	if !c.CanVote() {
 		return
 	}
@@ -116,7 +116,7 @@ func (c *RoomCondition) Vote(userID user.ID, point Point) {
 	c.tally()
 }
 
-func (c *RoomCondition) Leave(userID user.ID) {
+func (c *Room) Leave(userID user.ID) {
 	for i, b := range c.Ballots {
 		if b.UserID == userID {
 			c.Ballots = append(c.Ballots[:i], c.Ballots[i+1:]...)
@@ -134,7 +134,7 @@ func (c *RoomCondition) Leave(userID user.ID) {
 	c.tally()
 }
 
-func (c *RoomCondition) Open() {
+func (c *Room) Open() {
 	if !c.CanShow() {
 		return
 	}
@@ -142,7 +142,7 @@ func (c *RoomCondition) Open() {
 	c.VoteState = VoteStateOpen
 }
 
-func (c *RoomCondition) Reset() {
+func (c *Room) Reset() {
 	c.VoteState = VoteStateHide
 	for _, b := range c.Ballots {
 		b.Reset()
@@ -151,7 +151,7 @@ func (c *RoomCondition) Reset() {
 
 // Kick は管理者が対象ユーザーを退室させる。
 // 退室処理(管理者の引き継ぎを含む)は Leave と同一でなければならないため Leave に委譲する。
-func (c *RoomCondition) Kick(userID, targetID user.ID) error {
+func (c *Room) Kick(userID, targetID user.ID) error {
 	if !c.IsAdmin(userID) {
 		return ErrNotAdmin
 	}
@@ -161,13 +161,13 @@ func (c *RoomCondition) Kick(userID, targetID user.ID) error {
 	return nil
 }
 
-func (c *RoomCondition) UpdateSetting(autoOpen bool, displayMode DisplayMode) {
+func (c *Room) UpdateSetting(autoOpen bool, displayMode DisplayMode) {
 	c.AutoOpen = autoOpen
 	c.DisplayMode = displayMode
 	c.tally()
 }
 
-func (c *RoomCondition) ToggleObserverMode(userID user.ID, isObserver bool) {
+func (c *Room) ToggleObserverMode(userID user.ID, isObserver bool) {
 	for _, b := range c.Ballots {
 		if b.UserID == userID {
 			b.SetObserverMode(isObserver)
@@ -177,7 +177,7 @@ func (c *RoomCondition) ToggleObserverMode(userID user.ID, isObserver bool) {
 	}
 }
 
-func (c *RoomCondition) tally() {
+func (c *Room) tally() {
 	if !c.AutoOpen || c.VoteState == VoteStateOpen {
 		return
 	}
@@ -198,7 +198,7 @@ func (c *RoomCondition) tally() {
 	}
 }
 
-func (c *RoomCondition) ToJson() ([]byte, error) {
+func (c *Room) ToJson() ([]byte, error) {
 	j, err := json.Marshal(c)
 	if err != nil {
 		return nil, merror.WrapInternal(err, "failed to marshal room condition")
@@ -207,8 +207,8 @@ func (c *RoomCondition) ToJson() ([]byte, error) {
 	return j, nil
 }
 
-func FromJson(j string) (*RoomCondition, error) {
-	var c RoomCondition
+func FromJson(j string) (*Room, error) {
+	var c Room
 	if err := json.Unmarshal([]byte(j), &c); err != nil {
 		return nil, merror.WrapInternal(err, "failed to unmarshal room condition")
 	}

@@ -118,9 +118,9 @@ func (p *porker2) JoinRoom(ctx context.Context, r *pb.JoinRoomRequest, stream pb
 		return err
 	}
 
-	fn := func(ctx context.Context, rc *poker.RoomCondition) (bool, error) {
+	fn := func(ctx context.Context, rc *poker.Room) (bool, error) {
 		if err := stream.Send(&pb.JoinRoomResponse{
-			Condition: roomConditionToProto(rc),
+			Condition: roomToProto(rc),
 		}); err != nil {
 			return false, err
 		}

@@ -55,7 +55,7 @@ func (i *userInteractor) Logout(ctx context.Context, userID user.ID) error {
 
 	if roomID != "" {
 		eg.Go(func() error {
-			err := i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.RoomCondition) error {
+			err := i.pokerRepo.UpdateRoomWithLock(ctx, roomID, func(ctx context.Context, c *poker.Room) error {
 				c.Leave(userID)
 				return nil
 			})

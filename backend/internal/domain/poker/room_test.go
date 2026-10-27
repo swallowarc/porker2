@@ -10,8 +10,8 @@ import (
 	"github.com/swallowarc/porker2/backend/internal/domain/user"
 )
 
-func TestNewRoomCondition(t *testing.T) {
-	c := NewRoomCondition()
+func TestNewRoom(t *testing.T) {
+	c := NewRoom()
 
 	assert.NotEmpty(t, c.RoomID)
 	assert.Equal(t, user.ID(""), c.AdminUserID)
@@ -21,8 +21,8 @@ func TestNewRoomCondition(t *testing.T) {
 	assert.Equal(t, DisplayModePoint, c.DisplayMode)
 }
 
-func TestRoomCondition_Join(t *testing.T) {
-	c := NewRoomCondition()
+func TestRoom_Join(t *testing.T) {
+	c := NewRoom()
 
 	// 最初のユーザーは管理者になる
 	err := c.Join("user1", "User 1")
@@ -43,7 +43,7 @@ func TestRoomCondition_Join(t *testing.T) {
 
 	// 部屋が満員の場合
 	maxMembers := MaxMember
-	c = NewRoomCondition()
+	c = NewRoom()
 	for i := 0; i < maxMembers; i++ {
 		err = c.Join(user.NewID(), user.Name(fmt.Sprintf("User%d", i)))
 		assert.NoError(t, err)
@@ -52,8 +52,8 @@ func TestRoomCondition_Join(t *testing.T) {
 	assert.ErrorIs(t, err, ErrRoomFull)
 }
 
-func TestRoomCondition_Vote(t *testing.T) {
-	c := NewRoomCondition()
+func TestRoom_Vote(t *testing.T) {
+	c := NewRoom()
 	assert.NoError(t, c.Join("user1", "User 1"))
 	assert.NoError(t, c.Join("user2", "User 2"))
 
@@ -67,8 +67,8 @@ func TestRoomCondition_Vote(t *testing.T) {
 	assert.Equal(t, PointUnspecified, c.Ballots[1].Point)
 }
 
-func TestRoomCondition_Leave(t *testing.T) {
-	c := NewRoomCondition()
+func TestRoom_Leave(t *testing.T) {
+	c := NewRoom()
 	assert.NoError(t, c.Join("user1", "User 1"))
 	assert.NoError(t, c.Join("user2", "User 2"))
 
@@ -89,8 +89,8 @@ func TestRoomCondition_Leave(t *testing.T) {
 	assert.Equal(t, user.ID(""), c.AdminUserID)
 }
 
-func TestRoomCondition_Open_Reset(t *testing.T) {
-	c := NewRoomCondition()
+func TestRoom_Open_Reset(t *testing.T) {
+	c := NewRoom()
 	assert.NoError(t, c.Join("user1", "User 1"))
 	c.Vote("user1", Point3)
 
@@ -104,8 +104,8 @@ func TestRoomCondition_Open_Reset(t *testing.T) {
 	assert.Equal(t, PointUnspecified, c.Ballots[0].Point)
 }
 
-func TestRoomCondition_Kick(t *testing.T) {
-	c := NewRoomCondition()
+func TestRoom_Kick(t *testing.T) {
+	c := NewRoom()
 	assert.NoError(t, c.Join("admin", "Admin"))
 	assert.NoError(t, c.Join("user1", "User 1"))
 
@@ -120,15 +120,15 @@ func TestRoomCondition_Kick(t *testing.T) {
 	assert.ErrorIs(t, err, ErrNotAdmin)
 }
 
-func TestRoomCondition_UpdateSetting(t *testing.T) {
-	c := NewRoomCondition()
+func TestRoom_UpdateSetting(t *testing.T) {
+	c := NewRoom()
 	c.UpdateSetting(false, DisplayModeTShirt)
 	assert.False(t, c.AutoOpen)
 	assert.Equal(t, DisplayModeTShirt, c.DisplayMode)
 }
 
-func TestRoomCondition_AutoOpen(t *testing.T) {
-	c := NewRoomCondition()
+func TestRoom_AutoOpen(t *testing.T) {
+	c := NewRoom()
 	assert.NoError(t, c.Join("user1", "User 1"))
 	assert.NoError(t, c.Join("user2", "User 2"))
 
@@ -146,8 +146,8 @@ func TestRoomCondition_AutoOpen(t *testing.T) {
 	assert.Equal(t, VoteStateHide, c.VoteState)
 }
 
-func TestRoomCondition_Json(t *testing.T) {
-	c := NewRoomCondition()
+func TestRoom_Json(t *testing.T) {
+	c := NewRoom()
 	assert.NoError(t, c.Join("user1", "User 1"))
 	c.Vote("user1", Point5)
 
@@ -170,8 +170,8 @@ func TestRoomCondition_Json(t *testing.T) {
 	assert.Equal(t, c.Ballots[0].Point, c2.Ballots[0].Point)
 }
 
-func TestRoomCondition_Kick_AdminKicksSelf(t *testing.T) {
-	c := NewRoomCondition()
+func TestRoom_Kick_AdminKicksSelf(t *testing.T) {
+	c := NewRoom()
 	assert.NoError(t, c.Join("admin", "Admin"))
 	assert.NoError(t, c.Join("user1", "User 1"))
 
@@ -182,8 +182,8 @@ func TestRoomCondition_Kick_AdminKicksSelf(t *testing.T) {
 	assert.Equal(t, user.ID("user1"), c.AdminUserID)
 }
 
-func TestRoomCondition_Kick_TriggersAutoOpen(t *testing.T) {
-	c := NewRoomCondition()
+func TestRoom_Kick_TriggersAutoOpen(t *testing.T) {
+	c := NewRoom()
 	assert.NoError(t, c.Join("admin", "Admin"))
 	assert.NoError(t, c.Join("user1", "User 1"))
 	c.Vote("admin", Point3)
@@ -194,8 +194,8 @@ func TestRoomCondition_Kick_TriggersAutoOpen(t *testing.T) {
 	assert.Equal(t, VoteStateOpen, c.VoteState)
 }
 
-func TestRoomCondition_ObserverCount(t *testing.T) {
-	c := NewRoomCondition()
+func TestRoom_ObserverCount(t *testing.T) {
+	c := NewRoom()
 	assert.NoError(t, c.Join("admin", "Admin"))
 	assert.NoError(t, c.Join("user1", "User 1"))
 	assert.NoError(t, c.Join("user2", "User 2"))
@@ -219,7 +219,7 @@ func TestRoomCondition_ObserverCount(t *testing.T) {
 	assert.Equal(t, int32(0), c.ObserverCount())
 }
 
-func TestRoomCondition_Json_IgnoresLegacyObserverCount(t *testing.T) {
+func TestRoom_Json_IgnoresLegacyObserverCount(t *testing.T) {
 	// 旧バージョンが保存した observer_count フィールドを含む JSON も読み込める
 	legacy := `{"room_id":"12345","admin_user_id":"u1","vote_state":1,"ballots":[{"user_id":"u1","user_name":"n","point":0,"role":2}],"auto_open":true,"display_mode":1,"observer_count":99}`
 	c, err := FromJson(legacy)

@@ -34,11 +34,11 @@ func NewPokerRepository(mem gateway.MemDBClient) port.PokerRepository {
 
 func (r *pokerRepository) CreateRoom(ctx context.Context) (poker.RoomID, error) {
 	for attempt := 0; attempt <= roomCreateRetry; attempt++ {
-		c := poker.NewRoomCondition()
+		c := poker.NewRoom()
 
 		// 部屋の実体は Stream なので、存在確認に GET を使うと WRONGTYPE エラーになる。
 		// 必ず Stream 用の読み出しで確認する。
-		_, err := r.GetRoomCondition(ctx, c.RoomID)
+		_, err := r.GetRoom(ctx, c.RoomID)
 		if err == nil {
 			continue // room id collision, retry
 		}
@@ -46,7 +46,7 @@ func (r *pokerRepository) CreateRoom(ctx context.Context) (poker.RoomID, error) 
 			return "", err
 		}
 
-		if err := r.publishRoomStream(ctx, c); err != nil {
+		if err := r.publishRoom(ctx, c); err != nil {
 			return "", err
 		}
 
@@ -87,7 +87,7 @@ func (r *pokerRepository) UpdateRoomWithLock(ctx context.Context, roomID poker.R
 		}
 	}()
 
-	c, err := r.GetRoomCondition(inCtx, roomID)
+	c, err := r.GetRoom(inCtx, roomID)
 	if err != nil {
 		return err
 	}
@@ -96,17 +96,17 @@ func (r *pokerRepository) UpdateRoomWithLock(ctx context.Context, roomID poker.R
 		return err
 	}
 
-	return r.publishRoomStream(inCtx, c)
+	return r.publishRoom(inCtx, c)
 }
 
-func (r *pokerRepository) publishRoomStream(ctx context.Context, condition *poker.RoomCondition) error {
+func (r *pokerRepository) publishRoom(ctx context.Context, condition *poker.Room) error {
 	j, err := condition.ToJson()
 	if err != nil {
 		return err
 	}
 
-	streamKey := roomConditionKey(condition.RoomID)
-	if err := r.mem.PublishStream(ctx, roomConditionKey(condition.RoomID), map[string]any{
+	streamKey := roomKey(condition.RoomID)
+	if err := r.mem.PublishStream(ctx, roomKey(condition.RoomID), map[string]any{
 		keyRoomConditionMessage: j,
 	}); err != nil {
 		return err
@@ -115,8 +115,8 @@ func (r *pokerRepository) publishRoomStream(ctx context.Context, condition *poke
 	return r.mem.Expire(ctx, streamKey, poker.RoomLifetimeDuration)
 }
 
-func (r *pokerRepository) GetRoomCondition(ctx context.Context, roomID poker.RoomID) (*poker.RoomCondition, error) {
-	j, err := r.mem.ReadStreamLatest(ctx, roomConditionKey(roomID), keyRoomConditionMessage)
+func (r *pokerRepository) GetRoom(ctx context.Context, roomID poker.RoomID) (*poker.Room, error) {
+	j, err := r.mem.ReadStreamLatest(ctx, roomKey(roomID), keyRoomConditionMessage)
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +127,7 @@ func (r *pokerRepository) GetRoomCondition(ctx context.Context, roomID poker.Roo
 	return poker.FromJson(j)
 }
 
-func (r *pokerRepository) SubscribeRoomCondition(ctx context.Context, roomID poker.RoomID, fn port.RoomSubscriber) error {
+func (r *pokerRepository) SubscribeRoom(ctx context.Context, roomID poker.RoomID, fn port.RoomSubscriber) error {
 	var (
 		messageID = "0"
 		subscribe = true
@@ -137,7 +137,7 @@ func (r *pokerRepository) SubscribeRoomCondition(ctx context.Context, roomID pok
 		case <-ctx.Done():
 			return ctx.Err()
 		default:
-			latestMessageID, j, err := r.mem.ReadStream(ctx, roomConditionKey(roomID), keyRoomConditionMessage, messageID)
+			latestMessageID, j, err := r.mem.ReadStream(ctx, roomKey(roomID), keyRoomConditionMessage, messageID)
 			if err != nil {
 				return err
 			}

@@ -120,7 +120,7 @@ func ballotsToProto(b []*poker.Ballot) []*pb.Ballot {
 	return ballots
 }
 
-func roomConditionToProto(rc *poker.RoomCondition) *pb.RoomCondition {
+func roomToProto(rc *poker.Room) *pb.RoomCondition {
 	return &pb.RoomCondition{
 		RoomId:        rc.RoomID.String(),
 		AdminUserId:   rc.AdminUserID.String(),
