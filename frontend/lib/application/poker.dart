@@ -1,30 +1,11 @@
 import 'dart:async';
 
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/core/logger/logger.dart';
 import 'package:porker2fe/application/provider.dart';
-import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pb.dart';
 import 'package:porker2fe/domain/point.dart';
+import 'package:porker2fe/domain/room.dart';
 import 'package:porker2fe/application/port/port.dart';
-
-part 'poker.freezed.dart';
-
-@freezed
-abstract class PokerState with _$PokerState {
-  const factory PokerState(
-    String roomID,
-    String adminUserID,
-    List<Ballot> ballots,
-    VoteState voteState,
-    bool autoOpen,
-    DisplayMode displayMode,
-    int observerCount,
-  ) = _PokerState;
-}
-
-const _initialState = PokerState(
-    "", "", [], VoteState.VOTE_STATE_HIDE, true, DisplayMode.DISPLAY_MODE_POINT, 0);
 
 /// 購読中の部屋。購読の終了は [done] で待てる。
 class _RoomSubscription {
@@ -32,7 +13,7 @@ class _RoomSubscription {
 
   final String roomID;
   final done = Completer<void>();
-  StreamSubscription<RoomCondition>? subscription;
+  StreamSubscription<Room>? subscription;
 
   void cancel() {
     subscription?.cancel();
@@ -40,16 +21,17 @@ class _RoomSubscription {
   }
 }
 
-class Poker extends Notifier<PokerState> {
+/// 今いる部屋の状態。入っていなければ [Room.empty]。
+class Poker extends Notifier<Room> {
   late final Porker2Service _svcRepo;
 
   _RoomSubscription? _current;
 
   @override
-  PokerState build() {
+  Room build() {
     _svcRepo = ref.read(porker2ServiceProvider);
     ref.onDispose(() => _current?.cancel());
-    return _initialState;
+    return Room.empty;
   }
 
   Future<String> createRoom() async {
@@ -76,17 +58,9 @@ class Poker extends Notifier<PokerState> {
     final next = _RoomSubscription(roomId);
     _current = next;
     next.subscription = _svcRepo.joinRoom(roomId).listen(
-      (rc) {
-        logger.d("subscribe room condition: $rc");
-        state = state.copyWith(
-          roomID: rc.roomId,
-          adminUserID: rc.adminUserId,
-          ballots: rc.ballots,
-          voteState: rc.voteState,
-          autoOpen: rc.autoOpen,
-          displayMode: rc.displayMode,
-          observerCount: rc.observerCount,
-        );
+      (room) {
+        logger.d("subscribe room condition: $room");
+        state = room;
       },
       onError: (Object error, StackTrace stackTrace) {
         logger.e("subscribe room condition error: $error",
@@ -112,7 +86,7 @@ class Poker extends Notifier<PokerState> {
       return;
     }
     _current = null;
-    state = _initialState;
+    state = Room.empty;
   }
 
   /// 退室する。成功したら購読を打ち切って状態を空にする。
@@ -122,7 +96,7 @@ class Poker extends Notifier<PokerState> {
     await _svcRepo.leaveRoom(state.roomID);
     _current?.cancel();
     _current = null;
-    state = _initialState;
+    state = Room.empty;
   }
 
   Future<void> castVote(Point point) => _svcRepo.castVote(state.roomID, point);
@@ -145,65 +119,50 @@ class Poker extends Notifier<PokerState> {
     await _svcRepo.toggleObserverMode(state.roomID, isObserver);
   }
 
-  bool get opened => state.voteState == VoteState.VOTE_STATE_OPEN;
+  bool get opened => state.voteState == VoteState.open;
 
   bool get openable =>
-      state.voteState == VoteState.VOTE_STATE_HIDE &&
-          state.ballots.any((e) => e.point != Point.POINT_UNSPECIFIED);
+      state.voteState == VoteState.hide &&
+          state.ballots.any((e) => e.point.isVoted);
 
-  bool get votable => state.voteState == VoteState.VOTE_STATE_HIDE;
+  bool get votable => state.voteState == VoteState.hide;
+
+  Ballot? _ballotOf(String userID) =>
+      state.ballots.where((e) => e.userID == userID).firstOrNull;
 
   Point myPoint(String userID) =>
-      state.ballots
-          .firstWhere((e) => e.userId == userID, orElse: () => Ballot())
-          .point;
+      _ballotOf(userID)?.point ?? Point.unspecified;
 
-  bool isObserver(String userID) =>
-      state.ballots
-          .firstWhere((e) => e.userId == userID, orElse: () => Ballot())
-          .role == UserRole.USER_ROLE_OBSERVER;
+  bool isObserver(String userID) => _ballotOf(userID)?.isObserver ?? false;
 
   List<Ballot> get voterBallots =>
-      state.ballots
-          .where((e) => e.role != UserRole.USER_ROLE_OBSERVER)
-          .toList();
+      state.ballots.where((e) => !e.isObserver).toList();
 
-  int get observerCount =>
-      state.ballots
-          .where((e) => e.role == UserRole.USER_ROLE_OBSERVER)
-          .length;
+  int get observerCount => state.ballots.where((e) => e.isObserver).length;
 
   double get voteAverage {
-    final voters = voterBallots;
-    final validVotes = voters.where((e) => validPoint(e.point));
-    if (validVotes.isEmpty) return 0;
-
-    final total = validVotes.fold<double>(
-        0, (prev, e) => prev + pointToDouble(e.point));
-    return total / validVotes.length;
+    final values = voterBallots.map((e) => e.point.value).nonNulls.toList();
+    if (values.isEmpty) return 0;
+    return values.reduce((a, b) => a + b) / values.length;
   }
 
-  int get validVoteCount =>
-      voterBallots.where((e) => validPoint(e.point)).length;
+  int get validVoteCount => voterBallots.where((e) => e.point.isNumeric).length;
 
   bool get isUnanimity {
-    if (state.voteState != VoteState.VOTE_STATE_OPEN) {
+    if (state.voteState != VoteState.open) {
       return false;
     }
 
-    final voterBallots = state.ballots
-        .where((ballot) => ballot.role != UserRole.USER_ROLE_OBSERVER)
-        .toList();
-
-    if (voterBallots.length < 2) {
+    final voters = voterBallots;
+    if (voters.length < 2) {
       return false;
     }
 
-    final firstPoint = voterBallots.first.point;
-    if (firstPoint == Point.POINT_UNSPECIFIED) {
+    final firstPoint = voters.first.point;
+    if (!firstPoint.isVoted) {
       return false;
     }
 
-    return voterBallots.every((ballot) => ballot.point == firstPoint);
+    return voters.every((ballot) => ballot.point == firstPoint);
   }
 }

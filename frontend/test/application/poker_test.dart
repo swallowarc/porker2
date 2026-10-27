@@ -7,25 +7,25 @@ import 'package:porker2fe/application/port/port.dart';
 import 'package:porker2fe/core/logger/logger.dart';
 import 'package:porker2fe/domain/room.dart';
 import 'package:porker2fe/domain/user.dart';
-import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pb.dart';
+import 'package:porker2fe/domain/point.dart';
 import 'package:porker2fe/application/provider.dart';
 
 /// joinRoom / leaveRoom だけを差し替えられる Porker2Service。他のメソッドは呼ばれない想定。
 class _FakeService implements Porker2Service {
   /// 部屋ごとの最新の購読。joinRoom を呼ぶたびに新しい StreamController を作る
-  final controllers = <String, StreamController<RoomCondition>>{};
+  final controllers = <String, StreamController<Room>>{};
   final joinCalls = <String>[];
   final cancelled = <String>[];
   final left = <String>[];
   Object? leaveError;
 
-  StreamController<RoomCondition> controllerFor(String roomID) =>
+  StreamController<Room> controllerFor(String roomID) =>
       controllers[roomID]!;
 
   @override
-  Stream<RoomCondition> joinRoom(String roomID) {
+  Stream<Room> joinRoom(String roomID) {
     joinCalls.add(roomID);
-    final controller = StreamController<RoomCondition>(
+    final controller = StreamController<Room>(
       onCancel: () => cancelled.add(roomID),
     );
     controllers[roomID] = controller;
@@ -77,23 +77,22 @@ class _FakeService implements Porker2Service {
       throw UnimplementedError();
 }
 
-RoomCondition _condition(
+Room _condition(
   String roomID, {
-  VoteState voteState = VoteState.VOTE_STATE_HIDE,
+  VoteState voteState = VoteState.hide,
   List<Ballot> ballots = const [],
 }) =>
-    RoomCondition(
-      roomId: roomID,
-      adminUserId: 'admin',
+    Room(
+      roomID: roomID,
+      adminUserID: 'admin',
       voteState: voteState,
       ballots: ballots,
       autoOpen: true,
-      displayMode: DisplayMode.DISPLAY_MODE_POINT,
+      displayMode: DisplayMode.point,
     );
 
-Ballot _ballot(String userID, Point point,
-        {UserRole role = UserRole.USER_ROLE_VOTER}) =>
-    Ballot(userId: userID, userName: userID, point: point, role: role);
+Ballot _ballot(String userID, Point point, {UserRole role = UserRole.voter}) =>
+    Ballot(userID: userID, userName: userID, point: point, role: role);
 
 void main() {
   late _FakeService service;
@@ -207,37 +206,37 @@ void main() {
   });
 
   group('derived values', () {
-    Future<void> emit(RoomCondition condition) async {
-      container.read(pokerProvider.notifier).joinRoom(condition.roomId);
-      service.controllerFor(condition.roomId).add(condition);
+    Future<void> emit(Room condition) async {
+      container.read(pokerProvider.notifier).joinRoom(condition.roomID);
+      service.controllerFor(condition.roomID).add(condition);
       await Future<void>.delayed(Duration.zero);
     }
 
     test('openable requires a hidden state and at least one vote', () async {
       final notifier = container.read(pokerProvider.notifier);
       await emit(_condition('11111', ballots: [
-        _ballot('a', Point.POINT_UNSPECIFIED),
+        _ballot('a', Point.unspecified),
       ]));
       expect(notifier.openable, isFalse);
 
       await emit(_condition('11111', ballots: [
-        _ballot('a', Point.POINT_3),
+        _ballot('a', Point.p3),
       ]));
       expect(notifier.openable, isTrue);
 
       await emit(_condition('11111',
-          voteState: VoteState.VOTE_STATE_OPEN,
-          ballots: [_ballot('a', Point.POINT_3)]));
+          voteState: VoteState.open,
+          ballots: [_ballot('a', Point.p3)]));
       expect(notifier.openable, isFalse);
     });
 
     test('voteAverage ignores observers and non-numeric points', () async {
       final notifier = container.read(pokerProvider.notifier);
       await emit(_condition('11111', ballots: [
-        _ballot('a', Point.POINT_3),
-        _ballot('b', Point.POINT_5),
-        _ballot('c', Point.POINT_QUESTION),
-        _ballot('d', Point.POINT_21, role: UserRole.USER_ROLE_OBSERVER),
+        _ballot('a', Point.p3),
+        _ballot('b', Point.p5),
+        _ballot('c', Point.question),
+        _ballot('d', Point.p21, role: UserRole.observer),
       ]));
       expect(notifier.voteAverage, 4.0);
       expect(notifier.validVoteCount, 2);
@@ -247,26 +246,26 @@ void main() {
     test('isUnanimity needs an open state and two or more equal voter points',
         () async {
       final notifier = container.read(pokerProvider.notifier);
-      final same = [_ballot('a', Point.POINT_3), _ballot('b', Point.POINT_3)];
+      final same = [_ballot('a', Point.p3), _ballot('b', Point.p3)];
 
       await emit(_condition('11111', ballots: same));
       expect(notifier.isUnanimity, isFalse, reason: 'hidden');
 
       await emit(_condition('11111',
-          voteState: VoteState.VOTE_STATE_OPEN, ballots: same));
+          voteState: VoteState.open, ballots: same));
       expect(notifier.isUnanimity, isTrue);
 
       await emit(_condition('11111',
-          voteState: VoteState.VOTE_STATE_OPEN,
-          ballots: [...same, _ballot('c', Point.POINT_5)]));
+          voteState: VoteState.open,
+          ballots: [...same, _ballot('c', Point.p5)]));
       expect(notifier.isUnanimity, isFalse);
 
       await emit(_condition('11111',
-          voteState: VoteState.VOTE_STATE_OPEN,
+          voteState: VoteState.open,
           ballots: [
             ...same,
-            _ballot('o', Point.POINT_UNSPECIFIED,
-                role: UserRole.USER_ROLE_OBSERVER),
+            _ballot('o', Point.unspecified,
+                role: UserRole.observer),
           ]));
       expect(notifier.isUnanimity, isTrue, reason: 'observers are ignored');
     });
@@ -274,12 +273,12 @@ void main() {
     test('myPoint and isObserver look up the ballot by user id', () async {
       final notifier = container.read(pokerProvider.notifier);
       await emit(_condition('11111', ballots: [
-        _ballot('a', Point.POINT_8),
-        _ballot('o', Point.POINT_UNSPECIFIED,
-            role: UserRole.USER_ROLE_OBSERVER),
+        _ballot('a', Point.p8),
+        _ballot('o', Point.unspecified,
+            role: UserRole.observer),
       ]));
-      expect(notifier.myPoint('a'), Point.POINT_8);
-      expect(notifier.myPoint('zzz'), Point.POINT_UNSPECIFIED);
+      expect(notifier.myPoint('a'), Point.p8);
+      expect(notifier.myPoint('zzz'), Point.unspecified);
       expect(notifier.isObserver('o'), isTrue);
       expect(notifier.isObserver('a'), isFalse);
     });

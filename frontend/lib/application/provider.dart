@@ -4,6 +4,7 @@ import 'package:porker2fe/application/poker.dart';
 import 'package:porker2fe/application/port/port.dart';
 import 'package:porker2fe/application/user.dart';
 import 'package:porker2fe/core/env/env.dart';
+import 'package:porker2fe/domain/room.dart';
 
 /// core layer -----------------------------------------------------------------
 
@@ -30,7 +31,7 @@ final userProvider =
     NotifierProvider<User, UserState>(User.new);
 
 final pokerProvider =
-    NotifierProvider<Poker, PokerState>(Poker.new);
+    NotifierProvider<Poker, Room>(Poker.new);
 
 final directRoomJoinProvider =
     NotifierProvider<DirectRoomJoin, DirectRoomJoinState>(DirectRoomJoin.new);

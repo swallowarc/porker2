@@ -1,8 +1,8 @@
 import 'dart:math';
 
 import 'package:material_ui/material_ui.dart';
-import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pb.dart';
-import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pbenum.dart';
+import 'package:porker2fe/domain/point.dart';
+import 'package:porker2fe/domain/room.dart';
 import 'package:porker2fe/presentation/widget/poker/base_card.dart';
 
 class FieldCard extends StatefulWidget {
@@ -21,7 +21,7 @@ class FieldCard extends StatefulWidget {
     required this.point,
     required this.role,
     required this.opened,
-    this.displayMode = DisplayMode.DISPLAY_MODE_POINT,
+    this.displayMode = DisplayMode.point,
   });
 
   @override
@@ -34,7 +34,7 @@ class FieldCardState extends State<FieldCard> with TickerProviderStateMixin {
 
   late AnimationController _turnController;
 
-  Point lastPoint = Point.POINT_UNSPECIFIED;
+  Point lastPoint = Point.unspecified;
   double tilt = (Random().nextDouble() - 0.5) * 0.2;
 
   @override
@@ -68,7 +68,7 @@ class FieldCardState extends State<FieldCard> with TickerProviderStateMixin {
   void didUpdateWidget(covariant FieldCard oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    final voted = widget.point != Point.POINT_UNSPECIFIED;
+    final voted = widget.point.isVoted;
     final nowVoted = oldWidget.point != widget.point && voted;
     final nowOpened = !oldWidget.opened && widget.opened;
 
@@ -92,8 +92,8 @@ class FieldCardState extends State<FieldCard> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final voted = widget.point != Point.POINT_UNSPECIFIED;
-    final isObserver = widget.role == UserRole.USER_ROLE_OBSERVER;
+    final voted = widget.point.isVoted;
+    final isObserver = widget.role == UserRole.observer;
     final opacity = isObserver ? 0.7 : 1.0;
 
     if (!voted) {

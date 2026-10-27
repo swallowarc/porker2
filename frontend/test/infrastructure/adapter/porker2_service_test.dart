@@ -9,7 +9,9 @@ import 'package:porker2fe/core/logger/logger.dart';
 import 'package:porker2fe/domain/room.dart';
 import 'package:porker2fe/domain/user.dart';
 import 'package:porker2fe/infrastructure/adapter/porker2_service.dart';
-import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pb.dart';
+import 'package:porker2fe/domain/point.dart';
+import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pb.dart'
+    as pb;
 import 'package:porker2fe/infrastructure/generated/pb/porker/v2/service.connect.client.dart';
 import 'package:porker2fe/infrastructure/generated/pb/porker/v2/service.connect.spec.dart'
     as spec;
@@ -33,7 +35,7 @@ void main() {
               throw ConnectException(Code.unauthenticated, 'expired')));
 
       await expectLater(svc.verifyUser(), throwsA(isA<UnauthenticatedError>()));
-      await expectLater(svc.castVote('11111', Point.POINT_1),
+      await expectLater(svc.castVote('11111', Point.p1),
           throwsA(isA<UnauthenticatedError>()));
     });
 
@@ -87,15 +89,20 @@ void main() {
 
   group('joinRoom', () {
     test('yields conditions until the server closes the stream', () async {
+      pb.RoomCondition condition(String roomID) => pb.RoomCondition(
+            roomId: roomID,
+            voteState: pb.VoteState.VOTE_STATE_HIDE,
+            displayMode: pb.DisplayMode.DISPLAY_MODE_POINT,
+          );
       final svc = _service(FakeTransportBuilder().server(
           spec.Porker2Service.joinRoom,
           (JoinRoomRequest req, _) => Stream.fromIterable([
-                JoinRoomResponse(condition: RoomCondition(roomId: req.roomId)),
-                JoinRoomResponse(condition: RoomCondition(roomId: req.roomId)),
+                JoinRoomResponse(condition: condition(req.roomId)),
+                JoinRoomResponse(condition: condition(req.roomId)),
               ])));
 
-      final conditions = await svc.joinRoom('11111').toList();
-      expect(conditions.map((c) => c.roomId), ['11111', '11111']);
+      final rooms = await svc.joinRoom('11111').toList();
+      expect(rooms.map((c) => c.roomID), ['11111', '11111']);
     });
 
     test('translates notFound into roomNotFoundError', () async {
@@ -146,12 +153,31 @@ void main() {
     test('reconnects after a retryable error', () async {
       final svc = service((call, _) => call == 0
           ? Stream.error(ConnectException(Code.unavailable, 'flaky'))
-          : Stream.value(
-              JoinRoomResponse(condition: RoomCondition(roomId: '11111'))));
+          : Stream.value(JoinRoomResponse(
+              condition: pb.RoomCondition(
+                roomId: '11111',
+                voteState: pb.VoteState.VOTE_STATE_HIDE,
+                displayMode: pb.DisplayMode.DISPLAY_MODE_POINT,
+              ))));
 
-      final conditions = await svc.joinRoom('11111').toList();
-      expect(conditions.map((c) => c.roomId), ['11111']);
+      final rooms = await svc.joinRoom('11111').toList();
+      expect(rooms.map((c) => c.roomID), ['11111']);
       expect(calls, 2);
+    });
+
+    test('ends the stream with UnexpectedError on an unknown enum value',
+        () async {
+      // display_mode が UNSPECIFIED (サーバーは常に設定するので通常は届かない)
+      final svc = service((_, _) => Stream.value(JoinRoomResponse(
+          condition: pb.RoomCondition(
+            roomId: '11111',
+            voteState: pb.VoteState.VOTE_STATE_HIDE,
+          ))));
+
+      await expectLater(
+          svc.joinRoom('11111').toList(), throwsA(isA<UnexpectedError>()));
+      expect(calls, 1, reason: '再接続しない');
+      expect(aborted, [true], reason: '進行中のリクエストを中断する');
     });
 
     test('does not reconnect when cancelled during the retry wait', () async {

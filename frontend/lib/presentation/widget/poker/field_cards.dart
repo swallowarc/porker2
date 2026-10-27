@@ -1,8 +1,8 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pb.dart';
 import 'package:porker2fe/presentation/invoke.dart';
 import 'package:porker2fe/application/provider.dart';
+import 'package:porker2fe/domain/room.dart';
 import 'package:porker2fe/presentation/widget/dialog.dart';
 import 'package:porker2fe/presentation/widget/poker/field_card.dart';
 
@@ -19,11 +19,11 @@ class FieldCards extends HookConsumerWidget {
         .map(
           // 退室や並び替えで位置が変わっても、アニメーション状態が同じユーザーに付いていくようにする
           (e) => Column(
-            key: ValueKey(e.userId),
+            key: ValueKey(e.userID),
             children: [
               FieldCard(
                 point: e.point,
-                loginID: e.userId,
+                loginID: e.userID,
                 loginName: e.userName,
                 role: e.role,
                 opened: ref.read(pokerProvider.notifier).opened,
@@ -33,7 +33,7 @@ class FieldCards extends HookConsumerWidget {
               _nameLabel(
                 context,
                 e.userName,
-                e.userId,
+                e.userID,
                 e.role,
                 poker.adminUserID,
                 isAdmin,
@@ -45,7 +45,7 @@ class FieldCards extends HookConsumerWidget {
                       message: 'Do you want to force this user to leave the room?',
                       onYes: () => invoke(
                         context,
-                        () => ref.read(pokerProvider.notifier).kickUser(e.userId),
+                        () => ref.read(pokerProvider.notifier).kickUser(e.userID),
                         (_) {},
                       ),
                     ),
@@ -81,7 +81,7 @@ class FieldCards extends HookConsumerWidget {
     List<Widget> children = [];
 
     // Add observer icon if user is an observer
-    if (role == UserRole.USER_ROLE_OBSERVER) {
+    if (role == UserRole.observer) {
       children.add(
         Tooltip(
           message: "Observer",

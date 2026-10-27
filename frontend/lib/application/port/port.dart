@@ -1,5 +1,6 @@
-import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pb.dart';
 import 'package:porker2fe/core/error/error.dart';
+import 'package:porker2fe/domain/point.dart';
+import 'package:porker2fe/domain/room.dart';
 import 'package:porker2fe/domain/user.dart';
 
 typedef LoginResult = ({String userID});
@@ -21,7 +22,7 @@ abstract class Porker2Service {
 
   Future<void> checkRoom(String roomID);
 
-  Stream<RoomCondition> joinRoom(String roomID);
+  Stream<Room> joinRoom(String roomID);
 
   Future<void> leaveRoom(String roomID);
 

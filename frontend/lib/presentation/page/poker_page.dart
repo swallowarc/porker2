@@ -2,7 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:porker2fe/core/logger/logger.dart';
-import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pb.dart';
+import 'package:porker2fe/domain/room.dart';
 import 'package:porker2fe/presentation/const.dart';
 import 'package:porker2fe/presentation/invoke.dart';
 import 'package:porker2fe/application/provider.dart';
@@ -148,9 +148,9 @@ class _Drawer extends HookConsumerWidget {
             title: const Text('T-shirt mode'),
             subtitle: const Text('Use T-shirt sizes', style: TextStyle(fontSize: 12)),
             secondary: const Icon(Icons.checkroom),
-            value: poker.displayMode == DisplayMode.DISPLAY_MODE_TSHIRT,
+            value: poker.displayMode == DisplayMode.tshirt,
             onChanged: (bool value) {
-              final newMode = value ? DisplayMode.DISPLAY_MODE_TSHIRT : DisplayMode.DISPLAY_MODE_POINT;
+              final newMode = value ? DisplayMode.tshirt : DisplayMode.point;
               invoke(context, () => pokerNotifier.updateRoom(poker.autoOpen, newMode), (_) {});
             },
           ),

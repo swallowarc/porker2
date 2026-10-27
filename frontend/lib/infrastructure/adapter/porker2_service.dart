@@ -4,7 +4,8 @@ import 'package:connectrpc/connect.dart';
 import 'package:porker2fe/core/error/error.dart';
 import 'package:porker2fe/infrastructure/adapter/retry.dart' as retry;
 import 'package:porker2fe/core/logger/logger.dart';
-import 'package:porker2fe/infrastructure/generated/pb/porker/v2/domain.pb.dart';
+import 'package:porker2fe/infrastructure/adapter/pb_mapper.dart';
+import 'package:porker2fe/domain/point.dart';
 import 'package:porker2fe/infrastructure/generated/pb/porker/v2/service.connect.client.dart';
 import 'package:porker2fe/infrastructure/generated/pb/porker/v2/service.pb.dart';
 import 'package:porker2fe/domain/room.dart';
@@ -52,8 +53,8 @@ class Porker2ServiceImpl extends Porker2Service {
   /// (async* だと cancel が次の yield まで効かず、cancel 後に JoinRoom を呼び直して
   /// 退室した部屋へ入り直してしまう)。
   @override
-  Stream<RoomCondition> joinRoom(String roomID) {
-    late final StreamController<RoomCondition> controller;
+  Stream<Room> joinRoom(String roomID) {
+    late final StreamController<Room> controller;
     CancelableSignal? signal;
     Timer? retryTimer;
     var cancelled = false;
@@ -63,7 +64,16 @@ class Porker2ServiceImpl extends Porker2Service {
       signal = CancelableSignal();
       _client.joinRoom(JoinRoomRequest(roomId: roomID), signal: signal).listen(
         (res) {
-          if (!cancelled) controller.add(res.condition);
+          if (cancelled) return;
+          try {
+            controller.add(roomFromPb(res.condition));
+          } on UnexpectedError catch (e, stackTrace) {
+            // サーバーから未知の値が届いた。表示が嘘になるので購読を打ち切る
+            cancelled = true;
+            signal?.cancel();
+            controller.addError(e, stackTrace);
+            controller.close();
+          }
         },
         onError: (Object e, StackTrace stackTrace) {
           // cancel 後は signal の中断で Canceled が届く。購読者はもういないので捨てる
@@ -86,7 +96,7 @@ class Porker2ServiceImpl extends Porker2Service {
       );
     }
 
-    controller = StreamController<RoomCondition>(
+    controller = StreamController<Room>(
       onListen: connect,
       onCancel: () {
         cancelled = true;
@@ -107,7 +117,7 @@ class Porker2ServiceImpl extends Porker2Service {
   Future<void> castVote(String roomID, Point point) => _call(() => _client
       .castVote(CastVoteRequest()
         ..roomId = roomID
-        ..point = point));
+        ..point = pointToPb(point)));
 
   @override
   Future<void> resetVotes(String roomID) =>
@@ -129,7 +139,7 @@ class Porker2ServiceImpl extends Porker2Service {
       _call(() => _client.updateRoom(UpdateRoomRequest()
         ..roomId = roomID
         ..autoOpen = autoOpen
-        ..displayMode = displayMode));
+        ..displayMode = displayModeToPb(displayMode)));
 
   @override
   Future<void> toggleObserverMode(String roomID, bool isObserver) =>
