@@ -17,11 +17,13 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/swallowarc/porker2/backend/internal/core/logger"
+	"github.com/swallowarc/porker2/backend/internal/core/merror"
 	pb "github.com/swallowarc/porker2/backend/internal/interface/pb/porker/v2"
 	pbconn "github.com/swallowarc/porker2/backend/internal/interface/pb/porker/v2/porkerv2connect"
 )
 
 // stubHandler は interceptor の挙動確認用。ハンドラ内で見えた ctx のロガーも記録する。
+// 各 RPC は結果のレベル分けを検証するため、種別の異なるエラーを返す。
 type stubHandler struct {
 	pbconn.UnimplementedPorker2ServiceHandler
 	mu            sync.Mutex
@@ -39,9 +41,22 @@ func (h *stubHandler) Login(ctx context.Context, _ *pb.LoginRequest) (*pb.LoginR
 	return &pb.LoginResponse{}, nil
 }
 
+// Logout: ハンドラが直接返した connect.Error (サーバー側コード)
 func (h *stubHandler) Logout(ctx context.Context, _ *pb.LogoutRequest) (*pb.LogoutResponse, error) {
 	h.capture(ctx)
 	return nil, connect.NewError(connect.CodeInternal, "boom")
+}
+
+// CastVote: クライアント起因の merror
+func (h *stubHandler) CastVote(ctx context.Context, _ *pb.CastVoteRequest) (*pb.CastVoteResponse, error) {
+	h.capture(ctx)
+	return nil, merror.NewFailedPrecondition("not in room")
+}
+
+// ShowVotes: サーバー起因の merror
+func (h *stubHandler) ShowVotes(ctx context.Context, _ *pb.ShowVotesRequest) (*pb.ShowVotesResponse, error) {
+	h.capture(ctx)
+	return nil, merror.WrapInternal(errors.New("redis down"), "failed")
 }
 
 func (h *stubHandler) JoinRoom(ctx context.Context, _ *pb.JoinRoomRequest, stream pbconn.Porker2ServiceJoinRoomServerStream) error {
@@ -121,7 +136,7 @@ func TestLogInterceptor_Unary(t *testing.T) {
 		assertRPCFields(t, recs[1], "Login")
 	})
 
-	t.Run("error", func(t *testing.T) {
+	t.Run("connect.Error (server code) is ERROR", func(t *testing.T) {
 		t.Parallel()
 		client, _, buf := setup(t)
 
@@ -136,6 +151,35 @@ func TestLogInterceptor_Unary(t *testing.T) {
 		assert.Equal(t, "failed to call unary", recs[0]["msg"])
 		assert.Contains(t, recs[0]["error"], "boom")
 		assertRPCFields(t, recs[0], "Logout")
+	})
+
+	t.Run("client-caused merror is WARN with kind", func(t *testing.T) {
+		t.Parallel()
+		client, _, buf := setup(t)
+
+		_, err := client.CastVote(context.Background(), &pb.CastVoteRequest{})
+		require.Error(t, err)
+
+		recs := buf.records(t)
+		require.Len(t, recs, 1)
+		assert.Equal(t, "WARN", recs[0]["level"])
+		assert.Equal(t, "failed_precondition", recs[0]["kind"])
+		assert.Contains(t, recs[0]["error"], "not in room")
+		assertRPCFields(t, recs[0], "CastVote")
+	})
+
+	t.Run("server-caused merror is ERROR with kind", func(t *testing.T) {
+		t.Parallel()
+		client, _, buf := setup(t)
+
+		_, err := client.ShowVotes(context.Background(), &pb.ShowVotesRequest{})
+		require.Error(t, err)
+
+		recs := buf.records(t)
+		require.Len(t, recs, 1)
+		assert.Equal(t, "ERROR", recs[0]["level"])
+		assert.Equal(t, "internal", recs[0]["kind"])
+		assertRPCFields(t, recs[0], "ShowVotes")
 	})
 }
 
@@ -167,4 +211,39 @@ func TestGetRPCNameFromSpec(t *testing.T) {
 	t.Parallel()
 	assert.Equal(t, "Login", getRPCNameFromSpec(connect.Spec{Procedure: "/porker.v2.Porker2Service/Login"}))
 	assert.Equal(t, "", getRPCNameFromSpec(connect.Spec{Procedure: ""}))
+}
+
+func Test_levelOf(t *testing.T) {
+	t.Parallel()
+	cases := []struct {
+		name string
+		err  error
+		want slog.Level
+	}{
+		{"InvalidArgument はクライアント起因なので WARN", merror.NewInvalidArgument(nil, "x"), slog.LevelWarn},
+		{"NotFound", merror.NewNotFound("x"), slog.LevelWarn},
+		{"AlreadyExists", merror.NewAlreadyExists("x"), slog.LevelWarn},
+		{"PermissionDenied", merror.NewPermissionDenied("x"), slog.LevelWarn},
+		{"Unauthenticated", merror.NewUnauthenticated("x"), slog.LevelWarn},
+		{"FailedPrecondition", merror.NewFailedPrecondition("x"), slog.LevelWarn},
+		{"Unavailable (ロック競合など一時的)", merror.NewUnavailable("x"), slog.LevelWarn},
+		{"Internal はサーバー起因なので ERROR", merror.NewInternal("x"), slog.LevelError},
+		{"WrapInternal で包まれたものも ERROR", merror.WrapInternal(merror.NewNotFound("x"), "y"), slog.LevelError},
+		{"Canceled はクライアント切断なので INFO", merror.NewCanceled("x"), slog.LevelInfo},
+		{"context.Canceled", context.Canceled, slog.LevelInfo},
+		{"ラップされた context.Canceled", merror.WrapInternal(context.Canceled, "stream"), slog.LevelInfo},
+		{"context.DeadlineExceeded は WARN", context.DeadlineExceeded, slog.LevelWarn},
+		{"ラップされた context.DeadlineExceeded", merror.WrapInternal(context.DeadlineExceeded, "redis"), slog.LevelWarn},
+		{"connect.Error (deadline exceeded)", connect.NewError(connect.CodeDeadlineExceeded, "x"), slog.LevelWarn},
+		{"未分類の error は ERROR", errors.New("plain"), slog.LevelError},
+		{"Kind 不明の merror は ERROR", merror.New(merror.KindUnknown, "x"), slog.LevelError},
+		{"connect.Error (client code)", connect.NewError(connect.CodeInvalidArgument, "x"), slog.LevelWarn},
+		{"connect.Error (server code)", connect.NewError(connect.CodeInternal, "x"), slog.LevelError},
+		{"connect.Error (canceled)", connect.NewError(connect.CodeCanceled, "x"), slog.LevelInfo},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			assert.Equal(t, c.want, levelOf(c.err), "err=%v", c.err)
+		})
+	}
 }
