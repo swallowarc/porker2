@@ -102,7 +102,7 @@ func (m *manager) SetCookie(ctx context.Context, token string) {
 		Domain:   m.conf.CookieDomain,
 		MaxAge:   user.SessionLifetimeMinutes * 60,
 		Secure:   m.conf.CookieSecure,
-		HttpOnly: false,
+		HttpOnly: true, // フロントエンドは cookie を直接読まない (ブラウザが自動送信する) ので JS から隔離する
 		SameSite: http.SameSiteLaxMode,
 	}
 	info.ResponseHeader().Set("Set-Cookie", cookie.String())

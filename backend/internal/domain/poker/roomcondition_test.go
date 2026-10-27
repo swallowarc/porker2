@@ -225,3 +225,10 @@ func TestRoomCondition_Json_IgnoresLegacyObserverCount(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, int32(1), c.ObserverCount())
 }
+
+func TestDisplayMode_Valid(t *testing.T) {
+	assert.False(t, DisplayModeUnspecified.Valid())
+	assert.True(t, DisplayModePoint.Valid())
+	assert.True(t, DisplayModeTShirt.Valid())
+	assert.False(t, DisplayMode(3).Valid())
+}

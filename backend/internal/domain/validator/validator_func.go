@@ -8,18 +8,20 @@ import (
 )
 
 const (
-	TagRoomID   = "room_id"
-	TagPoint    = "point"
-	TagUserName = "user_name"
-	TagUserID   = "user_id"
+	TagRoomID      = "room_id"
+	TagPoint       = "point"
+	TagUserName    = "user_name"
+	TagUserID      = "user_id"
+	TagDisplayMode = "display_mode"
 )
 
 func presetCustomValidations() CustomValidations {
 	return CustomValidations{
-		TagRoomID:   roomID,
-		TagPoint:    point,
-		TagUserName: userName,
-		TagUserID:   userID,
+		TagRoomID:      roomID,
+		TagPoint:       point,
+		TagUserName:    userName,
+		TagUserID:      userID,
+		TagDisplayMode: displayMode,
 	}
 }
 
@@ -44,4 +46,8 @@ func userName(fl govalidator.FieldLevel) bool {
 func userID(fl govalidator.FieldLevel) bool {
 	v := fl.Field().String()
 	return user.ID(v).Valid()
+}
+
+func displayMode(fl govalidator.FieldLevel) bool {
+	return poker.DisplayMode(fl.Field().Int()).Valid()
 }
