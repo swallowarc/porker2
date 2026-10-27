@@ -1,237 +1,135 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Claude Code がこのリポジトリで作業するときの手引き。コードから読み取れることは書かず、
+依存の向き・設計上の約束・つまずきやすい点だけを残す。構成が変わったらこのファイルも直す。
 
-## Project Overview
+## 概要
 
-Porker2 is a Scrum Poker application with a Go backend using Connect RPC and a Flutter web frontend. The application uses Redis for session management and real-time room state synchronization.
+Porker2 はスクラムポーカーのアプリ。Go (Connect RPC) のバックエンドと Flutter web のフロントエンド、
+状態の保存と配信に Redis を使う。proto は `proto/porker/v2/` にあり、`make protoc` で両側のコードを生成する。
 
-## Development Commands
+## コマンド
 
-### Backend Commands
+`make help` で一覧が出る。よく使うもの:
+
 ```bash
-# Run backend development server
-make be/run-for-debug
+make setup/tools         # mockgen, buf, protoc プラグインを入れる
+make setup/redis         # 開発用 Redis コンテナ
+make protoc              # proto からバックエンド・フロントエンドのコードを生成
+make be/run-for-debug    # バックエンド起動 (設定は .envrc、雛形は .envrc.example)
+make fe/run-for-debug    # フロントエンド起動 (Chrome, port 53676, env_local.json を --dart-define)
+make fe/build-runner     # Router / Freezed のコード生成。状態クラスやルートを変えたら実行
+make mock/gen            # gomock 生成。usecase/port や interface/gateway を変えたら実行
 
-# Generate mocks for testing (mockgen must be on PATH: `go install go.uber.org/mock/mockgen@v0.6.0`
-# or `make setup/tools`; asdf users may need `export PATH="$(go env GOPATH)/bin:$PATH"`)
-make mock/gen
-
-# Run backend tests (unit tests only; Redis integration tests are skipped)
-cd backend && go test -race ./...
-
-# Run Redis integration tests against a local Redis (uses DB 15)
-cd backend && REDIS_TEST_ADDR=localhost:6379 go test -race ./internal/infrastructure/redis/
-
-# Run backend tests with coverage
-cd backend && go test -cover ./...
-```
-
-### Frontend Commands
-```bash
-# Run frontend development server (port 53676)
-make fe/run-for-debug
-
-# Generate Flutter code (Router, Freezed models)
-make fe/build-runner
-
-# Run Flutter linting
-make fe/lint
-
-# Flutter build for production
+cd backend  && go test -race ./...                                   # 単体テスト (Redis 結合テストは Skip)
+cd backend  && REDIS_TEST_ADDR=localhost:6379 go test -race ./internal/infrastructure/redis/  # 結合テスト (DB 15 を使う)
+cd frontend && flutter analyze && dart analyze --fatal-infos && flutter test   # CI と同じ
 cd frontend && flutter build web --release
-
-# Run Flutter analyzer
-cd frontend && flutter analyze
 ```
 
-### Protocol Buffer Commands
-```bash
-# Generate protobuf code for both backend and frontend
-make protoc
-```
+- `make mock/gen` は mockgen が PATH にある必要がある (`go install go.uber.org/mock/mockgen@v0.6.0`)。
+  asdf 利用時は `export PATH="$(go env GOPATH)/bin:$PATH"` が要ることがある。
+- CI (`.github/workflows/pr-checks.yml`) は Go のテストを Redis サービス付きで、Flutter は `flutter analyze` +
+  `dart analyze --fatal-infos` + `flutter test` を回す。`flutter analyze` は analysis_options.yaml の `plugins`
+  (riverpod_lint) を読まないので、プラグインのルールは `dart analyze` (= `make fe/lint`) でしか検出されない。
 
-### Infrastructure Commands
-```bash
-# Start Redis container for development
-make setup/redis
+## バックエンド (`backend/`)
 
-# Install development tools
-make setup/tools
-```
+ヘキサゴナル構成。依存の向きは `interface` / `infrastructure` → `usecase` → `domain` → `core` の一方向。
+`domain` は標準ライブラリと `core` 以外に依存しない。connect-go と protobuf の型は `interface` より内側に出さない。
 
-### Docker Commands
-```bash
-# Build Docker image
-make docker_build
+| 層 | 場所 | 役割 |
+| --- | --- | --- |
+| core | `internal/core/merror` | アプリ共通のエラー型。`Kind` (NotFound, InvalidArgument, Internal, ...) と `FieldViolations` を持つ |
+| domain | `internal/domain/poker`, `internal/domain/user` | `Room` 集約、`Ballot`、VO (`RoomID`, `Point`, `DisplayMode`, `VoteState`, `UserRole`, `user.ID`, `user.Name`)。`snapshot.go` が永続化用の `RoomSnapshot` / `RestoreRoom` |
+| usecase | `internal/usecase/interactor`, `internal/usecase/port` | ユースケース (`User`, `Poker`) とリポジトリのインターフェース |
+| interface | `internal/interface/controller` | Connect ハンドラ。`convert.go` の `requestFields` が proto のフィールドをドメインのコンストラクタで変換し、違反をまとめて 1 つの InvalidArgument にする |
+| | `internal/interface/rpcerr` | `merror` → `connect.Error` の変換はここだけ |
+| | `internal/interface/interceptor` | `ErrorInterceptor` (最外、`rpcerr.ToConnect`)、`LogInterceptor` (Kind で WARN / ERROR / INFO を決める) |
+| | `internal/interface/session` | Cookie セッション。`authn` ミドルウェアは interceptor の外側で動くため、ここは自前で connect エラーに変換する |
+| | `internal/interface/repository` | Redis 実装。永続化モデル (JSON タグ) は `model.go` に置き、ドメインには持ち込まない |
+| infrastructure | `internal/infrastructure/connect`, `redis`, `config` | HTTP サーバー (connect-go v2、先頭の interceptor が最外)、`MemDBClient` 実装 (複数キーの原子操作は Lua)、`config.Load()` |
 
-# Push Docker image
-make docker_push
-```
+DI は Uber FX。`config.Load()` も `fx.Provide` で供給し、`init()` は使わない。
 
-## Architecture
+### 設計上の約束
 
-### Backend Architecture (Hexagonal/Clean Architecture)
+- **VO はコンストラクタで作る。キャストしない。** VO は非公開フィールドの構造体で、`poker.NewRoomID(raw)` や
+  `user.NewName(raw)` が事前条件違反を InvalidArgument で返す。`MustXxx` はテスト専用。
+  ゼロ値は「なし」を表す (`IsZero()`)。例: どの部屋にもいないユーザーの `RoomID`。
+- **集約の状態変更はメソッド経由。** `Room` のフィールドは非公開で、getter で読む (`Ballots()` はコピーを返す)。
+  永続化は `room.Snapshot()` と `poker.RestoreRoom(snapshot)` を使い、復元時に全値を再検証する
+  (壊れたデータは Internal として表面化する)。観戦者数は保存せず `Room.ObserverCount()` で導出する。
+- **エラーは端まで `merror`。** domain / usecase / repository / redis は `merror` を返し、controller はそのまま返す。
+  種別は `merror.IsNotFound(err)` などで判定する。`merror.Wrap*` は外側の Kind が勝つので、
+  呼び出し側が検出したい NotFound を包まない。リポジトリは NotFound を透過させる (usecase が分岐する)。
+  「セッションはあるがユーザーデータがない」は interactor で Unauthenticated に変換する。
+- **検証はドメインで行う。** validator ライブラリはない。controller は `requestFields` でフィールド名を添えて
+  コンストラクタを呼ぶだけ。
+- **ログ**: クライアント起因は WARN、サーバー起因は ERROR。`kind` 属性で絞り込める。
 
-The backend follows a hexagonal architecture. Dependency direction is strictly
-`interface` / `infrastructure` → `usecase` → `domain` → `core`. The `domain` package has no
-third-party dependencies (standard library and `core` only), and nothing below `interface` imports
-connect-go or protobuf types.
+### テスト
 
-- **`internal/core/`** - Framework-independent utilities
-  - `merror/` - Application error type. Errors carry a `Kind` (NotFound, InvalidArgument, Internal, ...)
-    and optional `FieldViolations`. Use `merror.NewXxx` / `merror.IsXxx`. **Never import connect here.**
-    `merror.Wrap*` makes the outer Kind win, so do not wrap a NotFound you want callers to detect.
-  - `environment/`, `logger/` (slog in context), `random/`
-- **`internal/domain/`** - Business entities and value objects
-  - `poker/` - `Room` aggregate (`room.go`), `Ballot`, and value objects `RoomID`, `Point`, `DisplayMode`,
-    `VoteState`, `UserRole`. `snapshot.go` holds `RoomSnapshot` / `RestoreRoom` for persistence.
-  - `user/` - `ID` (UUID), `Name`, token generation
-- **`internal/usecase/`** - Application business logic
-  - `interactor/` - Use case implementations (`User`, `Poker`)
-  - `port/` - Repository interfaces (`UserRepository`, `PokerRepository`)
-- **`internal/interface/`** - Adapters around the use cases
-  - `controller/` - Connect RPC handlers (v2 style: plain request/response messages, no `connect.Request`
-    wrapper; the session cookie is written through `connect.CallInfoForServerContext`). `convert.go` has
-    `requestFields`, which converts proto fields
-    into domain types via the domain constructors and collects violations into one InvalidArgument.
-  - `rpcerr/` - The only place that converts `merror` into `connect.Error` (`rpcerr.ToConnect`)
-  - `interceptor/` - `ErrorInterceptor` (outermost, applies `rpcerr.ToConnect`) and `LogInterceptor`
-    (logs with a level derived from the error Kind: client errors WARN, server errors ERROR, cancel INFO)
-  - `repository/` - Redis-backed repositories. `model.go` holds the persistence models (JSON tags live
-    here, not in the domain) and converts to/from `RoomSnapshot` and the domain constructors.
-  - `session/` - Cookie session manager used by the `authn` middleware (runs outside the interceptor
-    chain, so it converts errors itself)
-  - `gateway/` - `MemDBClient` port for the key-value store
-  - `pb/` - Generated protobuf / connect code
-- **`internal/infrastructure/`** - External service integrations
-  - `config/` - `config.Load()` reads env vars (provided via fx; there is no `init()`)
-  - `connect/` - HTTP server (connect-go **v2**: `connect.NewServer(interceptors...)` +
-    `RegisterPorker2ServiceHandler` + `connecthttp.Mount`; the first interceptor is the outermost).
-    `Server.Start` listens synchronously so a bad port fails startup.
-  - `redis/` - `MemDBClient` implementation. Atomic multi-key operations use Lua scripts.
-- **`internal/test/mock/`** - Generated mocks (`make mock/gen`)
+- domain は実オブジェクト (`poker.NewRoom()`, `poker.MustRoomID("12345")`) で書く。
+  ID 固定の部屋は `poker.RestoreRoom(poker.RoomSnapshot{RoomID: "12345", VoteState: 1, DisplayMode: 1, AutoOpen: true})`。
+- usecase / repository は `internal/test/mock/` の gomock を使う。`UpdateRoomWithLock` に渡した `RoomModifier` を
+  動かすには `DoAndReturn` で実 `*poker.Room` に適用する。
+- `internal/infrastructure/redis` の結合テストは `REDIS_TEST_ADDR` があるときだけ動く。
 
-Dependency injection is managed using Uber FX framework.
+## フロントエンド (`frontend/`)
 
-#### Backend Design Rules
+Riverpod を使ったクリーンアーキテクチャ。依存の向きは `presentation` / `infrastructure` → `application` → `domain` → `core`。
+`connectrpc` と `lib/infrastructure/generated/` を import してよいのは `infrastructure` だけ。
 
-- **Value objects are constructed, never cast.** All VOs are structs with unexported fields. Build them
-  with `poker.NewRoomID(raw)`, `poker.NewPoint(raw)`, `user.NewName(raw)`, `user.ParseID(raw)` etc.,
-  which return InvalidArgument on precondition failure. Use `MustXxx` only in tests. Zero values mean
-  "absent" (`IsZero()`), e.g. a user not in any room has a zero `RoomID`.
-- **Aggregate state changes go through methods.** `Room` fields are unexported; read with getters
-  (`Ballots()` returns a copy). Persistence uses `room.Snapshot()` and `poker.RestoreRoom(snapshot)`,
-  which re-validates every value so corrupted storage surfaces as Internal.
-- **Errors are `merror` until the edge.** Domain, usecase, repository and redis return `merror` values.
-  Controllers return them unchanged; `ErrorInterceptor` converts them. Check kinds with
-  `merror.IsNotFound(err)` etc. Repositories must pass NotFound through (not wrap it) because use cases
-  branch on it. "Session exists but user data is gone" is converted to Unauthenticated in the interactor.
-- **Validation lives in the domain.** There is no validator library. Controllers only map proto fields to
-  constructors through `requestFields` and name the proto field for the BadRequest detail.
-- **Observer count is derived**, not stored: `Room.ObserverCount()` counts observer ballots.
+| 層 | 場所 | 役割 |
+| --- | --- | --- |
+| core | `lib/core/error` | `ExpectedError` (そのまま利用者に見せる)、`UnauthenticatedError` (ログインへ戻す)、`UnexpectedError` (`cause` を保持) |
+| | `lib/core/env`, `lib/core/logger` | `--dart-define` の読み出し、`logger` |
+| domain | `lib/domain/point.dart` | `Point` enum (札の文字、T シャツ表記、数値)。手札の並びは `Point.numeric` / `Point.extras` |
+| | `lib/domain/room.dart` | `Room` / `Ballot` (freezed) と派生ロジック (`openable`, `average`, `isUnanimity`, `pointOf`, ...)、`DisplayMode` / `VoteState` / `UserRole` |
+| | `lib/domain/user.dart` | `UserEntity`、名前の書式 |
+| application | `lib/application/port/port.dart` | `Porker2Service` / `LocalStorage` のインターフェース。エラーの契約もここに書いてある |
+| | `lib/application/provider.dart` | ポートの provider (override 必須、未設定なら例外) と Notifier の provider |
+| | `lib/application/poker.dart` 他 | `Poker` (`Notifier<Room>`) が部屋の購読を持つ。`joinRoom` は購読が終わるまで完了しない Future を返し、別の部屋へ入ると前の購読を cancel する |
+| infrastructure | `lib/infrastructure/provider.dart` | `infrastructureOverrides`。`main.dart` の `ProviderScope` に渡す composition root |
+| | `lib/infrastructure/adapter/` | `porker2_service.dart` (Connect 実装、`ConnectException` を core のエラー型へ変換、ストリームは `retry.dart` の条件で再接続)、`pb_mapper.dart` (proto ⇄ domain、未知の列挙値は `UnexpectedError`)、`local_storage.dart` |
+| presentation | `lib/presentation/router/router.dart` | go_router の typed route。`redirect` がログインを強制し、未ログインで開いた `/poker?room-id=` をログイン後に入室できるよう預ける |
+| | `lib/presentation/invoke.dart` | ウィジェットからユースケースを呼ぶ入口。失敗は SnackBar、`UnauthenticatedError` はログインへ |
+| | `lib/presentation/page`, `widget` | `ref.watch(pokerProvider)` で `Room` を読み、`ref.read(pokerProvider.notifier)` を `invoke` で包んで呼ぶ |
 
-### Frontend Architecture (Clean Architecture with Riverpod)
+### 設計上の約束
 
-The frontend follows clean architecture principles with state management via Riverpod:
+- **派生値は `Room` に置く。** Notifier やウィジェットで計算しない。Notifier は state 以外の公開プロパティを持たない
+  (riverpod_lint の `avoid_public_notifier_properties`。`dart analyze` で検出される)。ログイン判定も `UserState.isLoggedIn`。
+- **ユースケースは `invoke` 経由で呼ぶ。** `onPressed` から Notifier のメソッドを直接呼ぶと失敗が表に出ず、
+  セッション切れでログインへ戻れない。
+- **ポートは import せず override する。** application は実装の型を知らない。
 
-- **`lib/core/`** - Core utilities
-  - `env/` - Environment configuration
-  - `error/` - Error handling
-  - `logger/` - Logging utilities
-- **`lib/infrastructure/`** - Infrastructure layer
-  - `generated/` - Protocol Buffer generated code (protoc)
-  - `adapter/` - Port implementations (Connect RPC client, local storage)
-- **`lib/domain/`** - Domain layer (framework-independent)
-  - `entity/` - Business entities
-  - `port/` - Port interfaces (abstract service definitions)
-- **`lib/application/`** - Application layer
-  - Riverpod Notifiers for state management and use case orchestration
-- **`lib/presentation/`** - Presentation layer
-  - `page/` - UI pages
-  - `widget/` - Reusable widgets
-  - `router/` - GoRouter navigation configuration
-  - `provider/` - Riverpod providers
+### テスト
 
-### Data Flow
+- application のテストは `ProviderContainer(overrides: [porker2ServiceProvider.overrideWithValue(fake)])` で組む。
+  `connectrpc/web.dart` は `dart:js_interop` を使うため VM 上のテストから読み込めない。
+  application 側に infrastructure の import を足すとテストが壊れる。
+- adapter のテストは connectrpc 付属の `FakeTransportBuilder` を使う (`test/infrastructure/adapter/`)。
+- `logger` は初回アクセス時に `Logger.level` を上書きするので、黙らせたいときは先に参照してから `Level.off` にする。
 
-1. **Authentication**: Cookie (`psc`, HttpOnly) carrying a token; 180-minute session lifetime, refreshed on every authenticated request
-2. **Room Management**: Redis streams for real-time room state synchronization
-3. **Voting State**: Two states - hidden (1) and open (2)
-4. **Session Storage**: Redis with automatic TTL management
+## 共通の仕組み
 
-### Features
+- **認証**: HttpOnly cookie `psc` にトークン。セッションは 180 分で、認証済みリクエストのたびに延長する。
+  フロントエンドは cookie を読まず、`credentials: 'include'` で送るだけ。
+- **Redis のキー** (すべて `porker2_` 接頭辞、TTL はユーザー 180 分 / 部屋は更新ごとに 180 分):
+  - `porker2_token:(token)` → user_id、`porker2_user_id:(user_id)` → ユーザー JSON、
+    `porker2_user_name:(user_name)` → user_id (重複防止)。この 3 つは name キーをガードに 1 つの Lua で原子的に書く
+  - `porker2_room_condition:(room_id)` → Redis Stream (MaxLen 1)。最新エントリが部屋の JSON で、購読側は XREAD でブロックする
+  - `porker2_room_Lock:(room_id)` → 分散ロック (値は所有者トークン、TTL 3 秒、compare-and-delete で解放)
+- **T シャツ表記**: 0→Kids, 0.5→XXS, 1→XS, 2→S, 3→M, 5→L, 8→XL, 13→XXL, 21→3XL。
+  平均は数値で計算し、表示だけモードに従う (`averageToTshirtSize`)。観戦者は平均と全員一致の判定に含めない。
 
-#### Observer Mode
-Users can join a room as observers to watch the voting process without participating:
-- **User Roles**: `USER_ROLE_VOTER` (1) for participants, `USER_ROLE_OBSERVER` (2) for observers
-- Observers can see all votes and results but cannot cast votes
-- `RoomCondition.observer_count` in the proto is derived from the ballots (`Room.ObserverCount()`), not stored
-- Observers are excluded from vote calculations and averages
+## RPC を追加する手順
 
-#### T-shirt Sizing Mode
-Rooms can switch between numeric points and T-shirt sizes for estimation:
-- **Display Modes**: `DISPLAY_MODE_POINT` (1) for numbers, `DISPLAY_MODE_TSHIRT` (2) for T-shirt sizes
-- T-shirt size mapping:
-  - XS: 0-0.5 points
-  - S: 1-2 points
-  - M: 3-5 points
-  - L: 8 points
-  - XL: 13 points
-  - XXL: 21+ points
-- Display mode is configurable per room and affects how points are shown to all participants
-- Averages are calculated numerically but displayed according to the selected mode
-
-### Redis Key Schema
-
-All keys are prefixed with `porker2_`. TTL is 180 minutes for user keys (refreshed on each request)
-and for rooms (refreshed on each update).
-
-- **User Sessions** (written atomically in one Lua script, guarded by the name key):
-  - `porker2_token:(token)` → user_id
-  - `porker2_user_id:(user_id)` → user JSON (`id`, `name`, `token`, `room_id`)
-  - `porker2_user_name:(user_name)` → user_id (uniqueness guard)
-- **Room State**:
-  - `porker2_room_condition:(room_id)` → Redis Stream (MaxLen 1) whose latest entry holds the room JSON;
-    subscribers block on XREAD
-  - `porker2_room_Lock:(room_id)` → distributed lock (value = owner token, TTL 3s, released with
-    compare-and-delete)
-
-## Common Development Patterns
-
-### Adding New RPC Endpoints
-
-1. Define the service and messages in `proto/porker/*.proto`
-2. Run `make protoc` to generate code
-3. Add the use case to the `interactor` interface and implement it in `backend/internal/usecase/interactor/`
-   (return `merror` values; use `checkUserRoomJoin` for room-scoped operations)
-4. Implement the handler in `backend/internal/interface/controller/porker2.go`: convert request fields with
-   `requestFields` (add a method in `convert.go` if a new field type appears), call the interactor, call
-   `p.session.RefreshCookie` on success
-5. If a repository method is added, update `usecase/port` and run `make mock/gen`
-6. Create/update the frontend use case in `frontend/lib/application/`
-
-### Error Handling
-
-- Return `merror.NewXxx(...)` from domain / usecase / repository. Do not construct `connect.Error`
-  outside `interface/rpcerr` and `interface/session`.
-- Client-visible codes: InvalidArgument (with BadRequest field details), NotFound, AlreadyExists,
-  PermissionDenied, Unauthenticated, FailedPrecondition, Unavailable, Internal, Canceled.
-- Logs: client-caused errors are WARN, server-caused ERROR; filter by the `kind` attribute.
-
-### Testing Patterns
-
-- Domain tests use real objects (`poker.NewRoom()`, `user.NewID()`, `poker.MustRoomID("12345")`).
-- Usecase and repository tests use the generated gomock mocks in `internal/test/mock/`. To run a
-  `RoomModifier` passed to `UpdateRoomWithLock`, use `DoAndReturn` and apply it to a real `*poker.Room`.
-- Fixed-ID rooms for tests: `poker.RestoreRoom(poker.RoomSnapshot{RoomID: "12345", VoteState: 1, DisplayMode: 1, AutoOpen: true})`.
-- `internal/infrastructure/redis` has integration tests that run only when `REDIS_TEST_ADDR` is set.
-- Regenerate mocks with `make mock/gen` after modifying interfaces in `usecase/port` or `interface/gateway`.
-
-### State Management
-
-Frontend uses Riverpod with Freezed for immutable state. Run `make fe/build-runner` after modifying state classes or adding new routes.
-
-## Environment Configuration
-
-Backend configuration is managed via environment variables (see `.envrc.example`). Frontend configuration uses `env_local.json` for development settings.
+1. `proto/porker/v2/*.proto` にサービスとメッセージを書き、`make protoc`
+2. バックエンド: `interactor` にユースケースを追加 (`merror` を返す。部屋に対する操作は `checkUserRoomJoin`)。
+   `controller/porker2.go` で `requestFields` により変換して呼び、成功時に `p.session.RefreshCookie`。
+   リポジトリを増やしたら `usecase/port` を更新して `make mock/gen`
+3. フロントエンド: `Porker2Service` にメソッドを追加し、`adapter/porker2_service.dart` で `_call` を通して実装
+   (新しい型があれば `pb_mapper.dart` にも)。Notifier から呼び出し、ウィジェットは `invoke` で包む
