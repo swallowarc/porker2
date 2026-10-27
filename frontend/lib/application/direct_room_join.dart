@@ -25,6 +25,4 @@ class DirectRoomJoin extends Notifier<DirectRoomJoinState> {
   void setPresetRoomID(String roomID) {
     state = state.copyWith(presetRoomID: roomID);
   }
-
-  bool get hasPresetRoomID => state.presetRoomID.isNotEmpty;
 }

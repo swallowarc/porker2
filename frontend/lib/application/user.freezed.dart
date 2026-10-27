@@ -212,8 +212,8 @@ return $default(_that.userID,_that.userName);case _:
 /// @nodoc
 
 
-class _UserState implements UserState {
-  const _UserState(this.userID, this.userName);
+class _UserState extends UserState {
+  const _UserState(this.userID, this.userName): super._();
   
 
 @override final  String userID;

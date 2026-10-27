@@ -10,10 +10,14 @@ part 'user.freezed.dart';
 
 @freezed
 abstract class UserState with _$UserState {
+  const UserState._();
+
   const factory UserState(
     String userID,
     String userName,
   ) = _UserState;
+
+  bool get isLoggedIn => userID.isNotEmpty;
 }
 
 class User extends Notifier<UserState> {
@@ -64,8 +68,6 @@ class User extends Notifier<UserState> {
       return false;
     }
   }
-
-  bool get alreadyLogin => state.userID.isNotEmpty;
 
   /// 前回ログインに使った名前。なければ空文字。
   Future<String> latestUserName() => _storageRepo.getUserName();

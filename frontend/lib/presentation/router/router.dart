@@ -18,7 +18,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     initialLocation: LoginRoute().location,
     routes: $appRoutes,
     redirect: (context, state) {
-      final isLoggedIn = ref.read(userProvider.notifier).alreadyLogin;
+      final isLoggedIn = ref.read(userProvider).isLoggedIn;
       logger.d('isLoggedIn: $isLoggedIn, path: ${state.fullPath}');
       return resolveRedirect(
         isLoggedIn: isLoggedIn,
