@@ -15,10 +15,16 @@ RouteBase get $loginRoute => GoRouteData.$route(
 );
 
 mixin $LoginRoute on GoRouteData {
-  static LoginRoute _fromState(GoRouterState state) => LoginRoute();
+  static LoginRoute _fromState(GoRouterState state) =>
+      LoginRoute(roomId: state.uri.queryParameters['room-id'] ?? "");
+
+  LoginRoute get _self => this as LoginRoute;
 
   @override
-  String get location => GoRouteData.$location('/');
+  String get location => GoRouteData.$location(
+    '/',
+    queryParams: {if (_self.roomId != "") 'room-id': _self.roomId},
+  );
 
   @override
   void go(BuildContext context) => context.go(location);

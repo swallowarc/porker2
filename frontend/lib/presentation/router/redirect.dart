@@ -4,12 +4,12 @@ import 'package:porker2fe/presentation/router/paths.dart';
 /// GoRouter の redirect の本体。遷移先を返し、遷移しないなら null。
 ///
 /// 未ログインで部屋 URL を直接開いた場合は、ログイン完了後にその部屋へ入れるよう
-/// [parkRoomID] で room-id を預けてからログイン画面へ送る。
+/// room-id をクエリに載せたままログイン画面へ送る (`/?room-id=X`)。
+/// redirect は build 中に呼ばれるので、ここで provider の状態を変更してはならない。
 String? resolveRedirect({
   required bool isLoggedIn,
   required String? path,
   required String roomID,
-  required void Function(String roomID) parkRoomID,
 }) {
   final isPoker = path == pokerPath;
   final validRoomID = roomIDFormatRegExp.hasMatch(roomID);
@@ -24,7 +24,8 @@ String? resolveRedirect({
   }
 
   if (isPoker && validRoomID) {
-    parkRoomID(roomID);
+    return Uri(path: loginPath, queryParameters: {roomIDParam: roomID})
+        .toString();
   }
   return loginPath;
 }
