@@ -3,9 +3,9 @@ package interceptor
 import (
 	"context"
 	"log/slog"
+	"uuid"
 
 	"connectrpc.com/connect/v2"
-	"github.com/google/uuid"
 
 	"github.com/swallowarc/porker2/backend/internal/core/logger"
 )
@@ -17,7 +17,7 @@ func NewLogInterceptor(l *slog.Logger) connect.ServerInterceptor {
 		return func(ctx context.Context, spec connect.Spec, stream connect.ServerStream) error {
 			ctx = logger.SetLogger(ctx, l.With(
 				slog.String("rpc_name", getRPCNameFromSpec(spec)),
-				slog.String("request_id", uuid.NewString()),
+				slog.String("request_id", uuid.New().String()),
 			))
 
 			if spec.StreamType == connect.StreamTypeUnary {

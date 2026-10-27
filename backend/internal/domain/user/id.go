@@ -2,8 +2,7 @@ package user
 
 import (
 	"time"
-
-	"github.com/google/uuid"
+	"uuid"
 
 	"github.com/swallowarc/porker2/backend/internal/core/merror"
 )
