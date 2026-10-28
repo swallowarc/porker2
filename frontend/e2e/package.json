@@ -1,6 +1,9 @@
 {
   "name": "porker2-e2e",
   "private": true,
+  "engines": {
+    "node": ">=20.11"
+  },
   "scripts": {
     "test": "playwright test"
   },
