@@ -46,6 +46,20 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
 
+      # サードパーティの npm パッケージ (E2E の依存) は Docker Hub の認証情報がランナーに置かれる前に導入する
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: lts/*
+          cache: npm
+          cache-dependency-path: frontend/e2e/package-lock.json
+
+      - name: Install Playwright
+        working-directory: frontend/e2e
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      # 認証付きで pull する (匿名 pull のレート制限を避ける)。E2E の実行前にログアウトする
       - name: Log in to Docker Hub
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
         with:
@@ -70,8 +84,14 @@ jobs:
           tags: ${{ env.DOCKER_IMAGE }}:candidate
           cache-from: type=registry,ref=${{ env.DOCKER_IMAGE }}:buildcache
 
+      # 以降 (イメージの起動と E2E) はサードパーティのコードを動かすので、push 権限を持つ認証情報を先に消す
+      - name: Log out of Docker Hub
+        run: docker logout
+
       # services の Redis はランナーの localhost:6379 に公開されているので、host network で起動して届かせる。
-      # frontend は BACKEND_URI なしでビルドされているため RPC は同一オリジン (nginx 8082 → grpc_pass) に飛ぶ
+      # frontend は BACKEND_URI なしでビルドされているため RPC は同一オリジン (nginx 8082 → grpc_pass) に飛ぶ。
+      # 起動待ちは nginx の /health (無条件に 200 を返す) ではなく、E2E と同じ経路で Go サーバーまで届く RPC で判定する。
+      # 空の Login は InvalidArgument (HTTP 400) を返し、副作用がない。Go サーバーが未起動なら nginx が 502 を返す
       - name: Run candidate image
         run: |
           docker run -d --name candidate --network host \
@@ -83,27 +103,19 @@ jobs:
             -e SESSION_COOKIE_SECURE=false \
             ${{ env.DOCKER_IMAGE }}:candidate
           for i in $(seq 1 30); do
-            if curl -fsS http://localhost:8081/health >/dev/null 2>&1; then
-              echo "candidate is healthy"
+            status=$(curl -s -o /dev/null -w '%{http_code}' -X POST \
+              http://localhost:8082/porker.v2.Porker2Service/Login \
+              -H 'Content-Type: application/json' -d '{}')
+            if [ "$status" = "400" ]; then
+              echo "candidate is ready (nginx -> backend responded)"
               exit 0
             fi
+            echo "waiting for candidate (status=$status)"
             sleep 1
           done
-          echo "candidate did not become healthy"
+          echo "candidate did not become ready"
           docker logs candidate
           exit 1
-
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
-        with:
-          node-version: lts/*
-          cache: npm
-          cache-dependency-path: frontend/e2e/package-lock.json
-
-      - name: Install Playwright
-        working-directory: frontend/e2e
-        run: |
-          npm ci
-          npx playwright install --with-deps chromium
 
       - name: E2E against candidate image
         working-directory: frontend/e2e
@@ -123,6 +135,13 @@ jobs:
             frontend/e2e/playwright-report/
             frontend/e2e/test-results/
           retention-days: 7
+
+      # E2E に合格したので push する。ログインはここで改めて行う
+      - name: Log in to Docker Hub
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
