@@ -15,11 +15,28 @@ permissions:
 jobs:
   checks:
     uses: ./.github/workflows/pr-checks.yml
+    with:
+      # E2E はソース直起動ではなく、下の docker-build で本番イメージに対して実行する
+      e2e: false
 
+  # 本番イメージをビルドし、起動した実物に対して E2E を通してから push する。
+  # ステップは失敗した時点で止まるので、E2E に落ちたイメージが registry に乗ることはない
+  # (buildcache への層の書き込みは push ステップで行うため、これも合格後にしか起きない)。
   docker-build:
     runs-on: ubuntu-latest
     needs: [checks]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    timeout-minutes: 30
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
@@ -38,6 +55,74 @@ jobs:
       - name: Short SHA
         id: sha
         run: echo "short=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      # E2E 用にランナーのアーキテクチャ (amd64) だけをローカルに load する。push はしない。
+      # Flutter ステージは BUILDPLATFORM 固定なので、後段の multi-arch ビルドでもそのまま再利用される
+      - name: Build candidate image (amd64, not pushed)
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
+        env:
+          DOCKER_BUILD_SUMMARY: false
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64
+          load: true
+          tags: ${{ env.DOCKER_IMAGE }}:candidate
+          cache-from: type=registry,ref=${{ env.DOCKER_IMAGE }}:buildcache
+
+      # services の Redis はランナーの localhost:6379 に公開されているので、host network で起動して届かせる。
+      # frontend は BACKEND_URI なしでビルドされているため RPC は同一オリジン (nginx 8082 → grpc_pass) に飛ぶ
+      - name: Run candidate image
+        run: |
+          docker run -d --name candidate --network host \
+            -e ENV=local \
+            -e REDIS_HOST_PORT=localhost:6379 \
+            -e REDIS_DB=0 \
+            -e CONNECT_CORS_ALLOW_ORIGINS=http://localhost:8082 \
+            -e SESSION_COOKIE_DOMAIN=localhost \
+            -e SESSION_COOKIE_SECURE=false \
+            ${{ env.DOCKER_IMAGE }}:candidate
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:8081/health >/dev/null 2>&1; then
+              echo "candidate is healthy"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "candidate did not become healthy"
+          docker logs candidate
+          exit 1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: lts/*
+          cache: npm
+          cache-dependency-path: frontend/e2e/package-lock.json
+
+      - name: Install Playwright
+        working-directory: frontend/e2e
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: E2E against candidate image
+        working-directory: frontend/e2e
+        env:
+          E2E_BASE_URL: http://localhost:8082
+        run: npx playwright test
+
+      - name: Candidate logs
+        if: failure()
+        run: docker logs candidate
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: failure()
+        with:
+          name: playwright-report-image
+          path: |
+            frontend/e2e/playwright-report/
+            frontend/e2e/test-results/
+          retention-days: 7
 
       - name: Build and push Docker image
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
