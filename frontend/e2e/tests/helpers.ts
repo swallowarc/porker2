@@ -59,3 +59,17 @@ export const joinRoom = async (page: Page, roomID: string): Promise<void> => {
   await open(page, `/poker?room-id=${roomID}`);
   await expect(page.getByRole('heading', { name: `Room ID: ${roomID}` })).toBeVisible();
 };
+
+/** 部屋選択画面で Room ID を入力して Join し、その部屋に入る。 */
+export const joinRoomByID = async (page: Page, roomID: string): Promise<void> => {
+  // login と同じく、入力が捨てられていないことを文字数カウンタ (5 桁で残り 0) で確かめてから押す
+  const textbox = page.getByRole('textbox', { name: 'Room ID' });
+  const counter = page.getByText('No characters remaining', { exact: true });
+  await expect(async () => {
+    await textbox.fill(roomID);
+    await expect(counter).toBeVisible({ timeout: 1_000 });
+  }).toPass();
+  await page.getByRole('button', { name: 'Join' }).click();
+  await expect(page).toHaveURL(`/poker?room-id=${roomID}`);
+  await expect(page.getByRole('heading', { name: `Room ID: ${roomID}` })).toBeVisible();
+};
