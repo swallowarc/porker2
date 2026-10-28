@@ -120,6 +120,8 @@ Riverpod を使ったクリーンアーキテクチャ。依存の向きは `pre
     有効化してから `getByRole` を使う (`tests/helpers.ts` の `open`)。有効化直後の入力は捨てられることがある。
     アプリ側で `ensureSemantics()` を呼ぶ方法はプロダクトの挙動を変えるので採らない。
   - バックエンドは同名ログインを拒否し、ユーザーは 180 分残るので、ユーザー名は毎回 `uniqueName()` で作る。
+  - 手札 (`HandCard`) は `GestureDetector` だけだと semantics に出ず click も他ノードに遮られるので、`Semantics(button:)`
+    を付けてある。`getByRole('button', { name: '5', exact: true })` で押す。
 - `logger` は初回アクセス時に `Logger.level` を上書きするので、黙らせたいときは先に参照してから `Level.off` にする。
 
 ## 共通の仕組み

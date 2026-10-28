@@ -102,9 +102,15 @@ class HandCardState extends State<HandCard> with TickerProviderStateMixin {
             : _initialOffsetAnimation;
         return SlideTransition(
           position: offset,
-          child: GestureDetector(
-            onTap: _handleTap,
-            child: BaseCard.initOpen(widget.point, displayMode: widget.displayMode),
+          // 手札をスクリーンリーダーから押せるようにする。tap アクションを同じノードに merge するため
+          // GestureDetector の外側に置く
+          child: Semantics(
+            button: true,
+            selected: widget.selected,
+            child: GestureDetector(
+              onTap: _handleTap,
+              child: BaseCard.initOpen(widget.point, displayMode: widget.displayMode),
+            ),
           ),
         );
       },
