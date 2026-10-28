@@ -2,8 +2,10 @@
 # Cache Flutter dependencies separately to avoid re-downloading on code changes
 # Web assets are architecture-independent: build once on the native build
 # platform instead of once per target platform under QEMU
-# Intentionally track the latest builder image (docker build --pull ensures a fresh pull)
-FROM --platform=$BUILDPLATFORM swallowarc/flutter-builder:latest AS flutter_deps
+# Image is built by https://github.com/swallowarc/flutter-builder and tagged with
+# the Flutter version it contains. Renovate (dockerfile manager) proposes bumps
+# as new versions are published to ghcr.io
+FROM --platform=$BUILDPLATFORM ghcr.io/swallowarc/flutter-builder:3.47.8 AS flutter_deps
 
 WORKDIR /app
 
