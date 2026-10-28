@@ -111,11 +111,17 @@ class FieldCards extends HookConsumerWidget {
       children.add(
         Tooltip(
           message: "Forced exit",
-          child: GestureDetector(
-            onTap: () => closeFn(),
-            child: Icon(
-              Icons.cancel_outlined,
-              color: Theme.of(context).textTheme.bodyMedium?.color,
+          // スクリーンリーダーから押せるようにする。tap アクションを同じノードに merge するため
+          // GestureDetector の外側に置く
+          child: Semantics(
+            button: true,
+            label: userName,
+            child: GestureDetector(
+              onTap: () => closeFn(),
+              child: Icon(
+                Icons.cancel_outlined,
+                color: Theme.of(context).textTheme.bodyMedium?.color,
+              ),
             ),
           ),
         ),
