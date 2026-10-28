@@ -115,7 +115,7 @@ Riverpod を使ったクリーンアーキテクチャ。依存の向きは `pre
   `connectrpc/web.dart` は `dart:js_interop` を使うため VM 上のテストから読み込めない。
   application 側に infrastructure の import を足すとテストが壊れる。
 - adapter のテストは connectrpc 付属の `FakeTransportBuilder` を使う (`test/infrastructure/adapter/`)。
-- E2E は `frontend/e2e/` (Node の `@playwright/test`)。CI での実行は未対応。
+- E2E は `frontend/e2e/` (Node の `@playwright/test`)。CI では `e2e` ジョブで回る。
   - Flutter web は semantics が既定で無効なので、`goto` のたびに `flt-semantics-placeholder` を click して
     有効化してから `getByRole` を使う (`tests/helpers.ts` の `open`)。有効化直後の入力は捨てられることがある。
     アプリ側で `ensureSemantics()` を呼ぶ方法はプロダクトの挙動を変えるので採らない。
