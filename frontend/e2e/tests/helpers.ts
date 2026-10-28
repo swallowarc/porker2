@@ -53,3 +53,9 @@ export const logout = async (page: Page): Promise<void> => {
   await page.getByRole('menuitem', { name: 'Logout' }).click();
   await page.getByRole('button', { name: 'Yes' }).click();
 };
+
+/** ログイン済みのページで部屋の URL を直接開いて入室する。 */
+export const joinRoom = async (page: Page, roomID: string): Promise<void> => {
+  await open(page, `/poker?room-id=${roomID}`);
+  await expect(page.getByRole('heading', { name: `Room ID: ${roomID}` })).toBeVisible();
+};
