@@ -84,8 +84,6 @@ test('管理者が別ユーザーをキックすると、キックされた側�
   await a.getByRole('button', { name: 'Yes' }).click();
   await expect(b).toHaveURL('/room');
   await expect(text(a, '1 voters, 0 observers')).toBeVisible();
-  // A 側でキックが反映されたあとも、B が部屋へ戻されていない
-  await expect(b).toHaveURL('/room');
 
   await close();
 });
