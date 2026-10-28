@@ -79,5 +79,12 @@ fe/build-runner: ## フロントエンドのコード生成 (Router, Freezed) �
 fe/run-for-debug: ## フロントエンドをデバッグ起動する (Chrome, port 53676)
 	cd $(FRONTEND_DIR) && flutter run -d chrome --web-port=$(FRONTEND_DEBUG_PORT) --dart-define-from-file=env_local.json
 
+fe/e2e/setup: ## E2E テスト (Playwright) の依存と Chromium をインストールする
+	cd $(FRONTEND_DIR)e2e && npm ci && npx playwright install chromium
+
+fe/e2e: ## フロントエンドを build web して E2E テストを実行する (Redis が必要)
+	cd $(FRONTEND_DIR) && flutter build web --release --dart-define-from-file=env_local.json
+	cd $(FRONTEND_DIR)e2e && npx playwright test
+
 be/run-for-debug: ## バックエンドをデバッグ起動する
 	cd $(BACKEND_DIR) && go run cmd/porker2/main.go

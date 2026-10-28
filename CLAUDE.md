@@ -20,6 +20,8 @@ make be/run-for-debug    # バックエンド起動 (設定は .envrc、雛形�
 make fe/run-for-debug    # フロントエンド起動 (Chrome, port 53676, env_local.json を --dart-define)
 make fe/build-runner     # Router / Freezed のコード生成。状態クラスやルートを変えたら実行
 make mock/gen            # gomock 生成。usecase/port や interface/gateway を変えたら実行
+make fe/e2e/setup        # E2E (Playwright) の npm 依存と Chromium を入れる
+make fe/e2e              # flutter build web してから E2E を実行
 
 cd backend  && go test -race ./...                                   # 単体テスト (Redis 結合テストは Skip)
 cd backend  && REDIS_TEST_ADDR=localhost:6379 go test -race ./internal/infrastructure/redis/  # 結合テスト (DB 15 を使う)
@@ -27,6 +29,8 @@ cd frontend && flutter analyze && dart analyze --fatal-infos && flutter test   #
 cd frontend && flutter build web --release
 ```
 
+- `make fe/e2e` は Redis (localhost:6379, DB 0) が必要。バックエンド (port 8080) と `build/web` の静的配信
+  (port 53676) は Playwright の `webServer` が起動・停止する。ローカルで起動済みならそれを再利用する。
 - `make mock/gen` は mockgen が PATH にある必要がある (`go install go.uber.org/mock/mockgen@v0.6.0`)。
   asdf 利用時は `export PATH="$(go env GOPATH)/bin:$PATH"` が要ることがある。
 - CI (`.github/workflows/pr-checks.yml`) は Go のテストを Redis サービス付きで、Flutter は `flutter analyze` +
@@ -111,6 +115,11 @@ Riverpod を使ったクリーンアーキテクチャ。依存の向きは `pre
   `connectrpc/web.dart` は `dart:js_interop` を使うため VM 上のテストから読み込めない。
   application 側に infrastructure の import を足すとテストが壊れる。
 - adapter のテストは connectrpc 付属の `FakeTransportBuilder` を使う (`test/infrastructure/adapter/`)。
+- E2E は `frontend/e2e/` (Node の `@playwright/test`)。CI では `e2e` ジョブで回る。
+  - Flutter web は semantics が既定で無効なので、`goto` のたびに `flt-semantics-placeholder` を click して
+    有効化してから `getByRole` を使う (`tests/helpers.ts` の `open`)。有効化直後の入力は捨てられることがある。
+    アプリ側で `ensureSemantics()` を呼ぶ方法はプロダクトの挙動を変えるので採らない。
+  - バックエンドは同名ログインを拒否し、ユーザーは 180 分残るので、ユーザー名は毎回 `uniqueName()` で作る。
 - `logger` は初回アクセス時に `Logger.level` を上書きするので、黙らせたいときは先に参照してから `Level.off` にする。
 
 ## 共通の仕組み

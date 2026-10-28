@@ -26,6 +26,7 @@ frontend/.packages
 frontend/.flutter-plugins*
 frontend/coverage/
 frontend/test/
+frontend/e2e/
 backend/vendor/
 backend/tmp/
 backend/*.test
