@@ -161,9 +161,11 @@ jobs:
             "docker://${DOCKER_IMAGE}:${{ steps.sha.outputs.short }}" "docker://${DOCKER_IMAGE}:latest"
           skopeo inspect --raw "docker://${DOCKER_IMAGE}:latest" | head -c 2000; echo
 
-      # ビルドキャッシュの書き出しも合格後に行う。ビルダーに残っている層をそのまま出すだけで、再ビルドは起きない
+      # ビルドキャッシュの書き出しも合格後に行う。同一ジョブのビルダーに残っている層を出すだけで、通常は再ビルドされない。
+      # イメージは既に push 済みなので、ここが失敗しても (キャッシュが更新されないだけで) ジョブは赤にしない
       - name: Export build cache
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
+        continue-on-error: true
         env:
           DOCKER_BUILD_SUMMARY: false
         with:
