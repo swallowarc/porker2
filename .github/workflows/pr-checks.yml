@@ -3,6 +3,11 @@ name: PR Checks
 on:
   pull_request:
   workflow_call:
+    inputs:
+      e2e:
+        description: 'E2E (Playwright) をソース直起動で実行するか。main マージ時は本番イメージに対して別途実行するので false にする'
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -71,6 +76,8 @@ jobs:
 
   e2e:
     name: E2E (Playwright)
+    # pull_request では常に実行。workflow_call では呼び出し側の e2e 入力に従う
+    if: github.event_name == 'pull_request' || inputs.e2e
     runs-on: ubuntu-latest
     timeout-minutes: 20
     services:
