@@ -1,7 +1,19 @@
 name: Release
 
+# main マージ時に on-merge-main.yml が検証して push した :<短い SHA> のイメージを、リリース版として昇格させる。
+# 再ビルドはしない。起動の仕方が 2 つあり、どちらも同じ手順を通る:
+#   - workflow_dispatch: 最新の vX.Y.Z の patch を +1 した版を決め、git タグも打つ
+#   - vX.Y.Z タグの push: そのタグ名を版として使う (minor / major を上げたいときはこちら)
+# GITHUB_TOKEN によるタグ push は他の workflow を起動しないので、dispatch が打つタグでこの workflow が二重に走ることはない
+
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+# 2 本同時に走ると同じ次版を計算しうるので直列にする
+concurrency: release
 
 permissions:
   actions: read
@@ -15,37 +27,64 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
+      # 下の merge-base で main との祖先関係を見るため、shallow にしない
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
 
+      # 昇格できるのは main に乗っていて on-merge-main.yml を通ったコミットだけ。
+      # タグ push では GITHUB_SHA がタグの指すコミットになるので、dispatch と同じ判定で済む
+      - name: Verify the commit is on main
+        run: |
+          git fetch --no-tags origin main
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::${GITHUB_SHA} is not on main. Only commits merged into main can be released."
+            exit 1
+          fi
+
+      # 同じコミットの On Merge Main が走っていれば完了を待ち、失敗していれば止める。
+      # run が見つからないケース (古いコミットなど) は次のイメージ存在確認で検出する
       - name: Wait for On Merge Main
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          RUN_ID=$(gh run list \
+          RUNS=$(gh run list \
             --workflow=on-merge-main.yml \
             --commit="$GITHUB_SHA" \
-            --json databaseId,status \
-            --jq '[.[] | select(.status != "completed")] | .[0].databaseId // empty')
+            --event=push \
+            --json databaseId,status,conclusion)
+          RUN_ID=$(echo "$RUNS" | jq -r '[.[] | select(.status != "completed")] | .[0].databaseId // empty')
           if [ -n "$RUN_ID" ]; then
             echo "Waiting for On Merge Main (run $RUN_ID) to complete..."
             gh run watch "$RUN_ID" --exit-status --interval 30
+          else
+            CONCLUSION=$(echo "$RUNS" | jq -r '.[0].conclusion // "none"')
+            if [ "$CONCLUSION" != "success" ] && [ "$CONCLUSION" != "none" ]; then
+              echo "::error::On Merge Main for ${GITHUB_SHA} finished with '${CONCLUSION}'. Fix main before releasing."
+              exit 1
+            fi
           fi
 
       - name: Determine release version
         id: tag
         run: |
-          LATEST=$(git ls-remote --tags origin 'v*' \
-            | awk -F'refs/tags/' '{print $2}' \
-            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
-            | sort -V | tail -n 1)
-          if [ -z "$LATEST" ]; then
-            NEXT="v1.0.0"
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            NEXT="$GITHUB_REF_NAME"
+            echo "Release version (from tag): ${NEXT}"
           else
-            IFS=. read -r MAJOR MINOR PATCH <<< "${LATEST#v}"
-            NEXT="v${MAJOR}.${MINOR}.$((PATCH + 1))"
+            LATEST=$(git ls-remote --tags origin 'v*' \
+              | awk -F'refs/tags/' '{print $2}' \
+              | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
+              | sort -V | tail -n 1)
+            if [ -z "$LATEST" ]; then
+              NEXT="v1.0.0"
+            else
+              IFS=. read -r MAJOR MINOR PATCH <<< "${LATEST#v}"
+              NEXT="v${MAJOR}.${MINOR}.$((PATCH + 1))"
+            fi
+            echo "Release version: ${LATEST:-none} -> ${NEXT}"
           fi
           VERSION="${NEXT#v}"
-          echo "Release version: ${LATEST:-none} -> ${NEXT}"
           {
             echo "name=${NEXT}"
             echo "version=${VERSION}"
@@ -63,6 +102,16 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      # imagetools の 404 だと原因が読めないので、昇格元が無い理由を書いて止める
+      - name: Verify the tested image exists
+        env:
+          SHA_TAG: ${{ steps.sha.outputs.short }}
+        run: |
+          if ! docker buildx imagetools inspect "${DOCKER_IMAGE}:${SHA_TAG}" > /dev/null; then
+            echo "::error::${DOCKER_IMAGE}:${SHA_TAG} is not in the registry. On Merge Main pushes it only after E2E passes on a push to main."
+            exit 1
+          fi
+
       - name: Tag container images
         env:
           SHA_TAG: ${{ steps.sha.outputs.short }}
@@ -75,12 +124,12 @@ jobs:
             --tag "${{ env.DOCKER_IMAGE }}:${{ steps.tag.outputs.major }}" \
             "${{ env.DOCKER_IMAGE }}:${SHA_TAG}"
 
+      # タグ push で起動したときはタグが既にあるので dispatch のときだけ打つ
       - name: Create and push git tag
+        if: github.event_name == 'workflow_dispatch'
         env:
           RELEASE_TAG: ${{ steps.tag.outputs.name }}
         run: |
-          # GITHUB_TOKEN によるタグ push は他のワークフローを起動しない仕様のため、
-          # docker-build.yml の tags トリガー（手動タグ push 用）と二重実行にはならない
           git tag "$RELEASE_TAG"
           git push origin "$RELEASE_TAG"
 
