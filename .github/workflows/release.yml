@@ -4,7 +4,9 @@ name: Release
 # 再ビルドはしない。起動の仕方が 2 つあり、どちらも同じ手順を通る:
 #   - workflow_dispatch: 最新の vX.Y.Z の patch を +1 した版を決め、git タグも打つ
 #   - vX.Y.Z タグの push: そのタグ名を版として使う (minor / major を上げたいときはこちら)
-# GITHUB_TOKEN によるタグ push は他の workflow を起動しないので、dispatch が打つタグでこの workflow が二重に走ることはない
+# GITHUB_TOKEN によるタグ push は他の workflow を起動しないので、dispatch が打つタグでこの workflow が二重に走ることはない。
+# push イベントはタグが指すコミット時点の workflow 定義で動く。この定義より前のコミットにタグを打つと
+# ここは起動せず、当時の定義 (素からビルドする docker-build.yml など) が動くので、古いコミットのリリースには使わない
 
 on:
   workflow_dispatch:
@@ -12,8 +14,10 @@ on:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
 
-# 2 本同時に走ると同じ次版を計算しうるので直列にする
-concurrency: release
+# dispatch は同時に走ると同じ次版を計算しうるので直列にする。タグ push は版がタグで決まっているので
+# タグごとに別グループにし、待機中の run が後続に cancel されないようにする
+concurrency:
+  group: release-${{ github.event_name == 'workflow_dispatch' && 'dispatch' || github.ref }}
 
 permissions:
   actions: read
@@ -65,17 +69,23 @@ jobs:
             fi
           fi
 
+      # :X.Y と :X の浮動タグは無条件に付け替えるので、版は既存の最大版より進んでいなければならない。
+      # タグ push では push 済みのタグ自身が ls-remote に含まれるため、「最大版 == 自分」で判定する
       - name: Determine release version
         id: tag
         run: |
+          LATEST=$(git ls-remote --tags origin 'v*' \
+            | awk -F'refs/tags/' '{print $2}' \
+            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
+            | sort -V | tail -n 1)
           if [ "$GITHUB_REF_TYPE" = "tag" ]; then
             NEXT="$GITHUB_REF_NAME"
+            if [ "$LATEST" != "$NEXT" ]; then
+              echo "::error::${NEXT} is older than the latest release ${LATEST}. Floating tags :X.Y and :X would move backwards, so releases must be monotonic."
+              exit 1
+            fi
             echo "Release version (from tag): ${NEXT}"
           else
-            LATEST=$(git ls-remote --tags origin 'v*' \
-              | awk -F'refs/tags/' '{print $2}' \
-              | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
-              | sort -V | tail -n 1)
             if [ -z "$LATEST" ]; then
               NEXT="v1.0.0"
             else
