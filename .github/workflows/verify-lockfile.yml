@@ -1,0 +1,44 @@
+# actions.lock が workflow と食い違っている、または記録された pin が upstream で検証できないときに失敗させる。
+# `uses:` を変えたら `gh actions-lock` を実行して lockfile を更新する。
+name: Verify lockfile
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      # gh-actions-lock はビルド済みバイナリで配布され、`gh extension install --pin` はタグしか受け付けない。
+      # タグは可変なので、リリース資産を sha256 で固定し、upstream の release workflow が
+      # そのタグからビルドしたことをアテステーションで確認してから使う。
+      # 版を上げるときは VERSION と、`gh api repos/github/gh-actions-lock/releases/tags/<VERSION>` の
+      # linux-amd64 の digest を一緒に更新する。
+      - name: Install gh-actions-lock (digest-pinned, attested)
+        env:
+          VERSION: v0.4.0
+          SHA256: f9da98f2a6e9e0ae77deadf9a2319a8a86bb002b541cc3203b247cc59fb04842
+        working-directory: ${{ runner.temp }}
+        run: |
+          gh release download "$VERSION" --repo github/gh-actions-lock --pattern linux-amd64 --output gh-actions-lock
+          echo "$SHA256  gh-actions-lock" | sha256sum --check --strict
+          gh attestation verify gh-actions-lock \
+            --repo github/gh-actions-lock \
+            --signer-workflow github/gh-actions-lock/.github/workflows/release.yml \
+            --source-ref "refs/tags/$VERSION" \
+            --deny-self-hosted-runners
+          chmod +x gh-actions-lock
+
+      - run: ${{ runner.temp }}/gh-actions-lock --verify

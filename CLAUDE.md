@@ -36,6 +36,9 @@ cd frontend && flutter build web --release
 - CI (`.github/workflows/pr-checks.yml`) は Go のテストを Redis サービス付きで、Flutter は `flutter analyze` +
   `dart analyze --fatal-infos` + `flutter test` を回す。`flutter analyze` は analysis_options.yaml の `plugins`
   (riverpod_lint) を読まないので、プラグインのルールは `dart analyze` (= `make fe/lint`) でしか検出されない。
+- Actions の依存は `.github/workflows/actions.lock` で固定している (GitHub の workflow lockfile)。workflow の `uses:` を足す・変えたら
+  `gh actions-lock` (gh 拡張 `github/gh-actions-lock`) を実行して lockfile を更新する。手で編集しない。
+  CI の `verify-lockfile.yml` が食い違いを検出する。コンテナイメージ (`services:` の redis) は lockfile の対象外。
 
 ## バックエンド (`backend/`)
 
