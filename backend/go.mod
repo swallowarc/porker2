@@ -5,7 +5,7 @@ go 1.27.3
 require (
 	connectrpc.com/authn v0.2.0
 	connectrpc.com/connect/v2 v2.0.2
-	github.com/cenkalti/backoff/v7 v7.0.1
+	github.com/cenkalti/backoff/v7 v7.0.2
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/redis/go-redis/v9 v9.23.0
 	github.com/rs/cors v1.11.1
