@@ -33,7 +33,7 @@ jobs:
       IMAGE_TAR: /tmp/porker2.tar
     services:
       redis:
-        image: redis:7-alpine
+        image: redis:7-alpine@sha256:7f7d30b7fdd09467bac58198a1f166dd69789d348d4fe859cccb20e0cf287fbe
         ports:
           - 6379:6379
         options: >-
